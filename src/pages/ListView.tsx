@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search, X, Sparkles, ImagePlus, ChevronRight } from 'lucide-react';
+import { Search, X, Sparkles, ImagePlus, ChevronRight, Bell } from 'lucide-react';
 import { FoodCard } from '../components/FoodCard';
 import { TonightModal } from '../components/TonightModal';
 import type { FoodItem, Inspiration } from '../types';
@@ -8,8 +8,10 @@ interface Props {
   items: FoodItem[];
   inspirations: Inspiration[];
   imageByFoodId: Record<string, string>;
+  unreadAnnouncements: number;
   onOpen: (item: FoodItem) => void;
   onOpenInbox: () => void;
+  onOpenAnnouncements: () => void;
 }
 
 type FilterTab = 'want' | 'tried' | 'all';
@@ -20,7 +22,11 @@ const TABS: { value: FilterTab; label: string }[] = [
   { value: 'all', label: '全部' },
 ];
 
-export function ListView({ items, inspirations, imageByFoodId, onOpen, onOpenInbox }: Props) {
+export function ListView({
+  items, inspirations, imageByFoodId,
+  unreadAnnouncements,
+  onOpen, onOpenInbox, onOpenAnnouncements,
+}: Props) {
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<FilterTab>('want');
   const [showTonight, setShowTonight] = useState(false);
@@ -60,8 +66,22 @@ export function ListView({ items, inspirations, imageByFoodId, onOpen, onOpenInb
         className="px-6 pb-6"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 28px)' }}
       >
-        <div className="text-[12px] tracking-[0.5em] text-[#c9a961]/70 mb-3">PERSONAL ARCHIVE</div>
-        <h1 className="text-[34px] font-medium text-gold-gradient tracking-[0.15em]">待 吃 清 單</h1>
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <div className="text-[12px] tracking-[0.5em] text-[#c9a961]/70 mb-3">PERSONAL ARCHIVE</div>
+            <h1 className="text-[34px] font-medium text-gold-gradient tracking-[0.15em]">待 吃 清 單</h1>
+          </div>
+          <button
+            onClick={onOpenAnnouncements}
+            className="relative p-2 -mr-2 mt-1"
+            aria-label="公告"
+          >
+            <Bell size={20} className="text-[#c9a961]/80" />
+            {unreadAnnouncements > 0 && (
+              <span className="absolute top-1 right-1 w-2 h-2 bg-[#c9a961] rounded-full" />
+            )}
+          </button>
+        </div>
         <div className="mt-4 h-[1px] bg-gradient-to-r from-[#c9a961]/40 via-[#c9a961]/10 to-transparent" />
       </div>
 

@@ -90,14 +90,8 @@ export function NearbyPage({ items, imageByFoodId, onOpen }: Props) {
         className="px-6 pb-6"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 28px)' }}
       >
-        <div className="text-[12px] tracking-[0.5em] text-[#c9a961]/70 mb-3">NEARBY · MY FOOD MAP</div>
-        <h1 className="text-[30px] font-medium text-gold-gradient tracking-[0.12em] leading-tight">
-          附 近 · 我 的 美 食 地 圖
-        </h1>
-        <p className="text-[13px] text-[#777] tracking-wider mt-3 leading-relaxed">
-          不是附近有哪些店，是這附近<br />
-          和我有關的食物有哪些
-        </p>
+        <div className="text-[12px] tracking-[0.5em] text-[#c9a961]/70 mb-3">NEARBY</div>
+        <h1 className="text-[34px] font-medium text-gold-gradient tracking-[0.15em]">附 近</h1>
         <div className="mt-4 h-[1px] bg-gradient-to-r from-[#c9a961]/40 via-[#c9a961]/10 to-transparent" />
       </div>
 

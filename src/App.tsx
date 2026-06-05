@@ -2,6 +2,8 @@ import { useState, useMemo } from 'react';
 import { List, Navigation, Plus } from 'lucide-react';
 import { useStore } from './store/useStore';
 import { useInspirations } from './store/useInspirations';
+import { useAnnouncements } from './store/useAnnouncements';
+import { AnnouncementsModal } from './components/AnnouncementsModal';
 import { ListView } from './pages/ListView';
 import { NearbyPage } from './pages/NearbyPage';
 import { InboxPage } from './pages/InboxPage';
@@ -12,12 +14,14 @@ import type { FoodItem, Inspiration, Tab } from './types';
 export default function App() {
   const { items, loading, addItem, updateItem, deleteItem } = useStore();
   const inspirations = useInspirations();
+  const announcements = useAnnouncements();
 
   const [tab, setTab] = useState<Tab>('list');
   const [detail, setDetail] = useState<FoodItem | null>(null);
   const [editing, setEditing] = useState<FoodItem | undefined>(undefined);
   const [showAdd, setShowAdd] = useState(false);
   const [showInbox, setShowInbox] = useState(false);
+  const [showAnnouncements, setShowAnnouncements] = useState(false);
   const [fromInspiration, setFromInspiration] = useState<Inspiration | null>(null);
 
   // food id → 圖片 URL 的對照表（從靈感裡查）
@@ -103,8 +107,10 @@ export default function App() {
             items={items}
             inspirations={inspirations.items}
             imageByFoodId={imageByFoodId}
+            unreadAnnouncements={announcements.unreadCount}
             onOpen={handleOpen}
             onOpenInbox={() => setShowInbox(true)}
+            onOpenAnnouncements={() => setShowAnnouncements(true)}
           />
         )}
         {tab === 'nearby' && (
@@ -127,7 +133,17 @@ export default function App() {
         <NavBtn icon={<Navigation size={22} />} label="附近" active={tab === 'nearby'} onClick={() => setTab('nearby')} />
       </nav>
 
-      {/* 靈感匣（從清單頁的指示卡進入） */}
+      {/* 公告 */}
+      {showAnnouncements && (
+        <AnnouncementsModal
+          items={announcements.items}
+          readIds={announcements.readIds}
+          onMarkAllRead={announcements.markAllRead}
+          onClose={() => setShowAnnouncements(false)}
+        />
+      )}
+
+      {/* 靈感匣 */}
       {showInbox && (
         <InboxPage
           items={inspirations.items}
