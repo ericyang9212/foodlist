@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useMemo } from 'react';
 import { List, Navigation, Plus } from 'lucide-react';
 import { useStore } from './store/useStore';
 import { useInspirations } from './store/useInspirations';
@@ -7,7 +7,6 @@ import { NearbyPage } from './pages/NearbyPage';
 import { InboxPage } from './pages/InboxPage';
 import { AddEditPage } from './pages/AddEditPage';
 import { DetailPage } from './pages/DetailPage';
-import { AddSheet } from './components/AddSheet';
 import type { FoodItem, Inspiration, Tab } from './types';
 
 export default function App() {
@@ -18,10 +17,19 @@ export default function App() {
   const [detail, setDetail] = useState<FoodItem | null>(null);
   const [editing, setEditing] = useState<FoodItem | undefined>(undefined);
   const [showAdd, setShowAdd] = useState(false);
-  const [showAddSheet, setShowAddSheet] = useState(false);
   const [showInbox, setShowInbox] = useState(false);
   const [fromInspiration, setFromInspiration] = useState<Inspiration | null>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
+
+  // food id → 圖片 URL 的對照表（從靈感裡查）
+  const imageByFoodId = useMemo(() => {
+    const map: Record<string, string> = {};
+    inspirations.items.forEach(insp => {
+      if (insp.convertedFoodId && insp.imageUrl) {
+        map[insp.convertedFoodId] = insp.imageUrl;
+      }
+    });
+    return map;
+  }, [inspirations.items]);
 
   const handleOpen = (item: FoodItem) => setDetail(item);
 
@@ -31,18 +39,28 @@ export default function App() {
     setShowAdd(true);
   };
 
-  const handleSave = async (item: FoodItem) => {
+  // 新增 / 編輯食物儲存，可帶圖
+  const handleSave = async (item: FoodItem, attachedImageUrl?: string) => {
     if (editing) {
       updateItem(item);
     } else {
-      if (fromInspiration) {
-        addItem(item);
-        await inspirations.updateInspiration({
-          ...fromInspiration,
-          convertedFoodId: item.id,
-        });
-      } else {
-        addItem(item);
+      addItem(item);
+
+      // 處理附上的圖片
+      if (attachedImageUrl) {
+        if (fromInspiration && fromInspiration.imageUrl === attachedImageUrl) {
+          // 來自既有靈感 → 把 inspiration 標為已轉換
+          await inspirations.updateInspiration({
+            ...fromInspiration,
+            convertedFoodId: item.id,
+          });
+        } else {
+          // 現場上傳的圖 → 建一筆 inspiration 並標為已轉換
+          await inspirations.addInspiration({
+            imageUrl: attachedImageUrl,
+            convertedFoodId: item.id,
+          });
+        }
       }
     }
     setEditing(undefined);
@@ -62,26 +80,10 @@ export default function App() {
     setShowInbox(false);
   };
 
-  // AddSheet 的兩個選項
-  const handlePickText = () => {
+  const handleAddNew = () => {
     setEditing(undefined);
     setFromInspiration(null);
     setShowAdd(true);
-  };
-
-  const handlePickImage = () => {
-    fileRef.current?.click();
-  };
-
-  const handleFileSelected = async (file: File) => {
-    setShowInbox(true);
-    try {
-      const url = await inspirations.uploadImage(file);
-      await inspirations.addInspiration({ imageUrl: url });
-    } catch (e) {
-      alert('上傳失敗，請再試一次');
-      console.error(e);
-    }
   };
 
   if (loading) return (
@@ -100,11 +102,14 @@ export default function App() {
           <ListView
             items={items}
             inspirations={inspirations.items}
+            imageByFoodId={imageByFoodId}
             onOpen={handleOpen}
             onOpenInbox={() => setShowInbox(true)}
           />
         )}
-        {tab === 'nearby' && <NearbyPage items={items} onOpen={handleOpen} />}
+        {tab === 'nearby' && (
+          <NearbyPage items={items} imageByFoodId={imageByFoodId} onOpen={handleOpen} />
+        )}
       </div>
 
       <nav
@@ -113,10 +118,7 @@ export default function App() {
       >
         <NavBtn icon={<List size={22} />} label="清單" active={tab === 'list'} onClick={() => setTab('list')} />
 
-        <button
-          onClick={() => setShowAddSheet(true)}
-          className="flex flex-col items-center px-4"
-        >
+        <button onClick={handleAddNew} className="flex flex-col items-center px-4">
           <div className="w-16 h-16 bg-[#c9a961] rounded-full flex items-center justify-center shadow-[0_0_24px_rgba(201,169,97,0.4)] active:scale-95 transition-transform -mt-9 ring-1 ring-[#e6c87a]/30">
             <Plus size={30} className="text-[#0a0a0a]" strokeWidth={2.5} />
           </div>
@@ -125,29 +127,7 @@ export default function App() {
         <NavBtn icon={<Navigation size={22} />} label="附近" active={tab === 'nearby'} onClick={() => setTab('nearby')} />
       </nav>
 
-      {/* hidden file input for image upload */}
-      <input
-        ref={fileRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={e => {
-          const f = e.target.files?.[0];
-          if (f) handleFileSelected(f);
-          e.target.value = '';
-        }}
-      />
-
-      {/* + 選單 */}
-      {showAddSheet && (
-        <AddSheet
-          onPickText={handlePickText}
-          onPickImage={handlePickImage}
-          onClose={() => setShowAddSheet(false)}
-        />
-      )}
-
-      {/* 靈感匣 modal */}
+      {/* 靈感匣（從清單頁的指示卡進入） */}
       {showInbox && (
         <InboxPage
           items={inspirations.items}
@@ -165,6 +145,7 @@ export default function App() {
       {detail && (
         <DetailPage
           item={detail}
+          thumbnailUrl={imageByFoodId[detail.id]}
           onClose={() => setDetail(null)}
           onEdit={handleEdit}
           onDelete={id => { deleteItem(id); setDetail(null); }}
@@ -176,6 +157,10 @@ export default function App() {
         <AddEditPage
           item={editing}
           inspiration={fromInspiration ?? undefined}
+          onUploadImage={async (file) => {
+            const url = await inspirations.uploadImage(file);
+            return url;
+          }}
           onSave={handleSave}
           onClose={() => { setEditing(undefined); setShowAdd(false); setFromInspiration(null); }}
         />

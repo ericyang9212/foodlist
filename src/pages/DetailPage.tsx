@@ -6,6 +6,7 @@ import type { FoodItem, Restaurant } from '../types';
 
 interface Props {
   item: FoodItem;
+  thumbnailUrl?: string;
   onClose: () => void;
   onEdit: (item: FoodItem) => void;
   onDelete: (id: string) => void;
@@ -16,7 +17,7 @@ function makeId() {
   return Math.random().toString(36).slice(2, 10);
 }
 
-export function DetailPage({ item, onClose, onEdit, onDelete, onUpdate }: Props) {
+export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUpdate }: Props) {
   const [adding, setAdding] = useState(false);
   const [restName, setRestName] = useState('');
   const [restArea, setRestArea] = useState('');
@@ -76,9 +77,16 @@ export function DetailPage({ item, onClose, onEdit, onDelete, onUpdate }: Props)
         {/* Hero */}
         <div className="mb-7">
           <div className="text-[13px] tracking-[0.5em] text-[#c9a961]/70 mb-4">想吃的食物</div>
-          <h1 className="text-[38px] text-gold-gradient tracking-[0.05em] font-medium leading-tight mb-4">
-            {item.name}
-          </h1>
+          <div className="flex items-start gap-4 mb-4">
+            <h1 className="flex-1 text-[36px] text-gold-gradient tracking-[0.05em] font-medium leading-tight">
+              {item.name}
+            </h1>
+            {thumbnailUrl && (
+              <div className="flex-shrink-0 w-24 h-24 border border-[#c9a961]/40 overflow-hidden">
+                <img src={thumbnailUrl} alt="" className="w-full h-full object-cover" />
+              </div>
+            )}
+          </div>
           <div className="flex items-center gap-3">
             <StatusBadge status={item.status} />
             {item.cuisineType && (

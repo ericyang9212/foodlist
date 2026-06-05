@@ -1,12 +1,15 @@
-import { useState } from 'react';
-import { X, ChevronDown } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { X, ChevronDown, ImagePlus, Loader2 } from 'lucide-react';
 import { STATUS_LABELS, CUISINE_TYPES, OCCASION_LABELS } from '../types';
 import type { FoodItem, Inspiration, Status, Occasion } from '../types';
 
 interface Props {
   item?: FoodItem;
-  inspiration?: Inspiration;       // 從靈感轉過來時帶這個
-  onSave: (item: FoodItem) => void;
+  // 從靈感轉過來時帶這個（圖已上傳，直接附上）
+  inspiration?: Inspiration;
+  // 新增時想直接上傳一張圖
+  onUploadImage?: (file: File) => Promise<string>;
+  onSave: (item: FoodItem, attachedImageUrl?: string) => void;
   onClose: () => void;
 }
 
@@ -17,26 +20,60 @@ function makeId() {
 const STATUSES: Status[] = ['want', 'tried', 'skip'];
 const OCCASIONS = Object.keys(OCCASION_LABELS) as Occasion[];
 
-export function AddEditPage({ item, inspiration, onSave, onClose }: Props) {
+export function AddEditPage({ item, inspiration, onUploadImage, onSave, onClose }: Props) {
   const isEdit = !!item;
 
   const [name, setName] = useState(item?.name ?? '');
   const [status, setStatus] = useState<Status>(item?.status ?? 'want');
 
-  // 進階選項（預設收起）
   const [expanded, setExpanded] = useState(isEdit);
   const [cuisineType, setCuisineType] = useState(item?.cuisineType ?? '');
   const [occasions, setOccasions] = useState<Occasion[]>(item?.occasions ?? []);
   const [notes, setNotes] = useState(item?.notes ?? inspiration?.note ?? '');
   const [rating, setRating] = useState<number | undefined>(item?.rating);
 
+  // 圖片附件：可能來自 inspiration（已上傳）或現場上傳
+  const [imageUrl, setImageUrl] = useState<string | undefined>(inspiration?.imageUrl);
+  const [localPreview, setLocalPreview] = useState<string | null>(null);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handlePickImage = (file: File) => {
+    setPendingFile(file);
+    const reader = new FileReader();
+    reader.onload = () => setLocalPreview(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const removeImage = () => {
+    setImageUrl(undefined);
+    setLocalPreview(null);
+    setPendingFile(null);
+  };
+
   const toggleOccasion = (o: Occasion) => {
     setOccasions(prev => prev.includes(o) ? prev.filter(x => x !== o) : [...prev, o]);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!name.trim()) return;
     const now = new Date().toISOString();
+
+    // 如果有 pending file，先上傳取得 URL
+    let finalImage = imageUrl;
+    if (pendingFile && onUploadImage) {
+      setUploading(true);
+      try {
+        finalImage = await onUploadImage(pendingFile);
+      } catch (e) {
+        alert('圖片上傳失敗');
+        setUploading(false);
+        return;
+      }
+      setUploading(false);
+    }
+
     onSave({
       id: item?.id ?? makeId(),
       name: name.trim(),
@@ -44,68 +81,95 @@ export function AddEditPage({ item, inspiration, onSave, onClose }: Props) {
       status,
       cuisineType: cuisineType || undefined,
       occasions,
-      restaurants: item?.restaurants ?? [],   // 店家從 detail 頁管理
+      restaurants: item?.restaurants ?? [],
       mustOrder: item?.mustOrder ?? [],
       notes: notes.trim() || undefined,
       waitTime: undefined,
       rating: rating as FoodItem['rating'],
       createdAt: item?.createdAt ?? now,
       updatedAt: now,
-    });
+    }, finalImage);
     onClose();
   };
 
+  const previewSrc = localPreview ?? imageUrl;
+
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-[#0a0a0a]" style={{ maxWidth: 430, margin: '0 auto' }}>
+      {/* Header */}
       <div className="flex items-center justify-between px-6 py-5 border-b border-[#1f1f1f]">
         <button onClick={onClose} className="p-1">
           <X size={22} className="text-[#8a8478]" />
         </button>
         <div className="text-[12px] tracking-[0.4em] text-[#c9a961]/80">
-          {isEdit ? 'EDIT' : 'NEW'}
+          {isEdit ? 'EDIT' : 'WANT TO EAT'}
         </div>
         <button
           onClick={handleSave}
-          disabled={!name.trim()}
-          className="text-[14px] tracking-[0.3em] text-[#c9a961] disabled:text-[#3a3a3a] transition-colors"
+          disabled={!name.trim() || uploading}
+          className="text-[14px] tracking-[0.3em] text-[#c9a961] disabled:text-[#3a3a3a] transition-colors flex items-center gap-1"
         >
+          {uploading && <Loader2 size={13} className="animate-spin" />}
           儲存
         </button>
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        <div className="px-6 py-10 space-y-8">
+        <div className="px-6 py-8 space-y-7">
 
-          {/* 從靈感轉過來的話顯示縮圖 */}
-          {inspiration?.imageUrl && (
-            <div className="flex items-start gap-3 bg-[#0f0d0a] border border-[#c9a961]/30 p-3">
-              <img src={inspiration.imageUrl} alt="" className="w-20 h-20 object-cover flex-shrink-0" />
-              <div className="flex-1 min-w-0 py-1">
-                <div className="text-[11px] tracking-[0.3em] text-[#c9a961]/70 mb-1">FROM INSPIRATION</div>
-                <p className="text-[13px] text-[#8a8478] line-clamp-3 leading-snug">
-                  {inspiration.note || '從靈感轉成想吃食物'}
-                </p>
+          {/* 食物名稱（主角）+ 縮圖（右上角） */}
+          <div className="flex items-start gap-4">
+            <div className="flex-1 min-w-0">
+              <div className="text-[13px] tracking-[0.4em] text-[#c9a961]/60 mb-4">
+                {isEdit ? '食物' : '想吃什麼？'}
               </div>
+              <input
+                type="text"
+                autoFocus={!isEdit}
+                placeholder="例如：炙燒鮭魚丼"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleSave()}
+                className="w-full bg-transparent border-b border-[#2a2a2a] focus:border-[#c9a961]/60 pb-3 text-[26px] text-[#f5f1e8] placeholder-[#3a3a3a] tracking-wide focus:outline-none transition-colors"
+              />
             </div>
-          )}
 
-          {/* 唯一必填：食物名稱 */}
-          <div>
-            <div className="text-[13px] tracking-[0.4em] text-[#c9a961]/60 mb-4">
-              {isEdit ? '食物' : '想吃什麼？'}
-            </div>
+            {/* 縮圖區塊 */}
+            {previewSrc ? (
+              <div className="relative flex-shrink-0">
+                <div className="w-20 h-20 bg-[#0a0a0a] border border-[#c9a961]/40 overflow-hidden">
+                  <img src={previewSrc} alt="" className="w-full h-full object-cover" />
+                </div>
+                <button
+                  onClick={removeImage}
+                  className="absolute -top-1.5 -right-1.5 bg-[#0a0a0a] border border-[#c9a961]/60 w-5 h-5 rounded-full flex items-center justify-center"
+                >
+                  <X size={11} className="text-[#c9a961]" />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => fileRef.current?.click()}
+                className="flex-shrink-0 w-20 h-20 border border-dashed border-[#c9a961]/40 hover:border-[#c9a961] flex flex-col items-center justify-center gap-1 transition-colors"
+              >
+                <ImagePlus size={18} className="text-[#c9a961]" />
+                <span className="text-[10px] tracking-wider text-[#c9a961]/70">截圖</span>
+              </button>
+            )}
             <input
-              type="text"
-              autoFocus={!isEdit}
-              placeholder="例如：炙燒鮭魚丼"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleSave()}
-              className="w-full bg-transparent border-b border-[#2a2a2a] focus:border-[#c9a961]/60 pb-3 text-[30px] text-[#f5f1e8] placeholder-[#3a3a3a] tracking-wide focus:outline-none transition-colors"
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={e => {
+                const f = e.target.files?.[0];
+                if (f) handlePickImage(f);
+                e.target.value = '';
+              }}
             />
           </div>
 
-          {/* 進階選項收摺起來 */}
+          {/* 進階收起 */}
           <button
             onClick={() => setExpanded(!expanded)}
             className="flex items-center gap-2 text-[13px] tracking-[0.3em] text-[#777]"
@@ -169,7 +233,7 @@ export function AddEditPage({ item, inspiration, onSave, onClose }: Props) {
                 </div>
               </div>
 
-              {/* 評分（嘗過才有意義） */}
+              {/* 評分 */}
               {status === 'tried' && (
                 <div>
                   <label className="block text-[13px] tracking-[0.4em] text-[#c9a961]/60 mb-4">評分</label>

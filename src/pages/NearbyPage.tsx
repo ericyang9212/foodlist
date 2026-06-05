@@ -5,6 +5,7 @@ import type { FoodItem } from '../types';
 
 interface Props {
   items: FoodItem[];
+  imageByFoodId: Record<string, string>;
   onOpen: (item: FoodItem) => void;
 }
 
@@ -20,7 +21,7 @@ function getDistance(lat1: number, lng1: number, lat2: number, lng2: number): nu
 
 const RADIUS_OPTIONS = [500, 1000, 2000, 5000];
 
-export function NearbyPage({ items, onOpen }: Props) {
+export function NearbyPage({ items, imageByFoodId, onOpen }: Props) {
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -123,7 +124,7 @@ export function NearbyPage({ items, onOpen }: Props) {
                     {dist < 1000 ? `${Math.round(dist)}M` : `${(dist / 1000).toFixed(1)}KM`}
                   </span>
                 </div>
-                <FoodCard item={item} onOpen={onOpen} />
+                <FoodCard item={item} thumbnailUrl={imageByFoodId[item.id]} onOpen={onOpen} />
               </div>
             ))}
           </div>

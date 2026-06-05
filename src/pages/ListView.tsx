@@ -7,6 +7,7 @@ import type { FoodItem, Inspiration } from '../types';
 interface Props {
   items: FoodItem[];
   inspirations: Inspiration[];
+  imageByFoodId: Record<string, string>;
   onOpen: (item: FoodItem) => void;
   onOpenInbox: () => void;
 }
@@ -19,7 +20,7 @@ const TABS: { value: FilterTab; label: string }[] = [
   { value: 'all', label: '全部' },
 ];
 
-export function ListView({ items, inspirations, onOpen, onOpenInbox }: Props) {
+export function ListView({ items, inspirations, imageByFoodId, onOpen, onOpenInbox }: Props) {
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<FilterTab>('want');
   const [showTonight, setShowTonight] = useState(false);
@@ -165,7 +166,12 @@ export function ListView({ items, inspirations, onOpen, onOpenInbox }: Props) {
         ) : (
           <div className="flex flex-col gap-3">
             {filtered.map(item => (
-              <FoodCard key={item.id} item={item} onOpen={onOpen} />
+              <FoodCard
+                key={item.id}
+                item={item}
+                thumbnailUrl={imageByFoodId[item.id]}
+                onOpen={onOpen}
+              />
             ))}
           </div>
         )}
