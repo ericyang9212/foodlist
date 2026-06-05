@@ -1,9 +1,7 @@
 import { useState } from 'react';
-import { X, Plus, Trash2 } from 'lucide-react';
-import {
-  CUISINE_TYPES, OCCASION_LABELS, STATUS_LABELS, AREAS,
-} from '../types';
-import type { FoodItem, Status, PriceRange, Occasion, Restaurant } from '../types';
+import { X, ChevronDown } from 'lucide-react';
+import { STATUS_LABELS, CUISINE_TYPES, OCCASION_LABELS } from '../types';
+import type { FoodItem, Status, Occasion } from '../types';
 
 interface Props {
   item?: FoodItem;
@@ -15,365 +13,185 @@ function makeId() {
   return Math.random().toString(36).slice(2, 10);
 }
 
-const STATUSES: Status[] = ['want', 'visited', 'revisit', 'avoid', 'unsure'];
-const PRICE_RANGES: PriceRange[] = ['$', '$$', '$$$', '$$$$'];
+const STATUSES: Status[] = ['want', 'tried', 'skip'];
 const OCCASIONS = Object.keys(OCCASION_LABELS) as Occasion[];
 
 export function AddEditPage({ item, onSave, onClose }: Props) {
   const isEdit = !!item;
 
   const [name, setName] = useState(item?.name ?? '');
-  const [description, setDescription] = useState(item?.description ?? '');
   const [status, setStatus] = useState<Status>(item?.status ?? 'want');
+
+  // 進階選項（預設收起）
+  const [expanded, setExpanded] = useState(isEdit);
   const [cuisineType, setCuisineType] = useState(item?.cuisineType ?? '');
-  const [priceRange, setPriceRange] = useState<PriceRange | ''>(item?.priceRange ?? '');
   const [occasions, setOccasions] = useState<Occasion[]>(item?.occasions ?? []);
   const [notes, setNotes] = useState(item?.notes ?? '');
-  const [waitTime, setWaitTime] = useState(item?.waitTime ?? '');
-  const [mustOrderInput, setMustOrderInput] = useState('');
-  const [mustOrder, setMustOrder] = useState<string[]>(item?.mustOrder ?? []);
-  const [restaurants, setRestaurants] = useState<Restaurant[]>(item?.restaurants ?? []);
   const [rating, setRating] = useState<number | undefined>(item?.rating);
-
-  // New restaurant form
-  const [showRestForm, setShowRestForm] = useState(false);
-  const [restName, setRestName] = useState('');
-  const [restArea, setRestArea] = useState('');
-  const [restAddress, setRestAddress] = useState('');
-  const [restUrl, setRestUrl] = useState('');
 
   const toggleOccasion = (o: Occasion) => {
     setOccasions(prev => prev.includes(o) ? prev.filter(x => x !== o) : [...prev, o]);
   };
 
-  const addMustOrder = () => {
-    const v = mustOrderInput.trim();
-    if (v && !mustOrder.includes(v)) {
-      setMustOrder(prev => [...prev, v]);
-      setMustOrderInput('');
-    }
-  };
-
-  const addRestaurant = () => {
-    if (!restName.trim()) return;
-    const newRest: Restaurant = {
-      id: makeId(),
-      name: restName.trim(),
-      area: restArea || undefined,
-      address: restAddress || undefined,
-      googleMapsUrl: restUrl || undefined,
-    };
-    setRestaurants(prev => [...prev, newRest]);
-    setRestName(''); setRestArea(''); setRestAddress(''); setRestUrl('');
-    setShowRestForm(false);
-  };
-
   const handleSave = () => {
     if (!name.trim()) return;
     const now = new Date().toISOString();
-    const saved: FoodItem = {
+    onSave({
       id: item?.id ?? makeId(),
       name: name.trim(),
-      description: description.trim() || undefined,
+      description: undefined,
       status,
       cuisineType: cuisineType || undefined,
-      priceRange: (priceRange as PriceRange) || undefined,
       occasions,
-      restaurants,
-      mustOrder,
+      restaurants: item?.restaurants ?? [],   // 店家從 detail 頁管理
+      mustOrder: item?.mustOrder ?? [],
       notes: notes.trim() || undefined,
-      waitTime: waitTime.trim() || undefined,
+      waitTime: undefined,
       rating: rating as FoodItem['rating'],
       createdAt: item?.createdAt ?? now,
       updatedAt: now,
-    };
-    onSave(saved);
+    });
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-white" style={{ maxWidth: 430, margin: '0 auto' }}>
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-4 border-b border-gray-100">
+    <div className="fixed inset-0 z-50 flex flex-col bg-[#0a0a0a]" style={{ maxWidth: 430, margin: '0 auto' }}>
+      <div className="flex items-center justify-between px-6 py-5 border-b border-[#1f1f1f]">
         <button onClick={onClose} className="p-1">
-          <X size={20} className="text-gray-600" />
+          <X size={20} className="text-[#8a8478]" />
         </button>
-        <h2 className="font-semibold text-gray-900">{isEdit ? '編輯品項' : '新增品項'}</h2>
+        <div className="text-[10px] tracking-[0.4em] text-[#c9a961]/80">
+          {isEdit ? 'EDIT' : 'NEW'}
+        </div>
         <button
           onClick={handleSave}
           disabled={!name.trim()}
-          className="text-orange-500 font-semibold text-sm disabled:opacity-40"
+          className="text-[12px] tracking-[0.3em] text-[#c9a961] disabled:text-[#3a3a3a] transition-colors"
         >
           儲存
         </button>
       </div>
 
-      {/* Form */}
       <div className="flex-1 overflow-y-auto">
-        <div className="px-4 py-5 space-y-6">
+        <div className="px-6 py-10 space-y-8">
 
-          {/* Name */}
+          {/* 唯一必填：食物名稱 */}
           <div>
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
-              品項名稱 <span className="text-red-400">*</span>
-            </label>
+            <div className="text-[10px] tracking-[0.4em] text-[#c9a961]/60 mb-3">
+              {isEdit ? '食物' : '想吃什麼？'}
+            </div>
             <input
               type="text"
-              placeholder="例如：炙燒鮭魚握壽司"
+              autoFocus={!isEdit}
+              placeholder="例如：炙燒鮭魚丼"
               value={name}
               onChange={e => setName(e.target.value)}
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-300"
+              onKeyDown={e => e.key === 'Enter' && handleSave()}
+              className="w-full bg-transparent border-b border-[#2a2a2a] focus:border-[#c9a961]/60 pb-3 text-[26px] text-[#f5f1e8] placeholder-[#3a3a3a] tracking-wide focus:outline-none transition-colors"
             />
           </div>
 
-          {/* Description */}
-          <div>
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
-              簡短描述
-            </label>
-            <input
-              type="text"
-              placeholder="一句話形容這道菜..."
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-300"
-            />
-          </div>
+          {/* 進階選項收摺起來 */}
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className="flex items-center gap-2 text-[11px] tracking-[0.3em] text-[#666]"
+          >
+            <ChevronDown size={13} className={`transition-transform ${expanded ? 'rotate-180' : ''}`} />
+            {expanded ? '收起' : '加上更多細節（選填）'}
+          </button>
 
-          {/* Status */}
-          <div>
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
-              狀態
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {STATUSES.map(s => (
-                <button
-                  key={s}
-                  onClick={() => setStatus(s)}
-                  className={`text-sm px-3 py-1.5 rounded-full border transition-colors ${
-                    status === s ? 'bg-gray-900 text-white border-transparent' : 'border-gray-200 text-gray-600'
-                  }`}
-                >
-                  {STATUS_LABELS[s]}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Cuisine + Price */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
-                料理類型
-              </label>
-              <select
-                value={cuisineType}
-                onChange={e => setCuisineType(e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white"
-              >
-                <option value="">選擇...</option>
-                {CUISINE_TYPES.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
-                價位
-              </label>
-              <div className="flex gap-1">
-                {PRICE_RANGES.map(p => (
-                  <button
-                    key={p}
-                    onClick={() => setPriceRange(priceRange === p ? '' : p)}
-                    className={`flex-1 py-2 text-xs rounded-lg border transition-colors ${
-                      priceRange === p ? 'bg-gray-900 text-white border-transparent' : 'border-gray-200 text-gray-600'
-                    }`}
-                  >
-                    {p}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Occasions */}
-          <div>
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
-              適合情境
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {OCCASIONS.map(o => (
-                <button
-                  key={o}
-                  onClick={() => toggleOccasion(o)}
-                  className={`text-sm px-3 py-1.5 rounded-full border transition-colors ${
-                    occasions.includes(o) ? 'bg-indigo-500 text-white border-transparent' : 'border-gray-200 text-gray-600'
-                  }`}
-                >
-                  {OCCASION_LABELS[o]}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Must order */}
-          <div>
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
-              必點品項
-            </label>
-            <div className="flex gap-2 mb-2">
-              <input
-                type="text"
-                placeholder="輸入品項名稱"
-                value={mustOrderInput}
-                onChange={e => setMustOrderInput(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && addMustOrder()}
-                className="flex-1 px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-300"
-              />
-              <button
-                onClick={addMustOrder}
-                className="px-3 py-2 bg-gray-100 rounded-xl text-gray-600 text-sm font-medium"
-              >
-                新增
-              </button>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {mustOrder.map(m => (
-                <span key={m} className="flex items-center gap-1 text-sm bg-orange-50 text-orange-700 px-2.5 py-1 rounded-full">
-                  {m}
-                  <button onClick={() => setMustOrder(prev => prev.filter(x => x !== m))}>
-                    <X size={12} />
-                  </button>
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* Restaurants */}
-          <div>
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
-              對應店家
-            </label>
-            <div className="space-y-2 mb-2">
-              {restaurants.map(r => (
-                <div key={r.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                  <div>
-                    <p className="text-sm font-medium text-gray-800">{r.name}</p>
-                    {r.area && <p className="text-xs text-gray-500">{r.area}{r.address && ` · ${r.address}`}</p>}
-                  </div>
-                  <button
-                    onClick={() => setRestaurants(prev => prev.filter(x => x.id !== r.id))}
-                    className="text-gray-400 p-1"
-                  >
-                    <Trash2 size={14} />
-                  </button>
+          {expanded && (
+            <div className="space-y-7 pt-2 border-t border-[#1f1f1f]">
+              {/* 狀態 */}
+              <div className="pt-5">
+                <label className="block text-[10px] tracking-[0.4em] text-[#c9a961]/60 mb-3">心情</label>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {STATUSES.map(s => (
+                    <button
+                      key={s}
+                      onClick={() => setStatus(s)}
+                      className={`text-[12px] tracking-wider py-2.5 border transition-all ${
+                        status === s
+                          ? 'bg-[#c9a961] text-[#0a0a0a] border-[#c9a961] font-medium'
+                          : 'border-[#2a2a2a] text-[#666]'
+                      }`}
+                    >
+                      {STATUS_LABELS[s]}
+                    </button>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
 
-            {showRestForm ? (
-              <div className="border border-gray-200 rounded-xl p-3 space-y-2">
-                <input
-                  type="text"
-                  placeholder="店名 *"
-                  value={restName}
-                  onChange={e => setRestName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-300"
-                />
+              {/* 類型 */}
+              <div>
+                <label className="block text-[10px] tracking-[0.4em] text-[#c9a961]/60 mb-2">料理類型</label>
                 <select
-                  value={restArea}
-                  onChange={e => setRestArea(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white"
+                  value={cuisineType}
+                  onChange={e => setCuisineType(e.target.value)}
+                  className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 px-3 py-2.5 text-[13px] text-[#f5f1e8] focus:outline-none"
                 >
-                  <option value="">區域（選填）</option>
-                  {AREAS.map(a => <option key={a} value={a}>{a}</option>)}
+                  <option value="">—</option>
+                  {CUISINE_TYPES.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
-                <input
-                  type="text"
-                  placeholder="地址（選填）"
-                  value={restAddress}
-                  onChange={e => setRestAddress(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-300"
-                />
-                <input
-                  type="url"
-                  placeholder="Google Maps 連結（選填）"
-                  value={restUrl}
-                  onChange={e => setRestUrl(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-300"
-                />
-                <div className="flex gap-2">
-                  <button
-                    onClick={addRestaurant}
-                    className="flex-1 py-2 bg-gray-900 text-white text-sm rounded-lg font-medium"
-                  >
-                    確認新增
-                  </button>
-                  <button
-                    onClick={() => setShowRestForm(false)}
-                    className="px-4 py-2 border border-gray-200 text-gray-600 text-sm rounded-lg"
-                  >
-                    取消
-                  </button>
+              </div>
+
+              {/* 情境 */}
+              <div>
+                <label className="block text-[10px] tracking-[0.4em] text-[#c9a961]/60 mb-3">適合情境</label>
+                <div className="flex flex-wrap gap-1.5">
+                  {OCCASIONS.map(o => (
+                    <button
+                      key={o}
+                      onClick={() => toggleOccasion(o)}
+                      className={`text-[12px] tracking-wider px-3 py-1.5 border transition-colors ${
+                        occasions.includes(o)
+                          ? 'bg-[#c9a961]/15 text-[#c9a961] border-[#c9a961]/40'
+                          : 'border-[#2a2a2a] text-[#666]'
+                      }`}
+                    >
+                      {OCCASION_LABELS[o]}
+                    </button>
+                  ))}
                 </div>
               </div>
-            ) : (
-              <button
-                onClick={() => setShowRestForm(true)}
-                className="flex items-center gap-2 text-sm text-orange-500 font-medium py-2"
-              >
-                <Plus size={16} />
-                新增店家
-              </button>
-            )}
-          </div>
 
-          {/* Notes */}
-          <div>
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
-              個人筆記
-            </label>
-            <textarea
-              placeholder="排隊時間、推薦時段、雷點、適合對象..."
-              value={notes}
-              onChange={e => setNotes(e.target.value)}
-              rows={3}
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 resize-none"
-            />
-          </div>
+              {/* 評分（嘗過才有意義） */}
+              {status === 'tried' && (
+                <div>
+                  <label className="block text-[10px] tracking-[0.4em] text-[#c9a961]/60 mb-3">評分</label>
+                  <div className="flex gap-2">
+                    {[1, 2, 3, 4, 5].map(n => (
+                      <button
+                        key={n}
+                        onClick={() => setRating(rating === n ? undefined : n)}
+                        className={`text-2xl transition-colors ${
+                          n <= (rating ?? 0) ? 'text-[#c9a961]' : 'text-[#2a2a2a]'
+                        }`}
+                      >
+                        ★
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-          {/* Wait time + Rating */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
-                等待時間
-              </label>
-              <input
-                type="text"
-                placeholder="例如：30分鐘"
-                value={waitTime}
-                onChange={e => setWaitTime(e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-300"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
-                評分
-              </label>
-              <div className="flex gap-1 mt-1">
-                {[1, 2, 3, 4, 5].map(n => (
-                  <button
-                    key={n}
-                    onClick={() => setRating(rating === n ? undefined : n)}
-                    className={`text-xl transition-colors ${n <= (rating ?? 0) ? 'text-amber-400' : 'text-gray-200'}`}
-                  >
-                    ★
-                  </button>
-                ))}
+              {/* 筆記 */}
+              <div>
+                <label className="block text-[10px] tracking-[0.4em] text-[#c9a961]/60 mb-2">筆記</label>
+                <textarea
+                  placeholder="必點品項、雷點、推薦時段..."
+                  value={notes}
+                  onChange={e => setNotes(e.target.value)}
+                  rows={3}
+                  className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 px-3 py-2.5 text-[13px] text-[#f5f1e8] placeholder-[#444] focus:outline-none resize-none leading-relaxed"
+                />
+              </div>
+
+              <div className="text-[11px] tracking-wider text-[#555] leading-relaxed border-t border-[#1f1f1f] pt-5">
+                候選店家在儲存後從詳情頁加。
               </div>
             </div>
-          </div>
-
-          <div className="h-4" />
+          )}
         </div>
       </div>
     </div>

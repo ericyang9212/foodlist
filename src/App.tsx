@@ -10,7 +10,7 @@ import type { FoodItem } from './types';
 type Tab = 'list' | 'nearby';
 
 export default function App() {
-  const { items, loading, addItem, updateItem, deleteItem, updateStatus } = useStore();
+  const { items, loading, addItem, updateItem, deleteItem } = useStore();
   const [tab, setTab] = useState<Tab>('list');
   const [detail, setDetail] = useState<FoodItem | null>(null);
   const [editing, setEditing] = useState<FoodItem | undefined>(undefined);
@@ -30,41 +30,46 @@ export default function App() {
     setShowAdd(false);
   };
 
+  // detail 頁面更新資料（例如加店家）後，要同步刷新 detail 物件
+  const handleUpdateFromDetail = (updated: FoodItem) => {
+    updateItem(updated);
+    setDetail(updated);
+  };
+
   if (loading) return (
-    <div className="flex items-center justify-center h-svh bg-[#f8f7f5]">
+    <div className="flex items-center justify-center h-svh bg-[#0a0a0a]">
       <div className="text-center">
-        <div className="text-4xl mb-3">🍜</div>
-        <p className="text-gray-400 text-sm">載入中...</p>
+        <div className="text-[#c9a961]/40 text-3xl tracking-[0.5em] mb-3">— —</div>
+        <p className="text-[#666] text-[11px] tracking-[0.3em]">LOADING</p>
       </div>
     </div>
   );
 
   return (
-    <div className="relative flex flex-col h-svh overflow-hidden">
+    <div className="relative flex flex-col h-svh overflow-hidden bg-[#0a0a0a]">
       <div className="flex-1 overflow-hidden relative">
         {tab === 'list'
-          ? <ListView items={items} onOpen={handleOpen} onStatusChange={updateStatus} />
-          : <NearbyPage items={items} onOpen={handleOpen} onStatusChange={updateStatus} />
+          ? <ListView items={items} onOpen={handleOpen} />
+          : <NearbyPage items={items} onOpen={handleOpen} />
         }
       </div>
 
       <nav
-        className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-white border-t border-gray-100 flex items-center justify-around px-2 pt-2 z-40"
-        style={{ paddingBottom: 'max(8px, env(safe-area-inset-bottom))' }}
+        className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-[#0a0a0a] border-t border-[#1f1f1f] flex items-center justify-around px-4 pt-3 z-40"
+        style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}
       >
-        <NavBtn icon={<List size={22} />} label="清單" active={tab === 'list'} onClick={() => setTab('list')} />
+        <NavBtn icon={<List size={20} />} label="清單" active={tab === 'list'} onClick={() => setTab('list')} />
 
         <button
           onClick={() => { setEditing(undefined); setShowAdd(true); }}
-          className="flex flex-col items-center gap-0.5 px-4 py-1.5"
+          className="flex flex-col items-center px-4"
         >
-          <div className="w-12 h-12 bg-orange-500 rounded-full flex items-center justify-center shadow-lg shadow-orange-200 active:scale-95 transition-transform -mt-6">
-            <Plus size={24} className="text-white" />
+          <div className="w-14 h-14 bg-[#c9a961] rounded-full flex items-center justify-center shadow-[0_0_24px_rgba(201,169,97,0.35)] active:scale-95 transition-transform -mt-8 ring-1 ring-[#e6c87a]/30">
+            <Plus size={26} className="text-[#0a0a0a]" strokeWidth={2.5} />
           </div>
-          <span className="text-[10px] text-gray-400 mt-0.5">新增</span>
         </button>
 
-        <NavBtn icon={<Navigation size={22} />} label="附近" active={tab === 'nearby'} onClick={() => setTab('nearby')} />
+        <NavBtn icon={<Navigation size={20} />} label="附近" active={tab === 'nearby'} onClick={() => setTab('nearby')} />
       </nav>
 
       {detail && (
@@ -73,6 +78,7 @@ export default function App() {
           onClose={() => setDetail(null)}
           onEdit={handleEdit}
           onDelete={id => { deleteItem(id); setDetail(null); }}
+          onUpdate={handleUpdateFromDetail}
         />
       )}
 
@@ -93,10 +99,12 @@ function NavBtn({ icon, label, active, onClick }: {
   return (
     <button
       onClick={onClick}
-      className={`flex flex-col items-center gap-0.5 px-6 py-1.5 transition-colors ${active ? 'text-orange-500' : 'text-gray-400'}`}
+      className={`flex flex-col items-center gap-1 px-6 py-1 transition-colors ${
+        active ? 'text-[#c9a961]' : 'text-[#555]'
+      }`}
     >
       {icon}
-      <span className="text-[10px] font-medium">{label}</span>
+      <span className="text-[10px] tracking-[0.3em]">{label}</span>
     </button>
   );
 }

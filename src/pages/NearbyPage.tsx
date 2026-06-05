@@ -1,12 +1,11 @@
 import { useState, useMemo } from 'react';
 import { Navigation, MapPin } from 'lucide-react';
 import { FoodCard } from '../components/FoodCard';
-import type { FoodItem, Status } from '../types';
+import type { FoodItem } from '../types';
 
 interface Props {
   items: FoodItem[];
   onOpen: (item: FoodItem) => void;
-  onStatusChange: (id: string, status: Status) => void;
 }
 
 function getDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
@@ -21,12 +20,11 @@ function getDistance(lat1: number, lng1: number, lat2: number, lng2: number): nu
 
 const RADIUS_OPTIONS = [500, 1000, 2000, 5000];
 
-export function NearbyPage({ items, onOpen, onStatusChange }: Props) {
+export function NearbyPage({ items, onOpen }: Props) {
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [radius, setRadius] = useState(1000);
-  const [statusFilter, setStatusFilter] = useState<Status | 'want+unsure'>('want+unsure');
 
   const getLocation = () => {
     setLoading(true);
@@ -36,7 +34,7 @@ export function NearbyPage({ items, onOpen, onStatusChange }: Props) {
         setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
         setLoading(false);
       },
-      _err => {
+      () => {
         setError('無法取得位置，請確認瀏覽器授權');
         setLoading(false);
       },
@@ -44,122 +42,88 @@ export function NearbyPage({ items, onOpen, onStatusChange }: Props) {
     );
   };
 
+  // 只看「想吃」的食物，找出附近有候選店家的
   const nearby = useMemo(() => {
     if (!location) return [];
     return items
-      .filter(item => {
-        if (statusFilter === 'want+unsure') {
-          if (item.status !== 'want' && item.status !== 'unsure') return false;
-        } else if (item.status !== statusFilter) {
-          return false;
-        }
-        return item.restaurants.some(r => {
-          if (!r.lat || !r.lng) return false;
-          return getDistance(location.lat, location.lng, r.lat, r.lng) <= radius;
-        });
-      })
+      .filter(item => item.status === 'want')
       .map(item => {
+        const candidatesWithLoc = item.restaurants.filter(r => r.lat && r.lng);
+        if (candidatesWithLoc.length === 0) return null;
         const minDist = Math.min(
-          ...item.restaurants
-            .filter(r => r.lat && r.lng)
-            .map(r => getDistance(location.lat, location.lng, r.lat!, r.lng!))
+          ...candidatesWithLoc.map(r => getDistance(location.lat, location.lng, r.lat!, r.lng!))
         );
+        if (minDist > radius) return null;
         return { item, dist: minDist };
       })
+      .filter((x): x is { item: FoodItem; dist: number } => x !== null)
       .sort((a, b) => a.dist - b.dist);
-  }, [items, location, radius, statusFilter]);
+  }, [items, location, radius]);
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="px-4 pt-14 pb-3 bg-[#f8f7f5]">
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">附近推薦</h1>
-        <p className="text-sm text-gray-500 mb-3">根據目前位置篩選你的收藏</p>
+    <div className="flex flex-col h-full bg-[#0a0a0a]">
+      <div className="px-6 pt-14 pb-5">
+        <div className="text-[10px] tracking-[0.5em] text-[#c9a961]/70 mb-2">NEARBY</div>
+        <h1 className="text-[28px] font-medium text-gold-gradient tracking-[0.15em]">附 近 能 吃 到</h1>
+        <p className="text-[11px] text-[#666] tracking-wider mt-2">想吃的食物，現在哪些在附近</p>
+        <div className="mt-3 h-[1px] bg-gradient-to-r from-[#c9a961]/40 via-[#c9a961]/10 to-transparent" />
+      </div>
 
-        {/* Radius selector */}
-        <div className="flex gap-2 mb-3 overflow-x-auto pb-1">
+      <div className="px-6 mb-5">
+        <div className="flex gap-1.5">
           {RADIUS_OPTIONS.map(r => (
             <button
               key={r}
               onClick={() => setRadius(r)}
-              className={`flex-shrink-0 text-xs px-3 py-1.5 rounded-full font-medium transition-colors border ${
+              className={`text-[11px] tracking-[0.2em] px-3 py-1.5 border transition-colors ${
                 radius === r
-                  ? 'bg-gray-900 text-white border-transparent'
-                  : 'bg-white text-gray-600 border-gray-200'
+                  ? 'bg-[#c9a961] text-[#0a0a0a] border-[#c9a961]'
+                  : 'border-[#2a2a2a] text-[#8a8478]'
               }`}
             >
               {r >= 1000 ? `${r / 1000}km` : `${r}m`}
             </button>
           ))}
         </div>
-
-        {/* Status filter */}
-        <div className="flex gap-2 overflow-x-auto pb-1">
-          {[
-            { value: 'want+unsure' as const, label: '想吃 / 不確定' },
-            { value: 'want' as const, label: '想吃' },
-            { value: 'revisit' as const, label: '再訪' },
-            { value: 'visited' as const, label: '已去過' },
-          ].map(opt => (
-            <button
-              key={opt.value}
-              onClick={() => setStatusFilter(opt.value)}
-              className={`flex-shrink-0 text-xs px-3 py-1.5 rounded-full font-medium transition-colors border ${
-                statusFilter === opt.value
-                  ? 'bg-orange-500 text-white border-transparent'
-                  : 'bg-white text-gray-600 border-gray-200'
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 pb-24">
+      <div className="flex-1 overflow-y-auto px-6 pb-28">
         {!location ? (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="text-5xl mb-4">📍</div>
-            <h3 className="font-semibold text-gray-800 mb-2">開啟定位</h3>
-            <p className="text-sm text-gray-500 mb-6 max-w-xs">
-              授權位置後，系統會顯示你想吃清單中距離最近的店家
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <div className="text-[#c9a961]/40 text-3xl tracking-[0.5em] mb-4">— —</div>
+            <p className="text-[#8a8478] text-[12px] tracking-[0.2em] mb-8 max-w-xs leading-relaxed">
+              授權位置，看看現在站的地方<br />附近能吃到哪些想吃的食物
             </p>
             <button
               onClick={getLocation}
               disabled={loading}
-              className="flex items-center gap-2 bg-orange-500 text-white px-6 py-3 rounded-xl font-medium text-sm active:scale-95 transition-transform disabled:opacity-50"
+              className="flex items-center gap-2 text-[12px] tracking-[0.3em] text-[#c9a961] border border-[#c9a961]/50 px-6 py-3 hover:bg-[#c9a961]/10 transition-colors disabled:opacity-50"
             >
-              <Navigation size={16} />
-              {loading ? '定位中...' : '取得我的位置'}
+              <Navigation size={14} />
+              {loading ? '定位中' : '取得位置'}
             </button>
-            {error && <p className="text-red-500 text-sm mt-4">{error}</p>}
+            {error && <p className="text-[#6a4444] text-[12px] mt-4">{error}</p>}
           </div>
         ) : nearby.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="text-4xl mb-3">🔍</div>
-            <p className="text-gray-500 text-sm mb-4">
-              {radius >= 1000 ? `${radius / 1000}km` : `${radius}m`} 內沒有符合的收藏
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <p className="text-[#666] text-[13px] tracking-wider">
+              {radius >= 1000 ? `${radius / 1000}km` : `${radius}m`} 內無候選店家
             </p>
-            <button
-              onClick={() => setRadius(prev => RADIUS_OPTIONS[Math.min(RADIUS_OPTIONS.indexOf(prev) + 1, RADIUS_OPTIONS.length - 1)])}
-              className="text-orange-500 text-sm font-medium"
-            >
-              擴大搜尋範圍
-            </button>
           </div>
         ) : (
-          <div className="flex flex-col gap-3 pt-1">
-            <p className="text-xs text-gray-400 pb-1">
-              {radius >= 1000 ? `${radius / 1000}km` : `${radius}m`} 內找到 {nearby.length} 個品項
+          <div className="flex flex-col gap-3">
+            <p className="text-[11px] tracking-[0.3em] text-[#8a8478] pb-1">
+              {nearby.length} 道食物現在吃得到
             </p>
             {nearby.map(({ item, dist }) => (
               <div key={item.id}>
-                <div className="flex items-center gap-1 mb-1">
-                  <MapPin size={11} className="text-orange-400" />
-                  <span className="text-xs text-orange-500 font-medium">
-                    約 {dist < 1000 ? `${Math.round(dist)}m` : `${(dist / 1000).toFixed(1)}km`}
+                <div className="flex items-center gap-1.5 mb-1.5 text-[#c9a961]/80">
+                  <MapPin size={10} />
+                  <span className="text-[10px] tracking-[0.3em]">
+                    {dist < 1000 ? `${Math.round(dist)}M` : `${(dist / 1000).toFixed(1)}KM`}
                   </span>
                 </div>
-                <FoodCard item={item} onOpen={onOpen} onStatusChange={onStatusChange} />
+                <FoodCard item={item} onOpen={onOpen} />
               </div>
             ))}
           </div>
