@@ -1,25 +1,34 @@
 import { useState, useMemo } from 'react';
-import { Search, X, Sparkles } from 'lucide-react';
+import { Search, X, Sparkles, ImagePlus, ChevronRight } from 'lucide-react';
 import { FoodCard } from '../components/FoodCard';
 import { TonightModal } from '../components/TonightModal';
-import { STATUS_LABELS } from '../types';
-import type { FoodItem, Status } from '../types';
+import type { FoodItem, Inspiration } from '../types';
 
 interface Props {
   items: FoodItem[];
+  inspirations: Inspiration[];
   onOpen: (item: FoodItem) => void;
+  onOpenInbox: () => void;
 }
 
-const ALL_STATUSES: Status[] = ['want', 'tried', 'skip'];
+type FilterTab = 'want' | 'tried' | 'all';
 
-export function ListView({ items, onOpen }: Props) {
+const TABS: { value: FilterTab; label: string }[] = [
+  { value: 'want', label: '想吃' },
+  { value: 'tried', label: '嘗過' },
+  { value: 'all', label: '全部' },
+];
+
+export function ListView({ items, inspirations, onOpen, onOpenInbox }: Props) {
   const [search, setSearch] = useState('');
-  const [activeStatus, setActiveStatus] = useState<Status | null>('want');
+  const [activeTab, setActiveTab] = useState<FilterTab>('want');
   const [showTonight, setShowTonight] = useState(false);
 
   const filtered = useMemo(() => {
     return items.filter(item => {
-      if (activeStatus && item.status !== activeStatus) return false;
+      // skip 沒興趣的，除非用搜尋
+      if (!search && item.status === 'skip' && activeTab !== 'all') return false;
+      if (!search && activeTab !== 'all' && item.status !== activeTab) return false;
       if (search) {
         const q = search.toLowerCase();
         return (
@@ -29,15 +38,19 @@ export function ListView({ items, onOpen }: Props) {
       }
       return true;
     });
-  }, [items, activeStatus, search]);
+  }, [items, activeTab, search]);
 
   const counts = useMemo(() => {
-    const c: Partial<Record<Status, number>> = {};
-    items.forEach(i => { c[i.status] = (c[i.status] ?? 0) + 1; });
-    return c;
+    let want = 0, tried = 0;
+    items.forEach(i => {
+      if (i.status === 'want') want++;
+      else if (i.status === 'tried') tried++;
+    });
+    return { want, tried, all: items.length };
   }, [items]);
 
   const wantItems = useMemo(() => items.filter(i => i.status === 'want'), [items]);
+  const pendingInspirations = inspirations.filter(i => !i.convertedFoodId);
 
   return (
     <div className="flex flex-col h-full bg-[#0a0a0a]">
@@ -48,9 +61,9 @@ export function ListView({ items, onOpen }: Props) {
         <div className="mt-4 h-[1px] bg-gradient-to-r from-[#c9a961]/40 via-[#c9a961]/10 to-transparent" />
       </div>
 
-      {/* 今晚吃什麼 — 核心功能 */}
+      {/* 今晚吃什麼 */}
       {wantItems.length > 0 && (
-        <div className="px-6 mb-6">
+        <div className="px-6 mb-4">
           <button
             onClick={() => setShowTonight(true)}
             className="group w-full relative bg-gradient-to-br from-[#1a1612] to-[#0f0d0a] border border-[#c9a961]/40 hover:border-[#c9a961] transition-colors py-6 px-6 overflow-hidden"
@@ -70,56 +83,78 @@ export function ListView({ items, onOpen }: Props) {
         </div>
       )}
 
+      {/* 未整理截圖入口（只在有 pending 時顯示） */}
+      {pendingInspirations.length > 0 && (
+        <div className="px-6 mb-4">
+          <button
+            onClick={onOpenInbox}
+            className="w-full flex items-center gap-3 bg-[#161616] border border-[#2a2a2a] hover:border-[#c9a961]/40 px-4 py-3 transition-colors"
+          >
+            <div className="flex -space-x-2">
+              {pendingInspirations.slice(0, 3).map(insp => (
+                <div key={insp.id} className="w-10 h-10 border-2 border-[#0a0a0a] overflow-hidden bg-[#222]">
+                  {insp.imageUrl && (
+                    <img src={insp.imageUrl} alt="" className="w-full h-full object-cover" />
+                  )}
+                </div>
+              ))}
+            </div>
+            <div className="flex-1 text-left">
+              <div className="flex items-center gap-1.5 text-[13px] text-[#c9a961] tracking-wider">
+                <ImagePlus size={13} />
+                {pendingInspirations.length} 個未整理截圖
+              </div>
+              <div className="text-[11px] text-[#666] tracking-wider mt-0.5">點開整理成想吃</div>
+            </div>
+            <ChevronRight size={18} className="text-[#666]" />
+          </button>
+        </div>
+      )}
+
       {/* Search */}
-      <div className="px-6 mb-4">
+      <div className="px-6 mb-1">
         <div className="relative">
-          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#777]" />
+          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#666]" />
           <input
             type="text"
             placeholder="搜尋"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-10 pr-10 py-3 bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 text-[15px] text-[#f5f1e8] placeholder-[#666] tracking-wider focus:outline-none transition-colors"
+            className="w-full pl-10 pr-10 py-3 bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 text-[15px] text-[#f5f1e8] placeholder-[#555] tracking-wider focus:outline-none transition-colors"
           />
           {search && (
             <button onClick={() => setSearch('')} className="absolute right-3.5 top-1/2 -translate-y-1/2">
-              <X size={14} className="text-[#777]" />
+              <X size={14} className="text-[#666]" />
             </button>
           )}
         </div>
       </div>
 
-      {/* 狀態 tabs */}
-      <div className="px-6 mb-6">
-        <div className="flex gap-2">
-          <button
-            onClick={() => setActiveStatus(null)}
-            className={`text-[13px] tracking-[0.2em] px-4 py-2 border transition-colors ${
-              activeStatus === null
-                ? 'bg-[#c9a961] text-[#0a0a0a] border-[#c9a961]'
-                : 'border-[#2a2a2a] text-[#8a8478]'
-            }`}
-          >
-            全部 · {items.length}
-          </button>
-          {ALL_STATUSES.map(s => (
+      {/* 優雅下劃線 tabs */}
+      <div className="px-6 mt-4 mb-3">
+        <div className="flex items-center gap-8 border-b border-[#1f1f1f]">
+          {TABS.map(t => (
             <button
-              key={s}
-              onClick={() => setActiveStatus(activeStatus === s ? null : s)}
-              className={`text-[13px] tracking-[0.2em] px-4 py-2 border transition-colors ${
-                activeStatus === s
-                  ? 'bg-[#c9a961] text-[#0a0a0a] border-[#c9a961]'
-                  : 'border-[#2a2a2a] text-[#8a8478]'
+              key={t.value}
+              onClick={() => setActiveTab(t.value)}
+              className={`relative pb-3 pt-1 text-[15px] tracking-[0.3em] transition-colors ${
+                activeTab === t.value ? 'text-[#c9a961]' : 'text-[#555] hover:text-[#888]'
               }`}
             >
-              {STATUS_LABELS[s]} · {counts[s] ?? 0}
+              {t.label}
+              <span className="ml-1.5 text-[11px] tracking-normal opacity-60">
+                {counts[t.value]}
+              </span>
+              {activeTab === t.value && (
+                <div className="absolute bottom-[-1px] left-0 right-0 h-[1.5px] bg-gradient-to-r from-[#c9a961] via-[#e6c87a] to-[#c9a961]" />
+              )}
             </button>
           ))}
         </div>
       </div>
 
       {/* List */}
-      <div className="flex-1 overflow-y-auto px-6 pb-28">
+      <div className="flex-1 overflow-y-auto px-6 pb-28 pt-3">
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <div className="text-[#c9a961]/40 text-3xl tracking-[0.5em] mb-4">— —</div>

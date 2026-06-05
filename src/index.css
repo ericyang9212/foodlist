@@ -46,3 +46,11 @@ body {
 .border-gold-subtle {
   border-color: rgba(201, 169, 97, 0.2);
 }
+
+@keyframes slideup {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.animate-slideup {
+  animation: slideup 0.25s ease-out;
+}

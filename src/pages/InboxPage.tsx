@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { ImagePlus, Check, Trash2, ArrowRight, X, Loader2 } from 'lucide-react';
+import { ImagePlus, Check, Trash2, ArrowRight, X, Loader2, ArrowLeft } from 'lucide-react';
 import type { Inspiration } from '../types';
 import { PLATFORM_LABELS } from '../types';
 
@@ -9,9 +9,10 @@ interface Props {
   onUpload: (file: File, note: string) => Promise<void>;
   onDelete: (id: string) => void;
   onConvertToFood: (insp: Inspiration) => void;
+  onClose: () => void;
 }
 
-export function InboxPage({ items, loading, onUpload, onDelete, onConvertToFood }: Props) {
+export function InboxPage({ items, loading, onUpload, onDelete, onConvertToFood, onClose }: Props) {
   const [selected, setSelected] = useState<Inspiration | null>(null);
   const [uploading, setUploading] = useState(false);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
@@ -46,14 +47,20 @@ export function InboxPage({ items, loading, onUpload, onDelete, onConvertToFood 
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#0a0a0a]">
-      <div className="px-6 pt-16 pb-6">
-        <div className="text-[12px] tracking-[0.5em] text-[#c9a961]/70 mb-3">INSPIRATION INBOX</div>
-        <h1 className="text-[34px] font-medium text-gold-gradient tracking-[0.15em]">靈 感</h1>
-        <p className="text-[13px] text-[#777] tracking-wider mt-3 leading-relaxed">
+    <div className="fixed inset-0 z-40 flex flex-col bg-[#0a0a0a]" style={{ maxWidth: 430, margin: '0 auto' }}>
+      {/* Top bar */}
+      <div className="flex items-center justify-between px-6 pt-5 pb-3 border-b border-[#1f1f1f]">
+        <button onClick={onClose} className="p-1">
+          <ArrowLeft size={22} className="text-[#8a8478]" />
+        </button>
+        <div className="text-[12px] tracking-[0.4em] text-[#c9a961]/80">想吃的 · 靈感匣</div>
+        <div className="w-7" />
+      </div>
+
+      <div className="px-6 pt-6 pb-5">
+        <p className="text-[13px] text-[#777] tracking-wider leading-relaxed">
           看到想吃的，先丟進來，之後再整理成想吃清單
         </p>
-        <div className="mt-4 h-[1px] bg-gradient-to-r from-[#c9a961]/40 via-[#c9a961]/10 to-transparent" />
       </div>
 
       <div className="flex-1 overflow-y-auto px-6 pb-28">
