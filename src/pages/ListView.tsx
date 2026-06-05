@@ -56,7 +56,10 @@ export function ListView({ items, inspirations, imageByFoodId, onOpen, onOpenInb
   return (
     <div className="flex flex-col h-full bg-[#0a0a0a]">
       {/* Header */}
-      <div className="px-6 pt-16 pb-6">
+      <div
+        className="px-6 pb-6"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 28px)' }}
+      >
         <div className="text-[12px] tracking-[0.5em] text-[#c9a961]/70 mb-3">PERSONAL ARCHIVE</div>
         <h1 className="text-[34px] font-medium text-gold-gradient tracking-[0.15em]">待 吃 清 單</h1>
         <div className="mt-4 h-[1px] bg-gradient-to-r from-[#c9a961]/40 via-[#c9a961]/10 to-transparent" />

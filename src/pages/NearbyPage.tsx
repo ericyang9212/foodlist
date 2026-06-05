@@ -63,7 +63,10 @@ export function NearbyPage({ items, imageByFoodId, onOpen }: Props) {
 
   return (
     <div className="flex flex-col h-full bg-[#0a0a0a]">
-      <div className="px-6 pt-16 pb-6">
+      <div
+        className="px-6 pb-6"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 28px)' }}
+      >
         <div className="text-[12px] tracking-[0.5em] text-[#c9a961]/70 mb-3">NEARBY</div>
         <h1 className="text-[34px] font-medium text-gold-gradient tracking-[0.15em]">附 近 能 吃 到</h1>
         <p className="text-[13px] text-[#777] tracking-wider mt-3">想吃的食物，現在哪些在附近</p>

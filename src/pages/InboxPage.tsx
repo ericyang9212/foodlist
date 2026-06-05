@@ -49,7 +49,10 @@ export function InboxPage({ items, loading, onUpload, onDelete, onConvertToFood,
   return (
     <div className="fixed inset-0 z-40 flex flex-col bg-[#0a0a0a]" style={{ maxWidth: 430, margin: '0 auto' }}>
       {/* Top bar */}
-      <div className="flex items-center justify-between px-6 pt-5 pb-3 border-b border-[#1f1f1f]">
+      <div
+        className="flex items-center justify-between px-6 pb-3 border-b border-[#1f1f1f]"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}
+      >
         <button onClick={onClose} className="p-1">
           <ArrowLeft size={22} className="text-[#8a8478]" />
         </button>
