@@ -1,8 +1,8 @@
-// 食物優先：心情就是「我對這道食物的感覺」，不是「店去過沒」
+// 食物優先：心情是「我對這道食物的感覺」
 export type Status = 'want' | 'tried' | 'skip';
 export type PriceRange = '$' | '$$' | '$$$' | '$$$$';
 export type Occasion = 'date' | 'late-night' | 'group' | 'solo' | 'family';
-export type Tab = 'list' | 'nearby';
+export type Tab = 'list' | 'inbox' | 'nearby';
 
 export interface Restaurant {
   id: string;
@@ -11,7 +11,7 @@ export interface Restaurant {
   address?: string;
   area?: string;
   priceRange?: PriceRange;
-  note?: string;          // 對這家的快評（例如「最便宜」「最近」「排隊久」）
+  note?: string;
   lat?: number;
   lng?: number;
 }
@@ -19,18 +19,30 @@ export interface Restaurant {
 // 主角：「想吃的食物」
 export interface FoodItem {
   id: string;
-  name: string;            // 食物名稱（主鍵概念）
-  description?: string;    // 對這道食物的描述
+  name: string;
+  description?: string;
   status: Status;
   cuisineType?: string;
   occasions: Occasion[];
-  restaurants: Restaurant[]; // 配角：可以吃到這道食物的候選店家
+  restaurants: Restaurant[];
   mustOrder: string[];
   notes?: string;
   waitTime?: string;
   rating?: 1 | 2 | 3 | 4 | 5;
+  inspirationIds?: string[];   // 來自哪些靈感（可多）
   createdAt: string;
   updatedAt: string;
+}
+
+// 靈感收集匣：截圖、貼文連結、隨手筆記
+export interface Inspiration {
+  id: string;
+  imageUrl?: string;
+  sourceUrl?: string;
+  platform?: string;            // ig / threads / friend / other
+  note?: string;
+  convertedFoodId?: string;     // 已轉成 food item 的話
+  createdAt: string;
 }
 
 export const STATUS_LABELS: Record<Status, string> = {
@@ -57,3 +69,11 @@ export const CUISINE_TYPES = [
   '日式', '韓式', '台式', '中式', '義式', '美式',
   '泰式', '越式', '法式', '印式', '素食', '甜點', '飲料', '其他',
 ];
+
+export const PLATFORM_LABELS: Record<string, string> = {
+  ig: 'Instagram',
+  threads: 'Threads',
+  fb: 'Facebook',
+  friend: '朋友推薦',
+  other: '其他',
+};

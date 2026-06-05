@@ -54,18 +54,18 @@ export function TonightModal({ candidates, onOpen, onClose }: Props) {
           <X size={18} className="text-[#666]" />
         </button>
 
-        <div className="text-center mb-8">
-          <div className="text-[10px] tracking-[0.5em] text-[#c9a961]/70 mb-2">TONIGHT</div>
+        <div className="text-center mb-10">
+          <div className="text-[13px] tracking-[0.5em] text-[#c9a961]/70 mb-3">TONIGHT</div>
           <div className="h-[1px] w-12 bg-[#c9a961]/40 mx-auto" />
         </div>
 
         {current ? (
           <>
-            <div className={`text-center mb-10 transition-opacity ${shuffling ? 'opacity-60' : 'opacity-100'}`}>
-              <h2 className="text-[32px] text-gold-gradient font-medium tracking-[0.1em] leading-tight mb-3">
+            <div className={`text-center mb-12 transition-opacity ${shuffling ? 'opacity-60' : 'opacity-100'}`}>
+              <h2 className="text-[36px] text-gold-gradient font-medium tracking-[0.1em] leading-tight mb-4">
                 {current.name}
               </h2>
-              <div className="flex items-center justify-center gap-2 text-[11px] text-[#8a8478] tracking-widest">
+              <div className="flex items-center justify-center gap-2.5 text-[14px] text-[#8a8478] tracking-widest">
                 {current.cuisineType && <span>{current.cuisineType}</span>}
                 {current.restaurants.length > 0 && (
                   <>
@@ -76,28 +76,28 @@ export function TonightModal({ candidates, onOpen, onClose }: Props) {
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               <button
                 onClick={() => { onOpen(current); onClose(); }}
-                className="w-full flex items-center justify-center gap-2 bg-[#c9a961] text-[#0a0a0a] py-3.5 text-[13px] tracking-[0.3em] font-medium active:scale-[0.98] transition-transform"
+                className="w-full flex items-center justify-center gap-2 bg-[#c9a961] text-[#0a0a0a] py-4 text-[15px] tracking-[0.3em] font-medium active:scale-[0.98] transition-transform"
               >
                 就決定它了
-                <ChevronRight size={16} strokeWidth={2.5} />
+                <ChevronRight size={18} strokeWidth={2.5} />
               </button>
               <button
                 onClick={shuffle}
                 disabled={candidates.length <= 1 || shuffling}
-                className="w-full flex items-center justify-center gap-2 border border-[#c9a961]/40 text-[#c9a961] py-3.5 text-[12px] tracking-[0.3em] disabled:opacity-40 active:bg-[#c9a961]/10 transition-colors"
+                className="w-full flex items-center justify-center gap-2 border border-[#c9a961]/40 text-[#c9a961] py-4 text-[14px] tracking-[0.3em] disabled:opacity-40 active:bg-[#c9a961]/10 transition-colors"
               >
-                <Shuffle size={14} />
+                <Shuffle size={16} />
                 再抽一個
               </button>
             </div>
           </>
         ) : (
           <div className="text-center py-12">
-            <p className="text-[#666] text-[13px] tracking-wider mb-2">沒有想吃的食物</p>
-            <p className="text-[#444] text-[11px] tracking-widest">先去清單新增幾個吧</p>
+            <p className="text-[#777] text-[15px] tracking-wider mb-2">沒有想吃的食物</p>
+            <p className="text-[#555] text-[13px] tracking-widest">先去清單新增幾個吧</p>
           </div>
         )}
       </div>
