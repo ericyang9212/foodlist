@@ -3,7 +3,9 @@ import { List, Navigation, Plus } from 'lucide-react';
 import { useStore } from './store/useStore';
 import { useInspirations } from './store/useInspirations';
 import { useAnnouncements } from './store/useAnnouncements';
+import { useMarquee } from './store/useMarquee';
 import { AnnouncementsModal } from './components/AnnouncementsModal';
+import { Marquee } from './components/Marquee';
 import { ListView } from './pages/ListView';
 import { NearbyPage } from './pages/NearbyPage';
 import { InboxPage } from './pages/InboxPage';
@@ -15,6 +17,7 @@ export default function App() {
   const { items, loading, addItem, updateItem, deleteItem } = useStore();
   const inspirations = useInspirations();
   const announcements = useAnnouncements();
+  const marquee = useMarquee();
 
   const [tab, setTab] = useState<Tab>('list');
   const [detail, setDetail] = useState<FoodItem | null>(null);
@@ -101,6 +104,7 @@ export default function App() {
 
   return (
     <div className="relative flex flex-col h-svh overflow-hidden bg-[#0a0a0a]">
+      <Marquee data={marquee.data} onUpdate={marquee.update} />
       <div className="flex-1 overflow-hidden relative">
         {tab === 'list' && (
           <ListView
