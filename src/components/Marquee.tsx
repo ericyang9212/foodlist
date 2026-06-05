@@ -15,13 +15,13 @@ export function Marquee({ data, onUpdate }: Props) {
     return (
       <button
         onClick={() => setEditing(true)}
-        className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-30 bg-[#0a0a0a] border-b border-[#1a1a1a] flex items-center justify-center gap-1 text-[10px] tracking-[0.4em] text-[#3a3a3a] hover:text-[#c9a961]/60 transition-colors"
+        className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-30 bg-[#0a0a0a] border-b border-[#1a1a1a] flex items-center justify-center gap-1.5 text-[12px] tracking-[0.4em] text-[#3a3a3a] hover:text-[#c9a961]/60 transition-colors"
         style={{
-          paddingTop: 'calc(env(safe-area-inset-top) + 4px)',
-          paddingBottom: '4px',
+          paddingTop: 'calc(env(safe-area-inset-top) + 12px)',
+          paddingBottom: '12px',
         }}
       >
-        <Pencil size={9} />
+        <Pencil size={11} />
         點此設定跑馬燈
       </button>
     );
@@ -35,15 +35,15 @@ export function Marquee({ data, onUpdate }: Props) {
     <>
       <div
         className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-30 bg-[#0a0a0a] border-b border-[#c9a961]/15 overflow-hidden"
-        style={{ paddingTop: 'env(safe-area-inset-top)' }}
+        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 8px)', paddingBottom: '4px' }}
       >
         <button
           onClick={() => setEditing(true)}
-          className="relative w-full h-8 flex items-center overflow-hidden group"
+          className="relative w-full h-11 flex items-center overflow-hidden group"
         >
           {/* 左右漸層遮罩 */}
-          <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#0a0a0a] to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#0a0a0a] to-transparent z-10 pointer-events-none" />
+          <div className="absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-[#0a0a0a] to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-[#0a0a0a] to-transparent z-10 pointer-events-none" />
 
           {/* 跑馬燈 */}
           <div
@@ -52,10 +52,10 @@ export function Marquee({ data, onUpdate }: Props) {
               animation: `marquee ${data.speed}s linear infinite`,
             }}
           >
-            <span className="text-[12px] tracking-[0.25em] text-[#c9a961] px-4">
+            <span className="text-[16px] tracking-[0.25em] text-[#c9a961] px-5 font-medium">
               {single}
             </span>
-            <span className="text-[12px] tracking-[0.25em] text-[#c9a961] px-4" aria-hidden="true">
+            <span className="text-[16px] tracking-[0.25em] text-[#c9a961] px-5 font-medium" aria-hidden="true">
               {single}
             </span>
           </div>
@@ -114,15 +114,15 @@ function MarqueeEditor({
         {text.trim() && (
           <div>
             <div className="text-[11px] tracking-[0.4em] text-[#c9a961]/60 mb-2">PREVIEW</div>
-            <div className="relative bg-[#0f0f0f] border border-[#c9a961]/15 overflow-hidden h-8 flex items-center">
+            <div className="relative bg-[#0f0f0f] border border-[#c9a961]/15 overflow-hidden h-11 flex items-center">
               <div
                 className="flex whitespace-nowrap"
                 style={{ animation: `marquee ${speed}s linear infinite` }}
               >
-                <span className="text-[12px] tracking-[0.25em] text-[#c9a961] px-4">
+                <span className="text-[16px] tracking-[0.25em] text-[#c9a961] px-5 font-medium">
                   {text.split('\n').map(s => s.trim()).filter(Boolean).join('   ✦   ')}
                 </span>
-                <span className="text-[12px] tracking-[0.25em] text-[#c9a961] px-4" aria-hidden="true">
+                <span className="text-[16px] tracking-[0.25em] text-[#c9a961] px-5 font-medium" aria-hidden="true">
                   {text.split('\n').map(s => s.trim()).filter(Boolean).join('   ✦   ')}
                 </span>
               </div>

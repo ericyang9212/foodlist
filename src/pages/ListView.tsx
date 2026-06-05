@@ -64,7 +64,7 @@ export function ListView({
       {/* Header */}
       <div
         className="px-6 pb-6"
-        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 60px)' }}
+        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 84px)' }}
       >
         <div className="flex items-start justify-between">
           <div className="flex-1">
