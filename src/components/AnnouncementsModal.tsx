@@ -49,8 +49,8 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onClose }: P
         className="flex items-center justify-between px-6 pb-4 border-b border-[#1f1f1f]"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}
       >
-        <button onClick={onClose} className="p-1">
-          <X size={22} className="text-[#8a8478]" />
+        <button onClick={onClose} className="icon-btn">
+          <X size={22} />
         </button>
         <div className="flex items-center gap-2 text-[12px] tracking-[0.4em] text-[#c9a961]/80">
           <Bell size={13} />
@@ -139,7 +139,7 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onClose }: P
           <div className="text-[11px] tracking-[0.4em] text-[#c9a961]/70 mb-4">MY DATA</div>
 
           {/* 自動備份說明 */}
-          <div className="bg-[#0f0f0f] border border-[#2a2a2a] p-4 mb-3">
+          <div className="bg-[#0f0f0f] border border-[#2a2a2a] rounded-[6px] p-4 mb-3">
             <div className="flex items-start gap-3">
               <Cloud size={20} className="text-[#c9a961] flex-shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
@@ -164,7 +164,7 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onClose }: P
           <button
             onClick={handleDownload}
             disabled={downloading}
-            className="w-full flex items-center gap-3 bg-[#0f0f0f] border border-[#2a2a2a] hover:border-[#c9a961]/40 px-4 py-4 transition-colors disabled:opacity-50"
+            className="w-full flex items-center gap-3 bg-[#0f0f0f] border border-[#2a2a2a] hover:border-[#c9a961]/40 hover:bg-[#c9a961]/5 rounded-[6px] px-4 py-4 transition-all disabled:opacity-50"
           >
             <Download size={18} className="text-[#c9a961] flex-shrink-0" />
             <div className="flex-1 text-left">

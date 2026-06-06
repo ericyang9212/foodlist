@@ -95,14 +95,14 @@ function MarqueeEditor({
         className="flex items-center justify-between px-6 pb-4 border-b border-[#1f1f1f]"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}
       >
-        <button onClick={onClose} className="p-1">
-          <X size={22} className="text-[#8a8478]" />
+        <button onClick={onClose} className="icon-btn">
+          <X size={22} />
         </button>
         <div className="text-[12px] tracking-[0.4em] text-[#c9a961]/80">MARQUEE</div>
         <button
           onClick={handleSave}
           disabled={saving}
-          className="text-[14px] tracking-[0.3em] text-[#c9a961] flex items-center gap-1 disabled:opacity-50"
+          className="btn-primary px-5 py-2 text-[13px] tracking-[0.3em] flex items-center gap-1.5"
         >
           {saving && <Loader2 size={12} className="animate-spin" />}
           儲存

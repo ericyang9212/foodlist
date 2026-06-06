@@ -97,7 +97,7 @@ export function ListView({
           </div>
           <button
             onClick={onOpenAnnouncements}
-            className="relative p-2 -mr-2 mt-1"
+            className="icon-btn relative -mr-2 mt-1"
             aria-label="公告"
           >
             <Bell size={20} className="text-[#c9a961]/80" />
@@ -114,7 +114,7 @@ export function ListView({
         <div className="px-6 mb-4">
           <button
             onClick={() => setShowTonight(true)}
-            className="group w-full relative bg-gradient-to-br from-[#1a1612] to-[#0f0d0a] border border-[#c9a961]/40 hover:border-[#c9a961] transition-colors py-6 px-6 overflow-hidden"
+            className="group w-full relative bg-gradient-to-br from-[#1a1612] to-[#0f0d0a] border border-[#c9a961]/40 hover:border-[#c9a961] hover:shadow-[0_4px_20px_rgba(201,169,97,0.25)] rounded-[6px] transition-all py-6 px-6 overflow-hidden"
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-[#c9a961]/5 rounded-full blur-2xl -mr-10 -mt-10" />
             <div className="relative flex items-center justify-between">
@@ -136,7 +136,7 @@ export function ListView({
         <div className="px-6 mb-4">
           <button
             onClick={onOpenInbox}
-            className="w-full flex items-center gap-3 bg-[#161616] border border-[#2a2a2a] hover:border-[#c9a961]/40 px-4 py-3 transition-colors"
+            className="w-full flex items-center gap-3 bg-[#161616] border border-[#2a2a2a] hover:border-[#c9a961]/40 rounded-[5px] px-4 py-3 transition-colors"
           >
             <div className="flex -space-x-2">
               {pendingInspirations.slice(0, 3).map(insp => (
@@ -168,7 +168,7 @@ export function ListView({
             placeholder="搜尋"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-10 pr-10 py-3 bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 text-[15px] text-[#f5f1e8] placeholder-[#555] tracking-wider focus:outline-none transition-colors"
+            className="w-full pl-10 pr-10 py-3 bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-full text-[15px] text-[#f5f1e8] placeholder-[#555] tracking-wider focus:outline-none transition-colors"
           />
           {search && (
             <button onClick={() => setSearch('')} className="absolute right-3.5 top-1/2 -translate-y-1/2">
@@ -194,7 +194,7 @@ export function ListView({
                 {counts[t.value]}
               </span>
               {activeTab === t.value && (
-                <div className="absolute bottom-[-1px] left-0 right-0 h-[1.5px] bg-gradient-to-r from-[#c9a961] via-[#e6c87a] to-[#c9a961]" />
+                <div className="absolute bottom-[-1px] left-0 right-0 h-[2px] rounded-full bg-gradient-to-r from-[#c9a961] via-[#e6c87a] to-[#c9a961] shadow-[0_0_8px_rgba(201,169,97,0.5)]" />
               )}
             </button>
           ))}
@@ -209,11 +209,7 @@ export function ListView({
             <div className="flex gap-2 w-max">
               <button
                 onClick={() => setActiveCity(null)}
-                className={`flex-shrink-0 text-[12px] tracking-[0.2em] px-3 py-1.5 border transition-colors ${
-                  activeCity === null
-                    ? 'bg-[#c9a961] text-[#0a0a0a] border-[#c9a961]'
-                    : 'border-[#2a2a2a] text-[#8a8478]'
-                }`}
+                className={`flex-shrink-0 text-[12px] tracking-[0.2em] px-3.5 py-1.5 ${activeCity === null ? 'chip chip-active' : 'chip'}`}
               >
                 全部
               </button>
@@ -221,11 +217,7 @@ export function ListView({
                 <button
                   key={city}
                   onClick={() => setActiveCity(activeCity === city ? null : city)}
-                  className={`flex-shrink-0 text-[12px] tracking-[0.2em] px-3 py-1.5 border transition-colors ${
-                    activeCity === city
-                      ? 'bg-[#c9a961] text-[#0a0a0a] border-[#c9a961]'
-                      : 'border-[#2a2a2a] text-[#8a8478]'
-                  }`}
+                  className={`flex-shrink-0 text-[12px] tracking-[0.2em] px-3.5 py-1.5 ${activeCity === city ? 'chip chip-active' : 'chip'}`}
                 >
                   {city} · {count}
                 </button>

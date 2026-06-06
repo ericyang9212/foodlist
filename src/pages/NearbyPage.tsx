@@ -114,11 +114,7 @@ export function NearbyPage({ items, imageByFoodId, onOpen, onMarkTried }: Props)
               <button
                 key={r}
                 onClick={() => setRadius(r)}
-                className={`text-[13px] tracking-[0.2em] px-4 py-2 border transition-colors ${
-                  radius === r
-                    ? 'bg-[#c9a961] text-[#0a0a0a] border-[#c9a961]'
-                    : 'border-[#2a2a2a] text-[#8a8478]'
-                }`}
+                className={`text-[13px] tracking-[0.2em] px-4 py-2 ${radius === r ? 'chip chip-active' : 'chip'}`}
               >
                 {r >= 1000 ? `${r / 1000}km` : `${r}m`}
               </button>
@@ -184,7 +180,7 @@ export function NearbyPage({ items, imageByFoodId, onOpen, onMarkTried }: Props)
               <div className="text-[11px] tracking-[0.4em] text-[#555] mb-3">EXPLORE BEYOND</div>
               <button
                 onClick={exploreOnGoogleMaps}
-                className="w-full bg-[#0f0f0f] border border-[#c9a961]/30 hover:border-[#c9a961]/60 active:scale-[0.99] transition-all py-5 px-5 flex items-center gap-4"
+                className="w-full bg-[#0f0f0f] border border-[#c9a961]/30 hover:border-[#c9a961]/60 hover:bg-[#c9a961]/5 rounded-[6px] active:scale-[0.99] transition-all py-5 px-5 flex items-center gap-4"
               >
                 <Compass size={26} className="text-[#c9a961] flex-shrink-0" />
                 <div className="flex-1 text-left">
@@ -213,7 +209,7 @@ function PermissionPrompt({ loading, error, onClick }: {
       <button
         onClick={onClick}
         disabled={loading}
-        className="flex items-center gap-2 text-[14px] tracking-[0.3em] text-[#c9a961] border border-[#c9a961]/50 px-7 py-3.5 hover:bg-[#c9a961]/10 transition-colors disabled:opacity-50"
+        className="btn-secondary flex items-center gap-2 text-[14px] tracking-[0.3em] px-7 py-3.5"
       >
         <Navigation size={16} />
         {loading ? '定位中' : '取得位置'}
@@ -262,7 +258,7 @@ function MemoryCard({
   const region = [restaurant.city, restaurant.area].filter(Boolean).join(' ');
 
   return (
-    <div className="bg-[#101010] border border-[#1f1f1f]">
+    <div className="bg-[#101010] border border-[#1f1f1f] rounded-[5px] overflow-hidden">
       <button
         onClick={() => onOpen(item)}
         className="w-full flex items-start gap-4 px-5 py-4 text-left active:bg-[#161616]"
@@ -331,7 +327,7 @@ function WishlistCard({
   const region = [restaurant.city, restaurant.area].filter(Boolean).join(' ');
 
   return (
-    <div className="bg-gradient-to-br from-[#1a1612] to-[#0f0d0a] border border-[#c9a961]/35 hover:border-[#c9a961]/60 transition-colors">
+    <div className="bg-gradient-to-br from-[#1a1612] to-[#0f0d0a] border border-[#c9a961]/35 hover:border-[#c9a961]/60 rounded-[6px] overflow-hidden shadow-[0_2px_12px_rgba(201,169,97,0.08)] transition-all">
       <button
         onClick={() => onOpen(item)}
         className="w-full flex items-start gap-4 px-5 py-5 text-left active:scale-[0.99]"

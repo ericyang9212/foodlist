@@ -47,11 +47,11 @@ export function TonightModal({ candidates, onOpen, onClose }: Props) {
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center px-6"
          onClick={onClose}>
       <div
-        className="relative w-full max-w-sm bg-[#0f0f0f] border border-[#c9a961]/30 px-8 py-10"
+        className="relative w-full max-w-sm bg-[#0f0f0f] border border-[#c9a961]/30 rounded-[8px] shadow-[0_20px_60px_rgba(0,0,0,0.5),0_0_40px_rgba(201,169,97,0.15)] px-8 py-10"
         onClick={e => e.stopPropagation()}
       >
-        <button onClick={onClose} className="absolute top-3 right-3 p-1">
-          <X size={18} className="text-[#666]" />
+        <button onClick={onClose} className="absolute top-3 right-3 icon-btn">
+          <X size={18} />
         </button>
 
         <div className="text-center mb-10">
@@ -79,7 +79,7 @@ export function TonightModal({ candidates, onOpen, onClose }: Props) {
             <div className="space-y-2.5">
               <button
                 onClick={() => { onOpen(current); onClose(); }}
-                className="w-full flex items-center justify-center gap-2 bg-[#c9a961] text-[#0a0a0a] py-4 text-[15px] tracking-[0.3em] font-medium active:scale-[0.98] transition-transform"
+                className="btn-primary w-full flex items-center justify-center gap-2 py-4 text-[15px] tracking-[0.3em]"
               >
                 就決定它了
                 <ChevronRight size={18} strokeWidth={2.5} />
@@ -87,7 +87,7 @@ export function TonightModal({ candidates, onOpen, onClose }: Props) {
               <button
                 onClick={shuffle}
                 disabled={candidates.length <= 1 || shuffling}
-                className="w-full flex items-center justify-center gap-2 border border-[#c9a961]/40 text-[#c9a961] py-4 text-[14px] tracking-[0.3em] disabled:opacity-40 active:bg-[#c9a961]/10 transition-colors"
+                className="btn-secondary w-full flex items-center justify-center gap-2 py-4 text-[14px] tracking-[0.3em] disabled:opacity-40"
               >
                 <Shuffle size={16} />
                 再抽一個

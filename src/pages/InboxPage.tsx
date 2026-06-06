@@ -90,7 +90,7 @@ export function InboxPage({ items, loading, onUpload, onDelete, onConvertToFood,
               <button
                 onClick={handleUpload}
                 disabled={uploading}
-                className="mt-3 w-full bg-[#c9a961] text-[#0a0a0a] py-3 text-[14px] tracking-[0.3em] font-medium flex items-center justify-center gap-2 disabled:opacity-50"
+                className="btn-primary mt-3 w-full py-3 text-[14px] tracking-[0.3em] flex items-center justify-center gap-2"
               >
                 {uploading ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />}
                 {uploading ? '上傳中' : '收進靈感匣'}
@@ -99,7 +99,7 @@ export function InboxPage({ items, loading, onUpload, onDelete, onConvertToFood,
           ) : (
             <button
               onClick={() => fileRef.current?.click()}
-              className="w-full border border-dashed border-[#c9a961]/40 hover:border-[#c9a961] bg-[#0f0d0a] py-8 flex flex-col items-center justify-center gap-3 transition-colors"
+              className="w-full border border-dashed border-[#c9a961]/40 hover:border-[#c9a961] hover:bg-[#c9a961]/5 bg-[#0f0d0a] rounded-[6px] py-8 flex flex-col items-center justify-center gap-3 transition-all"
             >
               <ImagePlus size={32} className="text-[#c9a961]" />
               <div className="text-[14px] text-[#c9a961] tracking-[0.3em]">上傳截圖</div>
@@ -272,7 +272,7 @@ function InspirationDetail({
           </div>
           <button
             onClick={onConvert}
-            className="w-full bg-[#c9a961] text-[#0a0a0a] py-5 text-[16px] tracking-[0.3em] font-medium flex items-center justify-center gap-2 active:scale-[0.98] shadow-[0_0_32px_rgba(201,169,97,0.35)]"
+            className="btn-primary w-full py-5 text-[16px] tracking-[0.3em] flex items-center justify-center gap-2"
           >
             整理成想吃清單
             <ArrowRight size={20} strokeWidth={2.5} />

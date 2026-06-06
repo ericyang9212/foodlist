@@ -59,3 +59,115 @@ body {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
 }
+
+/* ───── 按鈕系統 ───── */
+
+/* 主要 CTA：金漸層 + 立體感 + 光暈 */
+.btn-primary {
+  background: linear-gradient(135deg, #e6c87a 0%, #c9a961 50%, #a88d4f 100%);
+  color: #0a0a0a;
+  border-radius: 5px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 240, 200, 0.35),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2),
+    0 4px 14px rgba(201, 169, 97, 0.25);
+  transition: all 0.15s ease;
+  font-weight: 500;
+}
+.btn-primary:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 240, 200, 0.4),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2),
+    0 6px 20px rgba(201, 169, 97, 0.4);
+  transform: translateY(-1px);
+}
+.btn-primary:active {
+  transform: translateY(0) scale(0.985);
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.25),
+    0 1px 4px rgba(201, 169, 97, 0.2);
+}
+.btn-primary:disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* 次要：金邊空心，hover 滿金 */
+.btn-secondary {
+  border: 1px solid rgba(201, 169, 97, 0.5);
+  color: #c9a961;
+  background: rgba(201, 169, 97, 0.04);
+  border-radius: 5px;
+  transition: all 0.15s ease;
+  font-weight: 500;
+}
+.btn-secondary:hover {
+  border-color: rgba(201, 169, 97, 1);
+  background: rgba(201, 169, 97, 0.12);
+}
+.btn-secondary:active {
+  transform: scale(0.985);
+}
+
+/* 中性：低調，提供取消/輔助動作 */
+.btn-neutral {
+  border: 1px solid #2a2a2a;
+  color: #8a8478;
+  background: transparent;
+  border-radius: 5px;
+  transition: all 0.15s ease;
+}
+.btn-neutral:hover {
+  border-color: #3a3a3a;
+  color: #c9a961;
+  background: rgba(201, 169, 97, 0.04);
+}
+.btn-neutral:active {
+  transform: scale(0.985);
+}
+
+/* 圓潤膠囊：篩選 chip 用 */
+.chip {
+  border-radius: 999px;
+  border: 1px solid #2a2a2a;
+  color: #8a8478;
+  background: transparent;
+  transition: all 0.15s ease;
+}
+.chip:hover {
+  border-color: rgba(201, 169, 97, 0.4);
+  color: #c9a961;
+}
+.chip-active {
+  background: linear-gradient(135deg, #e6c87a 0%, #c9a961 100%);
+  border-color: transparent;
+  color: #0a0a0a;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(201, 169, 97, 0.25);
+}
+
+/* 危險動作：紅褐色 */
+.btn-danger {
+  border: 1px solid rgba(140, 70, 70, 0.4);
+  color: #a85959;
+  background: rgba(140, 70, 70, 0.05);
+  border-radius: 5px;
+  transition: all 0.15s ease;
+}
+.btn-danger:hover {
+  border-color: rgba(140, 70, 70, 0.7);
+  background: rgba(140, 70, 70, 0.1);
+}
+
+/* 圖示鈕：圓 + 細邊 */
+.icon-btn {
+  border-radius: 999px;
+  padding: 8px;
+  color: #8a8478;
+  background: transparent;
+  transition: all 0.15s ease;
+}
+.icon-btn:hover {
+  background: rgba(201, 169, 97, 0.1);
+  color: #c9a961;
+}

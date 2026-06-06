@@ -101,8 +101,8 @@ export function AddEditPage({ item, inspiration, onUploadImage, onSave, onClose 
         className="flex items-center justify-between px-6 pb-4 border-b border-[#1f1f1f]"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}
       >
-        <button onClick={onClose} className="p-1">
-          <X size={22} className="text-[#8a8478]" />
+        <button onClick={onClose} className="icon-btn">
+          <X size={22} />
         </button>
         <div className="text-[12px] tracking-[0.4em] text-[#c9a961]/80">
           {isEdit ? 'EDIT' : 'WANT TO EAT'}
@@ -110,7 +110,7 @@ export function AddEditPage({ item, inspiration, onUploadImage, onSave, onClose 
         <button
           onClick={handleSave}
           disabled={!name.trim() || uploading}
-          className="text-[14px] tracking-[0.3em] text-[#c9a961] disabled:text-[#3a3a3a] transition-colors flex items-center gap-1"
+          className="btn-primary px-5 py-2 text-[13px] tracking-[0.3em] flex items-center gap-1.5"
         >
           {uploading && <Loader2 size={13} className="animate-spin" />}
           儲存
@@ -140,20 +140,20 @@ export function AddEditPage({ item, inspiration, onUploadImage, onSave, onClose 
             {/* 縮圖區塊 */}
             {previewSrc ? (
               <div className="relative flex-shrink-0">
-                <div className="w-20 h-20 bg-[#0a0a0a] border border-[#c9a961]/40 overflow-hidden">
+                <div className="w-20 h-20 rounded-[6px] bg-[#0a0a0a] border border-[#c9a961]/40 overflow-hidden shadow-[0_4px_12px_rgba(201,169,97,0.15)]">
                   <img src={previewSrc} alt="" className="w-full h-full object-cover" />
                 </div>
                 <button
                   onClick={removeImage}
-                  className="absolute -top-1.5 -right-1.5 bg-[#0a0a0a] border border-[#c9a961]/60 w-5 h-5 rounded-full flex items-center justify-center"
+                  className="absolute -top-1.5 -right-1.5 bg-[#0a0a0a] border border-[#c9a961]/60 w-6 h-6 rounded-full flex items-center justify-center hover:bg-[#c9a961]/20 transition-colors"
                 >
-                  <X size={11} className="text-[#c9a961]" />
+                  <X size={12} className="text-[#c9a961]" />
                 </button>
               </div>
             ) : (
               <button
                 onClick={() => fileRef.current?.click()}
-                className="flex-shrink-0 w-20 h-20 border border-dashed border-[#c9a961]/40 hover:border-[#c9a961] flex flex-col items-center justify-center gap-1 transition-colors"
+                className="flex-shrink-0 w-20 h-20 rounded-[6px] border border-dashed border-[#c9a961]/40 hover:border-[#c9a961] hover:bg-[#c9a961]/5 flex flex-col items-center justify-center gap-1 transition-all"
               >
                 <ImagePlus size={18} className="text-[#c9a961]" />
                 <span className="text-[10px] tracking-wider text-[#c9a961]/70">截圖</span>
@@ -191,11 +191,7 @@ export function AddEditPage({ item, inspiration, onUploadImage, onSave, onClose 
                     <button
                       key={s}
                       onClick={() => setStatus(s)}
-                      className={`text-[15px] tracking-wider py-3 border transition-all ${
-                        status === s
-                          ? 'bg-[#c9a961] text-[#0a0a0a] border-[#c9a961] font-medium'
-                          : 'border-[#2a2a2a] text-[#777]'
-                      }`}
+                      className={status === s ? 'btn-primary py-3 text-[15px] tracking-wider' : 'btn-neutral py-3 text-[15px] tracking-wider'}
                     >
                       {STATUS_LABELS[s]}
                     </button>
@@ -209,7 +205,7 @@ export function AddEditPage({ item, inspiration, onUploadImage, onSave, onClose 
                 <select
                   value={cuisineType}
                   onChange={e => setCuisineType(e.target.value)}
-                  className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 px-3 py-3 text-[15px] text-[#f5f1e8] focus:outline-none"
+                  className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[5px] px-3 py-3 text-[15px] text-[#f5f1e8] focus:outline-none transition-colors"
                 >
                   <option value="">—</option>
                   {CUISINE_TYPES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -224,11 +220,7 @@ export function AddEditPage({ item, inspiration, onUploadImage, onSave, onClose 
                     <button
                       key={o}
                       onClick={() => toggleOccasion(o)}
-                      className={`text-[14px] tracking-wider px-3.5 py-2 border transition-colors ${
-                        occasions.includes(o)
-                          ? 'bg-[#c9a961]/15 text-[#c9a961] border-[#c9a961]/40'
-                          : 'border-[#2a2a2a] text-[#777]'
-                      }`}
+                      className={occasions.includes(o) ? 'chip chip-active text-[14px] tracking-wider px-4 py-2' : 'chip text-[14px] tracking-wider px-4 py-2'}
                     >
                       {OCCASION_LABELS[o]}
                     </button>
@@ -264,7 +256,7 @@ export function AddEditPage({ item, inspiration, onUploadImage, onSave, onClose 
                   value={notes}
                   onChange={e => setNotes(e.target.value)}
                   rows={3}
-                  className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 px-3 py-3 text-[15px] text-[#f5f1e8] placeholder-[#555] focus:outline-none resize-none leading-relaxed"
+                  className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[5px] px-3 py-3 text-[15px] text-[#f5f1e8] placeholder-[#555] focus:outline-none resize-none leading-relaxed transition-colors"
                 />
               </div>
 
