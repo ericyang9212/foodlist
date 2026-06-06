@@ -261,22 +261,29 @@ function InspirationDetail({
         </div>
       </div>
 
-      {/* 底部主要動作 */}
+      {/* 底部主要動作：整理成想吃，強化視覺權重 */}
       {!insp.convertedFoodId && (
-        <div className="px-6 py-5 border-t border-[#1f1f1f] bg-[#0a0a0a]"
-             style={{ paddingBottom: 'max(20px, env(safe-area-inset-bottom))' }}>
+        <div
+          className="px-6 pt-5 pb-5 border-t border-[#c9a961]/30 bg-gradient-to-t from-[#1a1612] to-[#0a0a0a]"
+          style={{ paddingBottom: 'max(20px, env(safe-area-inset-bottom))' }}
+        >
+          <div className="text-[10px] tracking-[0.5em] text-[#c9a961]/70 mb-3 text-center">
+            DECIDE TO EAT
+          </div>
           <button
             onClick={onConvert}
-            className="w-full bg-[#c9a961] text-[#0a0a0a] py-4 text-[15px] tracking-[0.3em] font-medium flex items-center justify-center gap-2 active:scale-[0.98]"
+            className="w-full bg-[#c9a961] text-[#0a0a0a] py-5 text-[16px] tracking-[0.3em] font-medium flex items-center justify-center gap-2 active:scale-[0.98] shadow-[0_0_32px_rgba(201,169,97,0.35)]"
           >
-            轉成想吃清單
-            <ArrowRight size={18} strokeWidth={2.5} />
+            整理成想吃清單
+            <ArrowRight size={20} strokeWidth={2.5} />
           </button>
         </div>
       )}
       {insp.convertedFoodId && (
-        <div className="px-6 py-5 border-t border-[#1f1f1f] text-center text-[13px] tracking-widest text-[#666]"
-             style={{ paddingBottom: 'max(20px, env(safe-area-inset-bottom))' }}>
+        <div
+          className="px-6 py-5 border-t border-[#1f1f1f] text-center text-[13px] tracking-widest text-[#666]"
+          style={{ paddingBottom: 'max(20px, env(safe-area-inset-bottom))' }}
+        >
           已加入想吃清單 ✓
         </div>
       )}

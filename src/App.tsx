@@ -118,7 +118,16 @@ export default function App() {
           />
         )}
         {tab === 'nearby' && (
-          <NearbyPage items={items} imageByFoodId={imageByFoodId} onOpen={handleOpen} />
+          <NearbyPage
+            items={items}
+            imageByFoodId={imageByFoodId}
+            onOpen={handleOpen}
+            onMarkTried={(it) => updateItem({
+              ...it,
+              status: 'tried',
+              updatedAt: new Date().toISOString(),
+            })}
+          />
         )}
       </div>
 

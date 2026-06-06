@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, MapPin, ExternalLink, Edit3, Trash2, Plus, X } from 'lucide-react';
+import { ArrowLeft, MapPin, ExternalLink, Edit3, Trash2, Plus, X, Check } from 'lucide-react';
 import { StatusBadge } from '../components/StatusBadge';
 import { OCCASION_LABELS, CITIES } from '../types';
 import type { FoodItem, Restaurant } from '../types';
@@ -104,6 +104,35 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
           <div className="text-[#c9a961] tracking-[0.4em] text-xl mb-7">
             {'★'.repeat(item.rating)}<span className="text-[#2a2a2a]">{'★'.repeat(5 - item.rating)}</span>
           </div>
+        )}
+
+        {/* 「今天吃了」主動作：只在想吃時出現 */}
+        {item.status === 'want' && (
+          <button
+            onClick={() => onUpdate({
+              ...item,
+              status: 'tried',
+              updatedAt: new Date().toISOString(),
+            })}
+            className="w-full bg-[#c9a961] text-[#0a0a0a] py-4 mb-7 flex items-center justify-center gap-2 text-[15px] tracking-[0.3em] font-medium active:scale-[0.98] transition-transform shadow-[0_0_24px_rgba(201,169,97,0.2)]"
+          >
+            <Check size={18} strokeWidth={2.5} />
+            今天吃了
+          </button>
+        )}
+
+        {/* 嘗過項目顯示上次更新時間 + 再吃一次入口 */}
+        {item.status === 'tried' && (
+          <button
+            onClick={() => onUpdate({
+              ...item,
+              updatedAt: new Date().toISOString(),
+            })}
+            className="w-full bg-[#0f0f0f] border border-[#c9a961]/30 hover:border-[#c9a961]/60 py-3.5 mb-7 flex items-center justify-center gap-2 text-[13px] tracking-[0.3em] text-[#c9a961] active:scale-[0.99] transition-all"
+          >
+            <Check size={14} />
+            又吃了一次
+          </button>
         )}
 
         {item.occasions.length > 0 && (

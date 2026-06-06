@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Navigation, MapPin, ExternalLink, Compass } from 'lucide-react';
+import { Navigation, MapPin, ExternalLink, Compass, Check, BookOpen } from 'lucide-react';
 import { StatusBadge } from '../components/StatusBadge';
 import type { FoodItem, Restaurant } from '../types';
 
@@ -7,6 +7,7 @@ interface Props {
   items: FoodItem[];
   imageByFoodId: Record<string, string>;
   onOpen: (item: FoodItem) => void;
+  onMarkTried: (item: FoodItem) => void;
 }
 
 function getDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
@@ -23,21 +24,32 @@ function fmtDist(m: number) {
   return m < 1000 ? `${Math.round(m)}M` : `${(m / 1000).toFixed(1)}KM`;
 }
 
+function timeAgo(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const days = Math.floor(diff / 86400000);
+  if (days < 1) return '今天';
+  if (days === 1) return '昨天';
+  if (days < 7) return `${days} 天前`;
+  if (days < 30) return `${Math.floor(days / 7)} 週前`;
+  if (days < 365) return `${Math.floor(days / 30)} 個月前`;
+  return `${Math.floor(days / 365)} 年前`;
+}
+
 function googleMapsUrlForRestaurant(r: Restaurant): string {
   if (r.googleMapsUrl) return r.googleMapsUrl;
-  const q = encodeURIComponent([r.name, r.area, r.address].filter(Boolean).join(' '));
+  const q = encodeURIComponent([r.name, r.city, r.area, r.address].filter(Boolean).join(' '));
   return `https://www.google.com/maps/search/?api=1&query=${q}`;
 }
 
 const RADIUS_OPTIONS = [500, 1000, 2000, 5000];
 
-type EnrichedHit = {
+type Hit = {
   item: FoodItem;
   restaurant: Restaurant;
   dist: number;
 };
 
-export function NearbyPage({ items, imageByFoodId, onOpen }: Props) {
+export function NearbyPage({ items, imageByFoodId, onOpen, onMarkTried }: Props) {
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -57,9 +69,9 @@ export function NearbyPage({ items, imageByFoodId, onOpen }: Props) {
   };
 
   const { triedHits, wantHits } = useMemo(() => {
-    if (!location) return { triedHits: [] as EnrichedHit[], wantHits: [] as EnrichedHit[] };
-    const tried: EnrichedHit[] = [];
-    const want: EnrichedHit[] = [];
+    if (!location) return { triedHits: [] as Hit[], wantHits: [] as Hit[] };
+    const tried: Hit[] = [];
+    const want: Hit[] = [];
     items.forEach(item => {
       if (item.status !== 'tried' && item.status !== 'want') return;
       const nearest = item.restaurants.reduce<{ r: Restaurant; d: number } | null>((best, r) => {
@@ -70,7 +82,7 @@ export function NearbyPage({ items, imageByFoodId, onOpen }: Props) {
         return best;
       }, null);
       if (!nearest) return;
-      const hit: EnrichedHit = { item, restaurant: nearest.r, dist: nearest.d };
+      const hit: Hit = { item, restaurant: nearest.r, dist: nearest.d };
       (item.status === 'tried' ? tried : want).push(hit);
     });
     tried.sort((a, b) => a.dist - b.dist);
@@ -90,8 +102,8 @@ export function NearbyPage({ items, imageByFoodId, onOpen }: Props) {
         className="px-6 pb-6"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 84px)' }}
       >
-        <div className="text-[12px] tracking-[0.5em] text-[#c9a961]/70 mb-3">NEARBY</div>
-        <h1 className="text-[34px] font-medium text-gold-gradient tracking-[0.15em]">附 近</h1>
+        <div className="text-[12px] tracking-[0.5em] text-[#c9a961]/70 mb-3">FOOD CONNECTIONS</div>
+        <h1 className="text-[34px] font-medium text-gold-gradient tracking-[0.15em]">吃 過 · 想 吃</h1>
         <div className="mt-4 h-[1px] bg-gradient-to-r from-[#c9a961]/40 via-[#c9a961]/10 to-transparent" />
       </div>
 
@@ -120,15 +132,16 @@ export function NearbyPage({ items, imageByFoodId, onOpen }: Props) {
           <PermissionPrompt loading={loading} error={error} onClick={getLocation} />
         ) : (
           <>
-            {/* 吃過的 */}
+            {/* MEMORY 區塊 — 像翻一本相簿，平靜回顧 */}
             <Section
               title="這附近吃過"
-              subtitle="MEMORY"
+              subtitle="MEMORY · 你的食地足跡"
               count={triedHits.length}
               empty="這附近還沒有你的足跡"
+              icon={<BookOpen size={13} className="text-[#8a7544]" />}
             >
               {triedHits.map(({ item, restaurant, dist }) => (
-                <NearbyCard
+                <MemoryCard
                   key={item.id + restaurant.id}
                   item={item}
                   restaurant={restaurant}
@@ -139,21 +152,29 @@ export function NearbyPage({ items, imageByFoodId, onOpen }: Props) {
               ))}
             </Section>
 
-            {/* 想吃的 */}
+            <div className="my-8 flex items-center gap-3">
+              <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-[#c9a961]/30 to-transparent" />
+              <span className="text-[#c9a961]/50 text-[12px] tracking-[0.5em]">✦</span>
+              <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent via-[#c9a961]/30 to-transparent" />
+            </div>
+
+            {/* WISHLIST 區塊 — 主動、可行動 */}
             <Section
               title="這附近想吃"
-              subtitle="WISHLIST"
+              subtitle="WISHLIST · 現在就能滿足"
               count={wantHits.length}
               empty="想吃清單裡的店家還沒落在這附近"
+              icon={<span className="text-[#c9a961] text-[14px]">✦</span>}
             >
               {wantHits.map(({ item, restaurant, dist }) => (
-                <NearbyCard
+                <WishlistCard
                   key={item.id + restaurant.id}
                   item={item}
                   restaurant={restaurant}
                   dist={dist}
                   thumbnailUrl={imageByFoodId[item.id]}
                   onOpen={onOpen}
+                  onMarkTried={() => onMarkTried(item)}
                 />
               ))}
             </Section>
@@ -203,19 +224,21 @@ function PermissionPrompt({ loading, error, onClick }: {
 }
 
 function Section({
-  title, subtitle, count, empty, children,
+  title, subtitle, count, empty, icon, children,
 }: {
-  title: string; subtitle: string; count: number; empty: string; children: React.ReactNode;
+  title: string; subtitle: string; count: number; empty: string;
+  icon: React.ReactNode; children: React.ReactNode;
 }) {
   return (
-    <div className="mb-8">
-      <div className="flex items-baseline justify-between mb-4">
-        <div className="flex items-baseline gap-3">
-          <h2 className="text-[18px] text-[#f5f1e8] tracking-[0.2em] font-medium">{title}</h2>
+    <div className="mb-6">
+      <div className="flex items-baseline justify-between mb-1">
+        <div className="flex items-center gap-2.5">
+          {icon}
+          <h2 className="text-[19px] text-[#f5f1e8] tracking-[0.2em] font-medium">{title}</h2>
           <span className="text-[#c9a961] text-[12px] tracking-widest">{count}</span>
         </div>
-        <span className="text-[10px] tracking-[0.4em] text-[#555]">{subtitle}</span>
       </div>
+      <div className="text-[10px] tracking-[0.4em] text-[#666] mb-4">{subtitle}</div>
       {count === 0 ? (
         <p className="text-[#555] text-[13px] tracking-wider italic py-4">{empty}</p>
       ) : (
@@ -225,7 +248,8 @@ function Section({
   );
 }
 
-function NearbyCard({
+// ─── MEMORY 風格：相片冊、平靜、有時間 ───
+function MemoryCard({
   item, restaurant, dist, thumbnailUrl, onOpen,
 }: {
   item: FoodItem;
@@ -235,57 +259,132 @@ function NearbyCard({
   onOpen: (item: FoodItem) => void;
 }) {
   const mapsUrl = googleMapsUrlForRestaurant(restaurant);
+  const region = [restaurant.city, restaurant.area].filter(Boolean).join(' ');
 
   return (
-    <div className="bg-[#161616] border border-[#2a2a2a]">
+    <div className="bg-[#101010] border border-[#1f1f1f]">
       <button
         onClick={() => onOpen(item)}
-        className="w-full flex items-start gap-4 px-5 py-4 text-left active:bg-[#1a1a1a]"
+        className="w-full flex items-start gap-4 px-5 py-4 text-left active:bg-[#161616]"
       >
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-2 flex-wrap">
-            <StatusBadge status={item.status} />
-            <span className="text-[12px] text-[#c9a961]/80 tracking-[0.3em] ml-auto">
-              {fmtDist(dist)}
-            </span>
+        {/* 縮圖（如有）放左邊，像相片角落 */}
+        {thumbnailUrl && (
+          <div className="flex-shrink-0 w-16 h-16 bg-[#0a0a0a] border border-[#2a2a2a] overflow-hidden grayscale-[15%]">
+            <img src={thumbnailUrl} alt="" className="w-full h-full object-cover opacity-90" />
           </div>
-          <h3 className="text-[22px] text-gold-gradient font-medium tracking-wide leading-tight mb-2">
+        )}
+        <div className="flex-1 min-w-0">
+          {/* 標題：襯線、平淡 */}
+          <h3
+            className="text-[19px] text-[#d6c89a] leading-tight mb-1.5 tracking-wide"
+            style={{ fontFamily: "'Noto Serif TC', serif", fontWeight: 500 }}
+          >
             {item.name}
           </h3>
           <div className="flex items-center gap-1.5 text-[#8a8478]">
-            <MapPin size={11} />
-            <span className="text-[13px] tracking-wide">
-              {restaurant.name}
-              {(restaurant.city || restaurant.area) && ` · ${[restaurant.city, restaurant.area].filter(Boolean).join(' ')}`}
+            <MapPin size={11} className="opacity-70" />
+            <span className="text-[12px] tracking-wide">
+              {restaurant.name}{region && ` · ${region}`}
             </span>
           </div>
-          {item.rating && (
-            <div className="text-[#c9a961] tracking-[0.3em] text-[11px] mt-1.5">
-              {'★'.repeat(item.rating)}<span className="text-[#2a2a2a]">{'★'.repeat(5 - item.rating)}</span>
-            </div>
-          )}
-        </div>
-
-        {thumbnailUrl && (
-          <div className="flex-shrink-0 w-20 h-20 bg-[#0a0a0a] border border-[#2a2a2a] overflow-hidden">
-            <img src={thumbnailUrl} alt="" className="w-full h-full object-cover" />
+          <div className="flex items-center gap-3 mt-2 text-[#8a7544]">
+            <span className="text-[11px] tracking-[0.25em] italic">上次：{timeAgo(item.updatedAt)}</span>
+            <span className="text-[#3a3a3a]">·</span>
+            <span className="text-[11px] tracking-[0.25em]">{fmtDist(dist)}</span>
+            {item.rating && (
+              <>
+                <span className="text-[#3a3a3a]">·</span>
+                <span className="text-[#c9a961] tracking-[0.2em] text-[10px]">
+                  {'★'.repeat(item.rating)}
+                </span>
+              </>
+            )}
           </div>
-        )}
+        </div>
       </button>
 
-      {/* Google Maps CTA — 用 anchor 直接開新分頁 */}
       <a
         href={mapsUrl}
         target="_blank"
         rel="noopener noreferrer"
-        onClick={e => e.stopPropagation()}
-        className="flex items-center justify-center gap-2 border-t border-[#2a2a2a] py-3 text-[13px] tracking-[0.25em] text-[#c9a961] hover:bg-[#c9a961]/10 transition-colors"
+        className="flex items-center justify-center gap-1.5 border-t border-[#1f1f1f] py-2.5 text-[11px] tracking-[0.25em] text-[#666] hover:text-[#c9a961] hover:bg-[#c9a961]/5 transition-colors"
       >
-        <Navigation size={13} />
-        用 Google Maps 導航
-        <ExternalLink size={11} />
+        再去一次
+        <ExternalLink size={10} />
       </a>
     </div>
   );
 }
 
+// ─── WISHLIST 風格：可行動、亮金、決策感 ───
+function WishlistCard({
+  item, restaurant, dist, thumbnailUrl, onOpen, onMarkTried,
+}: {
+  item: FoodItem;
+  restaurant: Restaurant;
+  dist: number;
+  thumbnailUrl?: string;
+  onOpen: (item: FoodItem) => void;
+  onMarkTried: () => void;
+}) {
+  const mapsUrl = googleMapsUrlForRestaurant(restaurant);
+  const region = [restaurant.city, restaurant.area].filter(Boolean).join(' ');
+
+  return (
+    <div className="bg-gradient-to-br from-[#1a1612] to-[#0f0d0a] border border-[#c9a961]/35 hover:border-[#c9a961]/60 transition-colors">
+      <button
+        onClick={() => onOpen(item)}
+        className="w-full flex items-start gap-4 px-5 py-5 text-left active:scale-[0.99]"
+      >
+        <div className="flex-1 min-w-0">
+          {/* 距離放最上方當「可行性」訊號 */}
+          <div className="flex items-center gap-2 mb-2">
+            <StatusBadge status={item.status} />
+            <span className="ml-auto text-[#c9a961] text-[12px] tracking-[0.3em] font-medium">
+              {fmtDist(dist)}
+            </span>
+          </div>
+          <h3 className="text-[24px] text-gold-gradient font-medium tracking-wide leading-tight mb-2">
+            {item.name}
+          </h3>
+          <div className="flex items-center gap-1.5 text-[#8a8478]">
+            <MapPin size={12} />
+            <span className="text-[13px] tracking-wide">
+              {restaurant.name}{region && ` · ${region}`}
+            </span>
+          </div>
+          {restaurant.note && (
+            <p className="text-[12px] text-[#c9a961]/70 italic tracking-wide mt-1.5">「{restaurant.note}」</p>
+          )}
+        </div>
+
+        {thumbnailUrl && (
+          <div className="flex-shrink-0 w-20 h-20 bg-[#0a0a0a] border border-[#c9a961]/40 overflow-hidden">
+            <img src={thumbnailUrl} alt="" className="w-full h-full object-cover" />
+          </div>
+        )}
+      </button>
+
+      {/* 雙動作：去吃 / 已吃 */}
+      <div className="grid grid-cols-2 border-t border-[#c9a961]/20">
+        <a
+          href={mapsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center gap-1.5 py-3 text-[13px] tracking-[0.25em] text-[#c9a961] hover:bg-[#c9a961]/10 transition-colors border-r border-[#c9a961]/20"
+        >
+          <Navigation size={13} />
+          導航
+          <ExternalLink size={10} />
+        </a>
+        <button
+          onClick={(e) => { e.stopPropagation(); onMarkTried(); }}
+          className="flex items-center justify-center gap-1.5 py-3 text-[13px] tracking-[0.25em] text-[#c9a961]/80 hover:bg-[#c9a961]/10 hover:text-[#c9a961] transition-colors"
+        >
+          <Check size={14} />
+          今天吃了
+        </button>
+      </div>
+    </div>
+  );
+}
