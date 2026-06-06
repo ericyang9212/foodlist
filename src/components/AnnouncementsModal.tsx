@@ -116,9 +116,7 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onClose }: P
                       style={{ fontFamily: "'Noto Serif TC', serif", fontWeight: 400 }}
                     >
                       {paragraphs.map((p, i) => (
-                        <p key={i} className={i === 0 ? 'first-letter:text-[#c9a961] first-letter:text-[20px] first-letter:font-medium' : ''}>
-                          {p}
-                        </p>
+                        <p key={i}>{p}</p>
                       ))}
                     </div>
                   )}
