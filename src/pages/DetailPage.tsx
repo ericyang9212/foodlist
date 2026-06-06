@@ -11,6 +11,7 @@ interface Props {
   onEdit: (item: FoodItem) => void;
   onDelete: (id: string) => void;
   onUpdate: (item: FoodItem) => void;
+  onLogFoodprint: (item: FoodItem) => void;
 }
 
 function makeId() {
@@ -21,7 +22,7 @@ const EMPTY_REST: Omit<Restaurant, 'id'> = {
   name: '', city: '', area: '', googleMapsUrl: '', note: '',
 };
 
-export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUpdate }: Props) {
+export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUpdate, onLogFoodprint }: Props) {
   const [adding, setAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -100,10 +101,10 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
           </div>
         )}
 
-        {/* 「今天吃了」/「又吃了一次」主動作 */}
+        {/* 「今天吃了」/「又吃了一次」主動作 — 開記錄 sheet */}
         {item.status === 'want' && (
           <button
-            onClick={() => onUpdate({ ...item, status: 'tried', updatedAt: new Date().toISOString() })}
+            onClick={() => onLogFoodprint(item)}
             className="btn-primary w-full py-4 mb-7 flex items-center justify-center gap-2 text-[15px] tracking-[0.3em]"
           >
             <Check size={18} strokeWidth={2.5} />
@@ -112,7 +113,7 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
         )}
         {item.status === 'tried' && (
           <button
-            onClick={() => onUpdate({ ...item, updatedAt: new Date().toISOString() })}
+            onClick={() => onLogFoodprint(item)}
             className="btn-secondary w-full py-3.5 mb-7 flex items-center justify-center gap-2 text-[13px] tracking-[0.3em]"
           >
             <Check size={14} />

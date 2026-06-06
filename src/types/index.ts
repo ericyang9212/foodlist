@@ -35,6 +35,25 @@ export interface FoodItem {
   updatedAt: string;
 }
 
+// 食物足跡：一次「吃過」的紀錄
+export interface Foodprint {
+  id: string;
+  foodId: string;
+  foodName: string;
+  cuisineType?: string;
+  restaurantName?: string;
+  restaurantCity?: string;
+  restaurantArea?: string;
+  restaurantAddress?: string;
+  restaurantLat?: number;
+  restaurantLng?: number;
+  restaurantMapsUrl?: string;
+  ateAt: string;
+  photoUrl?: string;
+  note?: string;
+  createdAt: string;
+}
+
 // 靈感收集匣：截圖、貼文連結、隨手筆記
 export interface Inspiration {
   id: string;

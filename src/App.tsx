@@ -4,13 +4,16 @@ import { useStore } from './store/useStore';
 import { useInspirations } from './store/useInspirations';
 import { useAnnouncements } from './store/useAnnouncements';
 import { useMarquee } from './store/useMarquee';
+import { useFoodprints } from './store/useFoodprints';
 import { AnnouncementsModal } from './components/AnnouncementsModal';
 import { Marquee } from './components/Marquee';
+import { LogFoodprintSheet } from './components/LogFoodprintSheet';
 import { ListView } from './pages/ListView';
 import { NearbyPage } from './pages/NearbyPage';
 import { InboxPage } from './pages/InboxPage';
 import { AddEditPage } from './pages/AddEditPage';
 import { DetailPage } from './pages/DetailPage';
+import { FoodprintsPage } from './pages/FoodprintsPage';
 import type { FoodItem, Inspiration, Tab } from './types';
 
 export default function App() {
@@ -18,6 +21,7 @@ export default function App() {
   const inspirations = useInspirations();
   const announcements = useAnnouncements();
   const marquee = useMarquee();
+  const foodprints = useFoodprints();
 
   const [tab, setTab] = useState<Tab>('list');
   const [detail, setDetail] = useState<FoodItem | null>(null);
@@ -25,6 +29,8 @@ export default function App() {
   const [showAdd, setShowAdd] = useState(false);
   const [showInbox, setShowInbox] = useState(false);
   const [showAnnouncements, setShowAnnouncements] = useState(false);
+  const [showFoodprints, setShowFoodprints] = useState(false);
+  const [loggingFood, setLoggingFood] = useState<FoodItem | null>(null);
   const [fromInspiration, setFromInspiration] = useState<Inspiration | null>(null);
 
   // food id → 圖片 URL 的對照表（從靈感裡查）
@@ -115,6 +121,8 @@ export default function App() {
             onOpen={handleOpen}
             onOpenInbox={() => setShowInbox(true)}
             onOpenAnnouncements={() => setShowAnnouncements(true)}
+            onOpenFoodprints={() => setShowFoodprints(true)}
+            foodprintsCount={foodprints.items.length}
           />
         )}
         {tab === 'nearby' && (
@@ -122,11 +130,7 @@ export default function App() {
             items={items}
             imageByFoodId={imageByFoodId}
             onOpen={handleOpen}
-            onMarkTried={(it) => updateItem({
-              ...it,
-              status: 'tried',
-              updatedAt: new Date().toISOString(),
-            })}
+            onMarkTried={(it) => setLoggingFood(it)}
           />
         )}
       </div>
@@ -179,6 +183,39 @@ export default function App() {
           onEdit={handleEdit}
           onDelete={id => { deleteItem(id); setDetail(null); }}
           onUpdate={handleUpdateFromDetail}
+          onLogFoodprint={(it) => setLoggingFood(it)}
+        />
+      )}
+
+      {showFoodprints && (
+        <FoodprintsPage
+          items={foodprints.items}
+          onClose={() => setShowFoodprints(false)}
+          onDelete={foodprints.deleteFoodprint}
+        />
+      )}
+
+      {loggingFood && (
+        <LogFoodprintSheet
+          food={loggingFood}
+          uploadPhoto={foodprints.uploadPhoto}
+          onSave={async (p) => {
+            await foodprints.addFoodprint(p);
+            // 同步把食物狀態改成 tried
+            if (loggingFood.status === 'want') {
+              updateItem({
+                ...loggingFood,
+                status: 'tried',
+                updatedAt: new Date().toISOString(),
+              });
+            } else {
+              updateItem({
+                ...loggingFood,
+                updatedAt: new Date().toISOString(),
+              });
+            }
+          }}
+          onClose={() => setLoggingFood(null)}
         />
       )}
 
