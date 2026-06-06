@@ -5,6 +5,7 @@ import { useInspirations } from './store/useInspirations';
 import { useAnnouncements } from './store/useAnnouncements';
 import { useMarquee } from './store/useMarquee';
 import { useFoodprints } from './store/useFoodprints';
+import { useAuth } from './store/useAuth';
 import { AnnouncementsModal } from './components/AnnouncementsModal';
 import { Marquee } from './components/Marquee';
 import { LogFoodprintSheet } from './components/LogFoodprintSheet';
@@ -14,9 +15,29 @@ import { InboxPage } from './pages/InboxPage';
 import { AddEditPage } from './pages/AddEditPage';
 import { DetailPage } from './pages/DetailPage';
 import { FoodprintsPage } from './pages/FoodprintsPage';
+import { LoginScreen } from './pages/LoginScreen';
 import type { FoodItem, Inspiration, Tab } from './types';
 
+function FullScreenLoader() {
+  return (
+    <div className="flex items-center justify-center h-svh bg-[#0a0a0a]">
+      <div className="text-center">
+        <div className="text-[#c9a961]/40 text-3xl tracking-[0.5em] mb-3">— —</div>
+        <p className="text-[#666] text-[12px] tracking-[0.3em]">LOADING</p>
+      </div>
+    </div>
+  );
+}
+
+// 最外層：先過 auth，未登入只給登入畫面，登入後才掛載資料層
 export default function App() {
+  const auth = useAuth();
+  if (!auth.ready) return <FullScreenLoader />;
+  if (!auth.session) return <LoginScreen onSignIn={auth.signIn} />;
+  return <AppInner onSignOut={auth.signOut} />;
+}
+
+function AppInner({ onSignOut }: { onSignOut: () => void }) {
   const { items, loading, addItem, updateItem, deleteItem } = useStore();
   const inspirations = useInspirations();
   const announcements = useAnnouncements();
@@ -107,14 +128,7 @@ export default function App() {
     setShowAdd(true);
   };
 
-  if (loading) return (
-    <div className="flex items-center justify-center h-svh bg-[#0a0a0a]">
-      <div className="text-center">
-        <div className="text-[#c9a961]/40 text-3xl tracking-[0.5em] mb-3">— —</div>
-        <p className="text-[#666] text-[12px] tracking-[0.3em]">LOADING</p>
-      </div>
-    </div>
-  );
+  if (loading) return <FullScreenLoader />;
 
   return (
     <div className="relative flex flex-col h-svh overflow-hidden bg-[#0a0a0a]">
@@ -164,6 +178,7 @@ export default function App() {
           items={announcements.items}
           readIds={announcements.readIds}
           onMarkAllRead={announcements.markAllRead}
+          onSignOut={onSignOut}
           onClose={() => setShowAnnouncements(false)}
         />
       )}

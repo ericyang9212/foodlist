@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { X, Bell, Download, Cloud, ExternalLink } from 'lucide-react';
+import { X, Bell, Download, Cloud, ExternalLink, LogOut } from 'lucide-react';
 import type { Announcement } from '../store/useAnnouncements';
 import { supabase } from '../lib/supabase';
 
@@ -7,11 +7,12 @@ interface Props {
   items: Announcement[];
   readIds: Set<string>;
   onMarkAllRead: () => void;
+  onSignOut: () => void;
   onClose: () => void;
 }
 
 async function downloadBackup() {
-  const tables = ['food_items', 'inspirations', 'announcements'] as const;
+  const tables = ['food_items', 'inspirations', 'announcements', 'foodprints', 'marquee'] as const;
   const dump: Record<string, unknown> = { _backed_up_at: new Date().toISOString() };
   for (const t of tables) {
     const { data } = await supabase.from(t).select('*');
@@ -26,7 +27,7 @@ async function downloadBackup() {
   URL.revokeObjectURL(url);
 }
 
-export function AnnouncementsModal({ items, readIds, onMarkAllRead, onClose }: Props) {
+export function AnnouncementsModal({ items, readIds, onMarkAllRead, onSignOut, onClose }: Props) {
   const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
@@ -171,6 +172,15 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onClose }: P
               </div>
               <div className="text-[11px] text-[#777] tracking-wider mt-0.5">想自己留一份在本機隨時可下載</div>
             </div>
+          </button>
+
+          {/* 登出 */}
+          <button
+            onClick={onSignOut}
+            className="w-full flex items-center gap-3 mt-3 border border-[#2a2a2a] hover:border-[#a85959]/50 rounded-[6px] px-4 py-3.5 transition-all"
+          >
+            <LogOut size={17} className="text-[#8a8478] flex-shrink-0" />
+            <span className="text-[14px] text-[#8a8478] tracking-wider">登出</span>
           </button>
         </div>
 
