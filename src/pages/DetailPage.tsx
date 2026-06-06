@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { ArrowLeft, MapPin, ExternalLink, Edit3, Trash2, Plus, X, Check } from 'lucide-react';
+import { ArrowLeft, MapPin, ExternalLink, Edit3, Trash2, Plus, X, Check, Loader2 } from 'lucide-react';
 import { StatusBadge } from '../components/StatusBadge';
 import { OCCASION_LABELS, CITIES } from '../types';
+import { resolveRestaurantLocation } from '../lib/geocode';
 import type { FoodItem, Restaurant } from '../types';
 
 interface Props {
@@ -267,17 +268,50 @@ function RestaurantForm({
   const [area, setArea] = useState(initial.area ?? '');
   const [url, setUrl] = useState(initial.googleMapsUrl ?? '');
   const [note, setNote] = useState(initial.note ?? '');
+  const [saving, setSaving] = useState(false);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!name.trim()) return;
-    onSubmit({
+    setSaving(true);
+
+    const base: Restaurant = {
       ...initial,
       name: name.trim(),
       city: city || undefined,
       area: area.trim() || undefined,
       googleMapsUrl: url.trim() || undefined,
       note: note.trim() || undefined,
-    });
+    };
+
+    // 解析座標讓「附近」功能可用：
+    // 若關鍵地點資訊有變動（或本來就沒座標）才重新 geocode
+    const locChanged =
+      base.googleMapsUrl !== initial.googleMapsUrl ||
+      base.city !== initial.city ||
+      base.area !== initial.area ||
+      base.address !== initial.address ||
+      initial.lat == null;
+
+    if (locChanged) {
+      try {
+        const geo = await resolveRestaurantLocation({
+          name: base.name,
+          city: base.city,
+          area: base.area,
+          address: base.address,
+          googleMapsUrl: base.googleMapsUrl,
+        });
+        if (geo) {
+          base.lat = geo.lat;
+          base.lng = geo.lng;
+        }
+      } catch {
+        // geocode 失敗不阻擋儲存，只是附近功能會少這筆
+      }
+    }
+
+    setSaving(false);
+    onSubmit(base);
   };
 
   return (
@@ -322,10 +356,11 @@ function RestaurantForm({
       <div className="flex gap-2 pt-2">
         <button
           onClick={handleSave}
-          disabled={!name.trim()}
-          className="btn-primary flex-1 py-3 text-[14px] tracking-[0.3em]"
+          disabled={!name.trim() || saving}
+          className="btn-primary flex-1 py-3 text-[14px] tracking-[0.3em] flex items-center justify-center gap-2"
         >
-          {submitLabel}
+          {saving && <Loader2 size={14} className="animate-spin" />}
+          {saving ? '定位中' : submitLabel}
         </button>
         <button
           onClick={onCancel}

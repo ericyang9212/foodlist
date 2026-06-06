@@ -86,6 +86,14 @@ export default function App() {
     setDetail(updated);
   };
 
+  // 刪除食物時順手釋放指向它的靈感（讓截圖回到未整理、可重新利用）
+  const handleDeleteFood = (id: string) => {
+    deleteItem(id);
+    inspirations.items
+      .filter(insp => insp.convertedFoodId === id)
+      .forEach(insp => inspirations.updateInspiration({ ...insp, convertedFoodId: undefined }));
+  };
+
   const handleConvertInspiration = (insp: Inspiration) => {
     setFromInspiration(insp);
     setEditing(undefined);
@@ -181,7 +189,7 @@ export default function App() {
           thumbnailUrl={imageByFoodId[detail.id]}
           onClose={() => setDetail(null)}
           onEdit={handleEdit}
-          onDelete={id => { deleteItem(id); setDetail(null); }}
+          onDelete={id => { handleDeleteFood(id); setDetail(null); }}
           onUpdate={handleUpdateFromDetail}
           onLogFoodprint={(it) => setLoggingFood(it)}
         />

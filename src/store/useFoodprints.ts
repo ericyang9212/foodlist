@@ -1,6 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
+import { readCache, writeCache } from '../lib/cache';
+import { compressImage } from '../lib/image';
+import { toast } from '../lib/toast';
 import type { Foodprint } from '../types';
+
+const CACHE_KEY = 'cache_foodprints';
 
 function makeId() {
   return Math.random().toString(36).slice(2, 10);
@@ -47,27 +52,47 @@ function toRow(p: Foodprint) {
 }
 
 export function useFoodprints() {
-  const [items, setItems] = useState<Foodprint[]>([]);
-  const [loading, setLoading] = useState(true);
+  const cached = readCache<Foodprint[]>(CACHE_KEY, []);
+  const [items, setItemsRaw] = useState<Foodprint[]>(cached);
+  const [loading, setLoading] = useState(cached.length === 0);
+
+  const setItems = useCallback((updater: Foodprint[] | ((p: Foodprint[]) => Foodprint[])) => {
+    setItemsRaw(prev => {
+      const next = typeof updater === 'function' ? (updater as (p: Foodprint[]) => Foodprint[])(prev) : updater;
+      writeCache(CACHE_KEY, next);
+      return next;
+    });
+  }, []);
 
   useEffect(() => {
+    let cancelled = false;
     supabase
       .from('foodprints')
       .select('*')
       .order('ate_at', { ascending: false })
-      .then(({ data }) => {
-        if (data) setItems(data.map(fromRow));
+      .then(({ data, error }) => {
+        if (cancelled) return;
+        if (!error && data) {
+          const mapped = data.map(fromRow);
+          setItemsRaw(mapped);
+          writeCache(CACHE_KEY, mapped);
+        }
         setLoading(false);
       });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const uploadPhoto = useCallback(async (file: File): Promise<string> => {
-    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
-    const path = `${makeId()}-${Date.now()}.${ext}`;
+    const compressed = await compressImage(file);
+    const path = `${makeId()}-${Date.now()}.jpg`;
     const { error } = await supabase.storage
       .from('foodprints')
-      .upload(path, file, { contentType: file.type, upsert: false });
-    if (error) throw error;
+      .upload(path, compressed, { contentType: compressed.type, upsert: false });
+    if (error) {
+      toast.error('照片上傳失敗');
+      throw error;
+    }
     const { data } = supabase.storage.from('foodprints').getPublicUrl(path);
     return data.publicUrl;
   }, []);
@@ -78,23 +103,31 @@ export function useFoodprints() {
       createdAt: new Date().toISOString(),
       ...input,
     };
+    setItems(prev => [newOne, ...prev]); // optimistic
     const { data, error } = await supabase
       .from('foodprints')
       .insert(toRow(newOne))
       .select()
       .single();
-    if (data && !error) {
-      const inserted = fromRow(data);
-      setItems(prev => [inserted, ...prev]);
-      return inserted;
+    if (error || !data) {
+      setItems(prev => prev.filter(i => i.id !== newOne.id)); // rollback
+      toast.error('足跡記錄失敗，請再試一次');
+      return null;
     }
-    throw error;
-  }, []);
+    const inserted = fromRow(data);
+    setItems(prev => prev.map(i => i.id === newOne.id ? inserted : i));
+    return inserted;
+  }, [setItems]);
 
   const deleteFoodprint = useCallback(async (id: string) => {
-    await supabase.from('foodprints').delete().eq('id', id);
+    const before = items;
     setItems(prev => prev.filter(i => i.id !== id));
-  }, []);
+    const { error } = await supabase.from('foodprints').delete().eq('id', id);
+    if (error) {
+      setItems(before);
+      toast.error('刪除失敗');
+    }
+  }, [items, setItems]);
 
   return { items, loading, uploadPhoto, addFoodprint, deleteFoodprint };
 }
