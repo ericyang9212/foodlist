@@ -26,14 +26,12 @@ export function LoginScreen({ onSignIn }: Props) {
     <div className="flex flex-col items-center justify-center h-svh bg-[#0a0a0a] px-8">
       <div className="w-full max-w-xs">
         {/* Logo */}
-        <div className="text-center mb-10">
-          <div
-            className="text-[44px] text-gold-gradient mb-2 leading-none"
-            style={{ fontFamily: "'Noto Serif TC', serif", fontWeight: 500 }}
-          >
-            食
-          </div>
-          <div className="text-[11px] tracking-[0.5em] text-[#c9a961]/70">WANT TO EAT</div>
+        <div className="flex justify-center mb-10">
+          <img
+            src="/logo.png"
+            alt="PSJ dice list"
+            className="w-44 h-44 object-contain drop-shadow-[0_4px_24px_rgba(201,169,97,0.25)]"
+          />
         </div>
 
         <div className="space-y-3">

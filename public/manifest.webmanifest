@@ -1,6 +1,6 @@
 {
-  "name": "待吃清單",
-  "short_name": "待吃",
+  "name": "PSJ dice list",
+  "short_name": "dice list",
   "description": "想吃什麼？從這裡開始。",
   "start_url": "/",
   "scope": "/",

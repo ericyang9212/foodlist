@@ -22,8 +22,12 @@ function FullScreenLoader() {
   return (
     <div className="flex items-center justify-center h-svh bg-[#0a0a0a]">
       <div className="text-center">
-        <div className="text-[#c9a961]/40 text-3xl tracking-[0.5em] mb-3">— —</div>
-        <p className="text-[#666] text-[12px] tracking-[0.3em]">LOADING</p>
+        <img
+          src="/logo.png"
+          alt="PSJ dice list"
+          className="w-32 h-32 object-contain mx-auto mb-4 animate-pulse drop-shadow-[0_4px_20px_rgba(201,169,97,0.2)]"
+        />
+        <p className="text-[#666] text-[12px] tracking-[0.4em]">LOADING</p>
       </div>
     </div>
   );

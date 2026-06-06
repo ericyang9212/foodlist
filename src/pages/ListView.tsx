@@ -93,9 +93,16 @@ export function ListView({
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 84px)' }}
       >
         <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <div className="text-[12px] tracking-[0.5em] text-[#c9a961]/70 mb-3">PERSONAL ARCHIVE</div>
-            <h1 className="text-[34px] font-medium text-gold-gradient tracking-[0.15em]">待 吃 清 單</h1>
+          <div className="flex-1 flex items-center gap-3">
+            <img
+              src="/logo.png"
+              alt=""
+              className="w-12 h-12 object-contain flex-shrink-0 drop-shadow-[0_2px_8px_rgba(201,169,97,0.2)]"
+            />
+            <div>
+              <div className="text-[11px] tracking-[0.5em] text-[#c9a961]/70 mb-1.5">PSJ DICE LIST</div>
+              <h1 className="text-[28px] font-medium text-gold-gradient tracking-[0.12em]">待 吃 清 單</h1>
+            </div>
           </div>
           <div className="flex items-center gap-1 mt-1">
             <button
