@@ -69,10 +69,6 @@ export function LoginScreen({ onSignIn }: Props) {
             登入
           </button>
         </div>
-
-        <p className="text-[11px] text-[#555] tracking-wider text-center mt-8 leading-relaxed">
-          沒有帳號嗎？請聯絡管理者開通。
-        </p>
       </div>
     </div>
   );
