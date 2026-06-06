@@ -9,7 +9,8 @@ export interface Restaurant {
   name: string;
   googleMapsUrl?: string;
   address?: string;
-  area?: string;
+  city?: string;       // 縣市，例如「台北市」「桃園市」
+  area?: string;       // 區/鄉鎮，例如「大安區」
   priceRange?: PriceRange;
   note?: string;
   lat?: number;
@@ -77,3 +78,14 @@ export const PLATFORM_LABELS: Record<string, string> = {
   friend: '朋友推薦',
   other: '其他',
 };
+
+export const CITIES = [
+  '台北市', '新北市', '基隆市',
+  '桃園市', '新竹市', '新竹縣',
+  '苗栗縣', '台中市', '彰化縣',
+  '南投縣', '雲林縣', '嘉義市', '嘉義縣',
+  '台南市', '高雄市', '屏東縣',
+  '宜蘭縣', '花蓮縣', '台東縣',
+  '澎湖縣', '金門縣', '連江縣',
+  '海外', '其他',
+];

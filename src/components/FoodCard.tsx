@@ -8,7 +8,8 @@ interface Props {
 }
 
 export function FoodCard({ item, thumbnailUrl, onOpen }: Props) {
-  const areas = Array.from(new Set(item.restaurants.map(r => r.area).filter(Boolean)));
+  // 優先顯示縣市，沒設縣市才退到區域
+  const regions = Array.from(new Set(item.restaurants.map(r => r.city || r.area).filter(Boolean)));
 
   return (
     <div
@@ -45,7 +46,7 @@ export function FoodCard({ item, thumbnailUrl, onOpen }: Props) {
             ) : (
               <span>
                 {item.restaurants.length} 家候選
-                {areas.length > 0 && ` · ${areas.slice(0, 3).join(' / ')}`}
+                {regions.length > 0 && ` · ${regions.slice(0, 3).join(' / ')}`}
               </span>
             )}
           </div>

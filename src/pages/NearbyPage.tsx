@@ -256,7 +256,7 @@ function NearbyCard({
             <MapPin size={11} />
             <span className="text-[13px] tracking-wide">
               {restaurant.name}
-              {restaurant.area && ` · ${restaurant.area}`}
+              {(restaurant.city || restaurant.area) && ` · ${[restaurant.city, restaurant.area].filter(Boolean).join(' ')}`}
             </span>
           </div>
           {item.rating && (

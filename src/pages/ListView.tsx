@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Search, X, Sparkles, ImagePlus, ChevronRight, Bell } from 'lucide-react';
 import { FoodCard } from '../components/FoodCard';
 import { TonightModal } from '../components/TonightModal';
@@ -22,6 +22,8 @@ const TABS: { value: FilterTab; label: string }[] = [
   { value: 'all', label: '全部' },
 ];
 
+const CITY_FILTER_KEY = 'foodlist_city_filter';
+
 export function ListView({
   items, inspirations, imageByFoodId,
   unreadAnnouncements,
@@ -29,13 +31,35 @@ export function ListView({
 }: Props) {
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<FilterTab>('want');
+  const [activeCity, setActiveCity] = useState<string | null>(() => {
+    try { return localStorage.getItem(CITY_FILTER_KEY); } catch { return null; }
+  });
   const [showTonight, setShowTonight] = useState(false);
+
+  // 持久化縣市選擇
+  React.useEffect(() => {
+    if (activeCity) localStorage.setItem(CITY_FILTER_KEY, activeCity);
+    else localStorage.removeItem(CITY_FILTER_KEY);
+  }, [activeCity]);
+
+  // 從資料中抓出實際存在的縣市（依數量排序）
+  const cityCounts = useMemo(() => {
+    const m = new Map<string, number>();
+    items.forEach(item => {
+      const cities = new Set<string>();
+      item.restaurants.forEach(r => { if (r.city) cities.add(r.city); });
+      cities.forEach(c => m.set(c, (m.get(c) ?? 0) + 1));
+    });
+    return [...m.entries()].sort((a, b) => b[1] - a[1]);
+  }, [items]);
 
   const filtered = useMemo(() => {
     return items.filter(item => {
-      // skip 沒興趣的，除非用搜尋
       if (!search && item.status === 'skip' && activeTab !== 'all') return false;
       if (!search && activeTab !== 'all' && item.status !== activeTab) return false;
+      if (activeCity) {
+        if (!item.restaurants.some(r => r.city === activeCity)) return false;
+      }
       if (search) {
         const q = search.toLowerCase();
         return (
@@ -45,7 +69,7 @@ export function ListView({
       }
       return true;
     });
-  }, [items, activeTab, search]);
+  }, [items, activeTab, activeCity, search]);
 
   const counts = useMemo(() => {
     let want = 0, tried = 0;
@@ -176,6 +200,40 @@ export function ListView({
           ))}
         </div>
       </div>
+
+      {/* 縣市篩選（只在有資料時出現） */}
+      {cityCounts.length > 0 && (
+        <div className="mt-3 mb-2">
+          <div className="px-6 mb-2 text-[10px] tracking-[0.4em] text-[#c9a961]/60">REGION</div>
+          <div className="overflow-x-auto px-6 pb-1" style={{ scrollbarWidth: 'none' }}>
+            <div className="flex gap-2 w-max">
+              <button
+                onClick={() => setActiveCity(null)}
+                className={`flex-shrink-0 text-[12px] tracking-[0.2em] px-3 py-1.5 border transition-colors ${
+                  activeCity === null
+                    ? 'bg-[#c9a961] text-[#0a0a0a] border-[#c9a961]'
+                    : 'border-[#2a2a2a] text-[#8a8478]'
+                }`}
+              >
+                全部
+              </button>
+              {cityCounts.map(([city, count]) => (
+                <button
+                  key={city}
+                  onClick={() => setActiveCity(activeCity === city ? null : city)}
+                  className={`flex-shrink-0 text-[12px] tracking-[0.2em] px-3 py-1.5 border transition-colors ${
+                    activeCity === city
+                      ? 'bg-[#c9a961] text-[#0a0a0a] border-[#c9a961]'
+                      : 'border-[#2a2a2a] text-[#8a8478]'
+                  }`}
+                >
+                  {city} · {count}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* List */}
       <div className="flex-1 overflow-y-auto px-6 pb-28 pt-3">

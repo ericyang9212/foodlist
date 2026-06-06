@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ArrowLeft, MapPin, ExternalLink, Edit3, Trash2, Plus, X } from 'lucide-react';
 import { StatusBadge } from '../components/StatusBadge';
-import { OCCASION_LABELS } from '../types';
+import { OCCASION_LABELS, CITIES } from '../types';
 import type { FoodItem, Restaurant } from '../types';
 
 interface Props {
@@ -20,6 +20,7 @@ function makeId() {
 export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUpdate }: Props) {
   const [adding, setAdding] = useState(false);
   const [restName, setRestName] = useState('');
+  const [restCity, setRestCity] = useState('');
   const [restArea, setRestArea] = useState('');
   const [restUrl, setRestUrl] = useState('');
   const [restNote, setRestNote] = useState('');
@@ -36,6 +37,7 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
     const newR: Restaurant = {
       id: makeId(),
       name: restName.trim(),
+      city: restCity || undefined,
       area: restArea.trim() || undefined,
       googleMapsUrl: restUrl.trim() || undefined,
       note: restNote.trim() || undefined,
@@ -45,7 +47,7 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
       restaurants: [...item.restaurants, newR],
       updatedAt: new Date().toISOString(),
     });
-    setRestName(''); setRestArea(''); setRestUrl(''); setRestNote('');
+    setRestName(''); setRestCity(''); setRestArea(''); setRestUrl(''); setRestNote('');
     setAdding(false);
   };
 
@@ -150,11 +152,11 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
                     <p className="text-[17px] text-[#f5f1e8] font-medium tracking-wide">{r.name}</p>
-                    {(r.area || r.address) && (
+                    {(r.city || r.area || r.address) && (
                       <div className="flex items-center gap-1.5 mt-2 text-[#8a8478]">
                         <MapPin size={13} />
                         <span className="text-[14px] tracking-wide">
-                          {[r.area, r.address].filter(Boolean).join(' · ')}
+                          {[r.city, r.area, r.address].filter(Boolean).join(' · ')}
                         </span>
                       </div>
                     )}
@@ -196,6 +198,15 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
                 onChange={e => setRestName(e.target.value)}
                 className="w-full bg-transparent border-b border-[#2a2a2a] focus:border-[#c9a961]/50 pb-2.5 text-[16px] text-[#f5f1e8] placeholder-[#555] focus:outline-none"
               />
+              <select
+                value={restCity}
+                onChange={e => setRestCity(e.target.value)}
+                className="w-full bg-transparent border-b border-[#2a2a2a] focus:border-[#c9a961]/50 pb-2.5 text-[15px] text-[#f5f1e8] focus:outline-none appearance-none"
+                style={{ backgroundImage: 'none' }}
+              >
+                <option value="" className="bg-[#0f0f0f]">縣市</option>
+                {CITIES.map(c => <option key={c} value={c} className="bg-[#0f0f0f]">{c}</option>)}
+              </select>
               <input
                 type="text"
                 placeholder="區域（例如：大安區）"

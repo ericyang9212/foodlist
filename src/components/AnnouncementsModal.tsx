@@ -66,30 +66,71 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onClose }: P
             <p className="text-[#777] text-[14px] tracking-wider">目前沒有公告</p>
           </div>
         ) : (
-          <div className="space-y-5">
-            {items.map(a => (
-              <article
-                key={a.id}
-                className={`relative bg-[#161616] border ${
-                  readIds.has(a.id) ? 'border-[#1f1f1f]' : 'border-[#c9a961]/40'
-                } px-5 py-5`}
-              >
-                {!readIds.has(a.id) && (
-                  <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#c9a961] rounded-full" />
-                )}
-                <h3 className="text-[18px] text-gold-gradient font-medium tracking-wide leading-tight mb-2">
-                  {a.title}
-                </h3>
-                <div className="text-[11px] tracking-[0.3em] text-[#555] mb-3">
-                  {new Date(a.createdAt).toLocaleDateString('zh-TW')}
-                </div>
-                {a.body && (
-                  <p className="text-[14px] text-[#d6d0c0] leading-relaxed whitespace-pre-wrap">
-                    {a.body}
-                  </p>
-                )}
-              </article>
-            ))}
+          <div className="space-y-8">
+            {items.map(a => {
+              const isUnread = !readIds.has(a.id);
+              const paragraphs = (a.body ?? '').split(/\n\n+/).filter(Boolean);
+              return (
+                <article
+                  key={a.id}
+                  className={`relative ${
+                    isUnread
+                      ? 'bg-gradient-to-br from-[#1a1612] to-[#0f0d0a] border-[#c9a961]/35'
+                      : 'bg-[#121212] border-[#1a1a1a]'
+                  } border px-7 py-7`}
+                >
+                  {isUnread && (
+                    <span className="absolute top-3 right-3 inline-flex items-center gap-1.5 text-[9px] tracking-[0.4em] text-[#c9a961]/90">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#c9a961]" />
+                      NEW
+                    </span>
+                  )}
+
+                  {/* 裝飾線 */}
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="text-[#c9a961]/50 text-[12px] tracking-[0.4em]">✦</span>
+                    <div className="h-[1px] flex-1 bg-gradient-to-r from-[#c9a961]/40 to-transparent" />
+                  </div>
+
+                  {/* 標題：襯線體放大 */}
+                  <h3
+                    className="text-gold-gradient text-[26px] leading-[1.3] tracking-[0.04em] mb-3"
+                    style={{ fontFamily: "'Noto Serif TC', serif", fontWeight: 500 }}
+                  >
+                    {a.title}
+                  </h3>
+
+                  {/* 日期：低調的編號感 */}
+                  <div className="flex items-center gap-2 text-[10px] tracking-[0.45em] text-[#555] mb-6">
+                    <span>
+                      {new Date(a.createdAt).toLocaleDateString('zh-TW', {
+                        year: 'numeric', month: '2-digit', day: '2-digit',
+                      }).replace(/\//g, ' · ')}
+                    </span>
+                  </div>
+
+                  {/* 內文：段落間有呼吸 */}
+                  {paragraphs.length > 0 && (
+                    <div
+                      className="space-y-4 text-[#d6d0c0] text-[15.5px] leading-[1.85] tracking-wide whitespace-pre-line"
+                      style={{ fontFamily: "'Noto Serif TC', serif", fontWeight: 400 }}
+                    >
+                      {paragraphs.map((p, i) => (
+                        <p key={i} className={i === 0 ? 'first-letter:text-[#c9a961] first-letter:text-[20px] first-letter:font-medium' : ''}>
+                          {p}
+                        </p>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* 底部裝飾 */}
+                  <div className="flex items-center gap-3 mt-6">
+                    <div className="h-[1px] flex-1 bg-gradient-to-l from-[#c9a961]/30 to-transparent" />
+                    <span className="text-[#c9a961]/40 text-[10px] tracking-[0.4em]">END</span>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         )}
 
