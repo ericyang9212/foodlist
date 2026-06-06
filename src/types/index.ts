@@ -49,7 +49,7 @@ export interface Inspiration {
 export const STATUS_LABELS: Record<Status, string> = {
   want: '想吃',
   tried: '嘗過',
-  skip: '沒興趣',
+  skip: '不好吃',
 };
 
 export const STATUS_STYLES: Record<Status, string> = {

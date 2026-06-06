@@ -129,7 +129,7 @@ export function AddEditPage({ item, inspiration, onUploadImage, onSave, onClose 
               <input
                 type="text"
                 autoFocus={!isEdit}
-                placeholder="例如：炙燒鮭魚丼"
+                placeholder="例如：海底撈"
                 value={name}
                 onChange={e => setName(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleSave()}
