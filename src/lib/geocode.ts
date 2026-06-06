@@ -41,7 +41,8 @@ export async function geocodeText(query: string): Promise<GeoResult | null> {
   if (!query.trim()) return null;
   await throttle();
   try {
-    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&accept-language=zh-TW&q=${encodeURIComponent(query)}`;
+    // countrycodes=tw 限制只在台灣搜尋，避免座標跑到中國等地
+    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=tw&accept-language=zh-TW&q=${encodeURIComponent(query)}`;
     const res = await fetch(url, { headers: { Accept: 'application/json' } });
     if (!res.ok) return null;
     const data = (await res.json()) as Array<{ lat: string; lon: string }>;
@@ -53,7 +54,8 @@ export async function geocodeText(query: string): Promise<GeoResult | null> {
   }
 }
 
-// 綜合解析一家店的座標：先試 maps 連結，再試地址組合
+// 綜合解析一家店的座標
+// 最可靠：Google Maps 連結內的座標；其次才用地址文字查（不保證準）
 export async function resolveRestaurantLocation(input: {
   name?: string;
   city?: string;
@@ -61,14 +63,18 @@ export async function resolveRestaurantLocation(input: {
   address?: string;
   googleMapsUrl?: string;
 }): Promise<GeoResult | null> {
+  // 1. 連結裡有精確座標最準
   const fromUrl = parseLatLngFromMapsUrl(input.googleMapsUrl);
   if (fromUrl) return fromUrl;
 
-  // 優先用完整地址；其次用 店名+縣市+區域
+  // 2. 文字查必須至少有縣市，否則容易亂定位（連鎖店亂選、跑到別處），寧可不定位
+  if (!input.city) return null;
+
   const candidates = [
-    input.address && `${input.city ?? ''}${input.area ?? ''}${input.address}`,
+    // 完整地址（含縣市）最精確
+    input.address ? `${input.city}${input.area ?? ''}${input.address}` : null,
+    // 店名 + 縣市 + 區域
     [input.name, input.city, input.area].filter(Boolean).join(' '),
-    [input.city, input.area].filter(Boolean).join(' '),
   ].filter(Boolean) as string[];
 
   for (const q of candidates) {

@@ -24,6 +24,14 @@ export function useAuth() {
 
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
+    // 清掉本地快取資料，避免登出後殘留
+    try {
+      ['cache_food_items', 'cache_inspirations', 'cache_foodprints'].forEach(k =>
+        localStorage.removeItem(k)
+      );
+    } catch {
+      // ignore
+    }
   }, []);
 
   return { session, ready, signIn, signOut };

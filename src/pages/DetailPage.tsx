@@ -224,6 +224,17 @@ function RestaurantRow({ restaurant: r, onEdit, onRemove }: {
           {r.note && (
             <p className="text-[14px] text-[#c9a961]/70 italic tracking-wide mt-2.5">「{r.note}」</p>
           )}
+          {/* 定位狀態：有座標才會出現在「附近」 */}
+          {r.lat != null && r.lng != null ? (
+            <p className="text-[11px] text-[#c9a961]/60 tracking-wider mt-2 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#c9a961]/70" />
+              已定位
+            </p>
+          ) : (
+            <p className="text-[11px] text-[#666] tracking-wider mt-2">
+              未定位 · 貼 Google Maps 連結可讓它出現在「附近」
+            </p>
+          )}
         </div>
         <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
           {r.googleMapsUrl && (
