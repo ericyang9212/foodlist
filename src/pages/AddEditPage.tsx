@@ -174,6 +174,11 @@ export function AddEditPage({ item, inspiration, onUploadImage, onSave, onClose 
             />
           </div>
 
+          {/* 候選店家：主要欄位，想吃的通常就是某間店的東西 */}
+          <div>
+            <RestaurantsEditor restaurants={restaurants} onChange={setRestaurants} />
+          </div>
+
           {/* 進階收起 */}
           <button
             onClick={() => setExpanded(!expanded)}
@@ -262,10 +267,6 @@ export function AddEditPage({ item, inspiration, onUploadImage, onSave, onClose 
                 />
               </div>
 
-              {/* 候選店家：直接在這裡加，不必存完再進詳情頁 */}
-              <div className="border-t border-[#1f1f1f] pt-6">
-                <RestaurantsEditor restaurants={restaurants} onChange={setRestaurants} />
-              </div>
             </div>
           )}
         </div>
