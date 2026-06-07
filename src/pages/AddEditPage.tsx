@@ -1,7 +1,8 @@
 import { useState, useRef } from 'react';
 import { X, ChevronDown, ImagePlus, Loader2 } from 'lucide-react';
 import { STATUS_LABELS, CUISINE_TYPES, OCCASION_LABELS } from '../types';
-import type { FoodItem, Inspiration, Status, Occasion } from '../types';
+import { RestaurantsEditor } from '../components/RestaurantsEditor';
+import type { FoodItem, Inspiration, Restaurant, Status, Occasion } from '../types';
 
 interface Props {
   item?: FoodItem;
@@ -31,6 +32,7 @@ export function AddEditPage({ item, inspiration, onUploadImage, onSave, onClose 
   const [occasions, setOccasions] = useState<Occasion[]>(item?.occasions ?? []);
   const [notes, setNotes] = useState(item?.notes ?? inspiration?.note ?? '');
   const [rating, setRating] = useState<number | undefined>(item?.rating);
+  const [restaurants, setRestaurants] = useState<Restaurant[]>(item?.restaurants ?? []);
 
   // 圖片附件：可能來自 inspiration（已上傳）或現場上傳
   const [imageUrl, setImageUrl] = useState<string | undefined>(inspiration?.imageUrl);
@@ -81,7 +83,7 @@ export function AddEditPage({ item, inspiration, onUploadImage, onSave, onClose 
       status,
       cuisineType: cuisineType || undefined,
       occasions,
-      restaurants: item?.restaurants ?? [],
+      restaurants,
       mustOrder: item?.mustOrder ?? [],
       notes: notes.trim() || undefined,
       waitTime: undefined,
@@ -260,8 +262,9 @@ export function AddEditPage({ item, inspiration, onUploadImage, onSave, onClose 
                 />
               </div>
 
-              <div className="text-[13px] tracking-wider text-[#666] leading-relaxed border-t border-[#1f1f1f] pt-5">
-                候選店家在儲存後從詳情頁加。
+              {/* 候選店家：直接在這裡加，不必存完再進詳情頁 */}
+              <div className="border-t border-[#1f1f1f] pt-6">
+                <RestaurantsEditor restaurants={restaurants} onChange={setRestaurants} />
               </div>
             </div>
           )}
