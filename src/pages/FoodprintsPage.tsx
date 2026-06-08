@@ -1,10 +1,26 @@
 import { useMemo } from 'react';
-import { MapPin, Trash2 } from 'lucide-react';
+import { MapPin, Trash2, Compass, ExternalLink } from 'lucide-react';
 import type { Foodprint } from '../types';
 
 interface Props {
   items: Foodprint[];
   onDelete: (id: string) => void;
+}
+
+// 想吃新的：當下抓 GPS 把 Google Maps 定位到你附近；拒絕授權就退回一般「餐廳」搜尋
+function exploreNearby() {
+  const openMaps = (center?: string) => {
+    const url = center
+      ? `https://www.google.com/maps/search/餐廳/@${center},15z`
+      : 'https://www.google.com/maps/search/餐廳';
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+  if (!navigator.geolocation) return openMaps();
+  navigator.geolocation.getCurrentPosition(
+    pos => openMaps(`${pos.coords.latitude},${pos.coords.longitude}`),
+    () => openMaps(),
+    { timeout: 10000 }
+  );
 }
 
 function monthLabel(iso: string) {
@@ -128,6 +144,22 @@ export function FoodprintsPage({ items, onDelete }: Props) {
             </p>
           </div>
         )}
+
+        {/* 想吃新的？交給 Google Maps 找附近 */}
+        <div className="mt-10 pt-6 border-t border-[#1f1f1f]">
+          <div className="text-[11px] tracking-[0.4em] text-[#555] mb-3">EXPLORE BEYOND</div>
+          <button
+            onClick={exploreNearby}
+            className="w-full bg-[#0f0f0f] border border-[#c9a961]/30 hover:border-[#c9a961]/60 hover:bg-[#c9a961]/5 rounded-[6px] active:scale-[0.99] transition-all py-5 px-5 flex items-center gap-4"
+          >
+            <Compass size={26} className="text-[#c9a961] flex-shrink-0" />
+            <div className="flex-1 text-left">
+              <div className="text-[15px] text-[#f5f1e8] tracking-wider font-medium">在 Google Maps 找附近的店</div>
+              <div className="text-[12px] text-[#777] tracking-wider mt-1">想吃新東西時交給 Google</div>
+            </div>
+            <ExternalLink size={16} className="text-[#666]" />
+          </button>
+        </div>
     </div>
   );
 }
