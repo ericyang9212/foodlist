@@ -9,6 +9,8 @@ interface Props {
   item?: FoodItem;
   // 從靈感轉過來時帶這個（圖已上傳，直接附上）
   inspiration?: Inspiration;
+  // 編輯既有食物時，帶入它目前的圖片（讓使用者能看到 / 換掉 / 移除）
+  initialImageUrl?: string;
   // 新增時想直接上傳一張圖
   onUploadImage?: (file: File) => Promise<string>;
   onSave: (item: FoodItem, attachedImageUrl?: string) => void;
@@ -18,7 +20,7 @@ interface Props {
 const STATUSES: Status[] = ['want', 'tried', 'skip'];
 const OCCASIONS = Object.keys(OCCASION_LABELS) as Occasion[];
 
-export function AddEditPage({ item, inspiration, onUploadImage, onSave, onClose }: Props) {
+export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage, onSave, onClose }: Props) {
   const isEdit = !!item;
 
   const [name, setName] = useState(item?.name ?? '');
@@ -31,8 +33,8 @@ export function AddEditPage({ item, inspiration, onUploadImage, onSave, onClose 
   const [rating, setRating] = useState<number | undefined>(item?.rating);
   const [restaurants, setRestaurants] = useState<Restaurant[]>(item?.restaurants ?? []);
 
-  // 圖片附件：可能來自 inspiration（已上傳）或現場上傳
-  const [imageUrl, setImageUrl] = useState<string | undefined>(inspiration?.imageUrl);
+  // 圖片附件：可能來自 inspiration（已上傳）、編輯時的現有圖、或現場上傳
+  const [imageUrl, setImageUrl] = useState<string | undefined>(inspiration?.imageUrl ?? initialImageUrl);
   const [localPreview, setLocalPreview] = useState<string | null>(null);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);

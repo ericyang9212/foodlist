@@ -75,30 +75,36 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
     setShowAdd(true);
   };
 
+  // 同步食物的圖片（圖片實際存在 inspirations，用 convertedFoodId 連結）。
+  // 一併處理：新增圖、換圖、移除圖。
+  const syncFoodImage = async (foodId: string, newImageUrl?: string) => {
+    const existing = inspirations.items.find(insp => insp.convertedFoodId === foodId);
+    const currentUrl = existing?.imageUrl;
+    if (newImageUrl === currentUrl) return; // 沒變更
+
+    // 有舊圖且和新圖不同 → 先把舊靈感解除連結（回到未整理、可重用）
+    if (existing) {
+      await inspirations.updateInspiration({ ...existing, convertedFoodId: undefined });
+    }
+
+    if (!newImageUrl) return; // 只是移除圖片
+
+    // 連結新圖：來自既有靈感就標記，否則建一筆新靈感
+    if (fromInspiration && fromInspiration.imageUrl === newImageUrl) {
+      await inspirations.updateInspiration({ ...fromInspiration, convertedFoodId: foodId });
+    } else {
+      await inspirations.addInspiration({ imageUrl: newImageUrl, convertedFoodId: foodId });
+    }
+  };
+
   // 新增 / 編輯食物儲存，可帶圖
   const handleSave = async (item: FoodItem, attachedImageUrl?: string) => {
     if (editing) {
       updateItem(item);
     } else {
       addItem(item);
-
-      // 處理附上的圖片
-      if (attachedImageUrl) {
-        if (fromInspiration && fromInspiration.imageUrl === attachedImageUrl) {
-          // 來自既有靈感 → 把 inspiration 標為已轉換
-          await inspirations.updateInspiration({
-            ...fromInspiration,
-            convertedFoodId: item.id,
-          });
-        } else {
-          // 現場上傳的圖 → 建一筆 inspiration 並標為已轉換
-          await inspirations.addInspiration({
-            imageUrl: attachedImageUrl,
-            convertedFoodId: item.id,
-          });
-        }
-      }
     }
+    await syncFoodImage(item.id, attachedImageUrl);
     setEditing(undefined);
     setShowAdd(false);
     setFromInspiration(null);
@@ -236,6 +242,7 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
         <AddEditPage
           item={editing}
           inspiration={fromInspiration ?? undefined}
+          initialImageUrl={editing ? imageByFoodId[editing.id] : undefined}
           onUploadImage={async (file) => {
             const url = await inspirations.uploadImage(file);
             return url;
