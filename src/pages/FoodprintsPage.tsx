@@ -1,10 +1,9 @@
 import { useMemo } from 'react';
-import { ArrowLeft, MapPin, Trash2 } from 'lucide-react';
+import { MapPin, Trash2 } from 'lucide-react';
 import type { Foodprint } from '../types';
 
 interface Props {
   items: Foodprint[];
-  onClose: () => void;
   onDelete: (id: string) => void;
 }
 
@@ -18,7 +17,7 @@ function dateLabel(iso: string) {
   return `${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
 }
 
-export function FoodprintsPage({ items, onClose, onDelete }: Props) {
+export function FoodprintsPage({ items, onDelete }: Props) {
   const stats = useMemo(() => {
     const foods = new Set(items.map(i => i.foodId));
     const restaurants = new Set(items.map(i => `${i.restaurantName ?? ''}|${i.restaurantCity ?? ''}`).filter(s => s !== '|'));
@@ -52,19 +51,11 @@ export function FoodprintsPage({ items, onClose, onDelete }: Props) {
   const maxCuisine = cuisineCounts[0]?.[1] ?? 1;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-[#0a0a0a]" style={{ maxWidth: 430, margin: '0 auto' }}>
-      <div
-        className="flex items-center justify-between px-6 pb-4 border-b border-[#1f1f1f]"
-        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}
-      >
-        <button onClick={onClose} className="icon-btn">
-          <ArrowLeft size={22} />
-        </button>
-        <div className="text-[12px] tracking-[0.4em] text-[#c9a961]/80">FOODPRINTS</div>
-        <div className="w-7" />
-      </div>
-
-      <div className="flex-1 overflow-y-auto px-6 py-7">
+    // 底部主分頁：單一捲動，頂部留出跑馬燈/瀏海空間
+    <div
+      className="h-full overflow-y-auto bg-[#0a0a0a] px-6 pb-28"
+      style={{ paddingTop: 'calc(env(safe-area-inset-top) + 72px)' }}
+    >
         {/* Title */}
         <div className="mb-7">
           <h1 className="text-[28px] font-medium text-gold-gradient tracking-[0.15em] leading-tight mb-2">
@@ -137,7 +128,6 @@ export function FoodprintsPage({ items, onClose, onDelete }: Props) {
             </p>
           </div>
         )}
-      </div>
     </div>
   );
 }

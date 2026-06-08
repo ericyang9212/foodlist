@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { ImagePlus, Check, Trash2, ArrowRight, X, Loader2, ArrowLeft } from 'lucide-react';
 import type { Inspiration } from '../types';
 import { PLATFORM_LABELS } from '../types';
+import { safeHttpUrl } from '../lib/url';
 
 interface Props {
   items: Inspiration[];
@@ -244,9 +245,9 @@ function InspirationDetail({
               <p className="text-[#8a8478] text-[14px]">{PLATFORM_LABELS[insp.platform] ?? insp.platform}</p>
             </div>
           )}
-          {insp.sourceUrl && (
+          {safeHttpUrl(insp.sourceUrl) && (
             <a
-              href={insp.sourceUrl}
+              href={safeHttpUrl(insp.sourceUrl)}
               target="_blank"
               rel="noopener noreferrer"
               className="block text-[13px] text-[#c9a961] underline underline-offset-4 break-all"

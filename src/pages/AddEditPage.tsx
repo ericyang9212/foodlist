@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { X, ChevronDown, ImagePlus, Loader2 } from 'lucide-react';
 import { STATUS_LABELS, CUISINE_TYPES, OCCASION_LABELS } from '../types';
 import { RestaurantsEditor } from '../components/RestaurantsEditor';
+import { makeId } from '../lib/id';
 import type { FoodItem, Inspiration, Restaurant, Status, Occasion } from '../types';
 
 interface Props {
@@ -12,10 +13,6 @@ interface Props {
   onUploadImage?: (file: File) => Promise<string>;
   onSave: (item: FoodItem, attachedImageUrl?: string) => void;
   onClose: () => void;
-}
-
-function makeId() {
-  return Math.random().toString(36).slice(2, 10);
 }
 
 const STATUSES: Status[] = ['want', 'tried', 'skip'];

@@ -2,14 +2,12 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { readCache, writeCache } from '../lib/cache';
 import { compressImage } from '../lib/image';
+import { deleteImageByUrl } from '../lib/storage';
 import { toast } from '../lib/toast';
+import { makeId } from '../lib/id';
 import type { Foodprint } from '../types';
 
 const CACHE_KEY = 'cache_foodprints';
-
-function makeId() {
-  return Math.random().toString(36).slice(2, 10);
-}
 
 function fromRow(row: Record<string, unknown>): Foodprint {
   return {
@@ -85,7 +83,8 @@ export function useFoodprints() {
 
   const uploadPhoto = useCallback(async (file: File): Promise<string> => {
     const compressed = await compressImage(file);
-    const path = `${makeId()}-${Date.now()}.jpg`;
+    const ext = compressed.type === 'image/webp' ? 'webp' : compressed.type === 'image/jpeg' ? 'jpg' : (compressed.name.split('.').pop() || 'jpg');
+    const path = `${makeId()}-${Date.now()}.${ext}`;
     const { error } = await supabase.storage
       .from('foodprints')
       .upload(path, compressed, { contentType: compressed.type, upsert: false });
@@ -121,12 +120,15 @@ export function useFoodprints() {
 
   const deleteFoodprint = useCallback(async (id: string) => {
     const before = items;
+    const target = items.find(i => i.id === id);
     setItems(prev => prev.filter(i => i.id !== id));
     const { error } = await supabase.from('foodprints').delete().eq('id', id);
     if (error) {
       setItems(before);
       toast.error('刪除失敗');
+      return;
     }
+    await deleteImageByUrl(target?.photoUrl);
   }, [items, setItems]);
 
   return { items, loading, uploadPhoto, addFoodprint, deleteFoodprint };

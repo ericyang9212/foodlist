@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { List, Navigation, Plus } from 'lucide-react';
+import { List, Footprints, Plus } from 'lucide-react';
 import { useStore } from './store/useStore';
 import { useInspirations } from './store/useInspirations';
 import { useAnnouncements } from './store/useAnnouncements';
@@ -10,7 +10,6 @@ import { AnnouncementsModal } from './components/AnnouncementsModal';
 import { Marquee } from './components/Marquee';
 import { LogFoodprintSheet } from './components/LogFoodprintSheet';
 import { ListView } from './pages/ListView';
-import { NearbyPage } from './pages/NearbyPage';
 import { InboxPage } from './pages/InboxPage';
 import { AddEditPage } from './pages/AddEditPage';
 import { DetailPage } from './pages/DetailPage';
@@ -54,7 +53,6 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
   const [showAdd, setShowAdd] = useState(false);
   const [showInbox, setShowInbox] = useState(false);
   const [showAnnouncements, setShowAnnouncements] = useState(false);
-  const [showFoodprints, setShowFoodprints] = useState(false);
   const [loggingFood, setLoggingFood] = useState<FoodItem | null>(null);
   const [fromInspiration, setFromInspiration] = useState<Inspiration | null>(null);
 
@@ -147,16 +145,12 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
             onOpen={handleOpen}
             onOpenInbox={() => setShowInbox(true)}
             onOpenAnnouncements={() => setShowAnnouncements(true)}
-            onOpenFoodprints={() => setShowFoodprints(true)}
-            foodprintsCount={foodprints.items.length}
           />
         )}
-        {tab === 'nearby' && (
-          <NearbyPage
-            items={items}
-            imageByFoodId={imageByFoodId}
-            onOpen={handleOpen}
-            onMarkTried={(it) => setLoggingFood(it)}
+        {tab === 'foodprints' && (
+          <FoodprintsPage
+            items={foodprints.items}
+            onDelete={foodprints.deleteFoodprint}
           />
         )}
       </div>
@@ -173,7 +167,7 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
           </div>
         </button>
 
-        <NavBtn icon={<Navigation size={22} />} label="附近" active={tab === 'nearby'} onClick={() => setTab('nearby')} />
+        <NavBtn icon={<Footprints size={22} />} label="足跡" active={tab === 'foodprints'} onClick={() => setTab('foodprints')} />
       </nav>
 
       {/* 公告 */}
@@ -211,14 +205,6 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
           onDelete={id => { handleDeleteFood(id); setDetail(null); }}
           onUpdate={handleUpdateFromDetail}
           onLogFoodprint={(it) => setLoggingFood(it)}
-        />
-      )}
-
-      {showFoodprints && (
-        <FoodprintsPage
-          items={foodprints.items}
-          onClose={() => setShowFoodprints(false)}
-          onDelete={foodprints.deleteFoodprint}
         />
       )}
 

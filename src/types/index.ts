@@ -2,7 +2,7 @@
 export type Status = 'want' | 'tried' | 'skip';
 export type PriceRange = '$' | '$$' | '$$$' | '$$$$';
 export type Occasion = 'date' | 'late-night' | 'group' | 'solo' | 'family';
-export type Tab = 'list' | 'nearby';
+export type Tab = 'list' | 'foodprints';
 
 export interface Restaurant {
   id: string;

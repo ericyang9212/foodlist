@@ -2,14 +2,12 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { readCache, writeCache } from '../lib/cache';
 import { compressImage } from '../lib/image';
+import { deleteImageByUrl } from '../lib/storage';
 import { toast } from '../lib/toast';
+import { makeId } from '../lib/id';
 import type { Inspiration } from '../types';
 
 const CACHE_KEY = 'cache_inspirations';
-
-function makeId() {
-  return Math.random().toString(36).slice(2, 10);
-}
 
 function fromRow(row: Record<string, unknown>): Inspiration {
   return {
@@ -67,10 +65,11 @@ export function useInspirations() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 上傳一張圖（先壓縮）到 Supabase Storage，回傳 { url, path } 方便失敗時清理
+  // 上傳一張圖（先壓縮）到 Supabase Storage
   const uploadImage = useCallback(async (file: File): Promise<string> => {
     const compressed = await compressImage(file);
-    const path = `${makeId()}-${Date.now()}.jpg`;
+    const ext = compressed.type === 'image/webp' ? 'webp' : compressed.type === 'image/jpeg' ? 'jpg' : (compressed.name.split('.').pop() || 'jpg');
+    const path = `${makeId()}-${Date.now()}.${ext}`;
     const { error } = await supabase.storage
       .from('inspirations')
       .upload(path, compressed, { contentType: compressed.type, upsert: false });
@@ -123,12 +122,16 @@ export function useInspirations() {
 
   const deleteInspiration = useCallback(async (id: string) => {
     const before = items;
+    const target = items.find(i => i.id === id);
     setItems(prev => prev.filter(i => i.id !== id));
     const { error } = await supabase.from('inspirations').delete().eq('id', id);
     if (error) {
       setItems(before);
       toast.error('刪除失敗');
+      return;
     }
+    // 連 storage 的圖檔一起刪，避免孤兒佔額度
+    await deleteImageByUrl(target?.imageUrl);
   }, [items, setItems]);
 
   return { items, loading, uploadImage, addInspiration, updateInspiration, deleteInspiration };

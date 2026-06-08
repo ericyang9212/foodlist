@@ -2,11 +2,9 @@ import { useState } from 'react';
 import { MapPin, ExternalLink, Edit3, X, Plus, Loader2 } from 'lucide-react';
 import { CITIES } from '../types';
 import { resolveRestaurantLocation } from '../lib/geocode';
+import { makeId } from '../lib/id';
+import { safeHttpUrl } from '../lib/url';
 import type { Restaurant } from '../types';
-
-function makeId() {
-  return Math.random().toString(36).slice(2, 10);
-}
 
 const EMPTY: Omit<Restaurant, 'id'> = { name: '', city: '', area: '', googleMapsUrl: '', note: '' };
 
@@ -118,9 +116,9 @@ function RestaurantRow({ restaurant: r, onEdit, onRemove }: {
           )}
         </div>
         <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-          {r.googleMapsUrl && (
+          {safeHttpUrl(r.googleMapsUrl) && (
             <a
-              href={r.googleMapsUrl}
+              href={safeHttpUrl(r.googleMapsUrl)}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-secondary flex items-center gap-1.5 text-[13px] tracking-wider px-3 py-2"

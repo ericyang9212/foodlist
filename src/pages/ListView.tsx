@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, X, Sparkles, ImagePlus, ChevronRight, Bell, Footprints } from 'lucide-react';
+import { Search, X, Sparkles, ImagePlus, ChevronRight, Bell } from 'lucide-react';
 import { FoodCard } from '../components/FoodCard';
 import { TonightModal } from '../components/TonightModal';
 import type { FoodItem, Inspiration } from '../types';
@@ -9,11 +9,9 @@ interface Props {
   inspirations: Inspiration[];
   imageByFoodId: Record<string, string>;
   unreadAnnouncements: number;
-  foodprintsCount: number;
   onOpen: (item: FoodItem) => void;
   onOpenInbox: () => void;
   onOpenAnnouncements: () => void;
-  onOpenFoodprints: () => void;
 }
 
 type FilterTab = 'want' | 'tried' | 'all';
@@ -26,10 +24,13 @@ const TABS: { value: FilterTab; label: string }[] = [
 
 const CITY_FILTER_KEY = 'foodlist_city_filter';
 
+// sticky 篩選列吸頂位置：剛好停在跑馬燈下方
+const STICKY_TOP = 'calc(env(safe-area-inset-top) + 56px)';
+
 export function ListView({
   items, inspirations, imageByFoodId,
-  unreadAnnouncements, foodprintsCount,
-  onOpen, onOpenInbox, onOpenAnnouncements, onOpenFoodprints,
+  unreadAnnouncements,
+  onOpen, onOpenInbox, onOpenAnnouncements,
 }: Props) {
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<FilterTab>('want');
@@ -86,11 +87,12 @@ export function ListView({
   const pendingInspirations = inspirations.filter(i => !i.convertedFoodId);
 
   return (
-    <div className="flex flex-col h-full bg-[#0a0a0a]">
-      {/* Header */}
+    // 整頁單一捲動容器：頂部資訊會隨內容往上滑走，把空間讓給清單
+    <div className="h-full overflow-y-auto bg-[#0a0a0a]">
+      {/* Header（隨頁面捲動） */}
       <div
-        className="px-6 pb-6"
-        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 84px)' }}
+        className="px-6 pb-5"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 72px)' }}
       >
         <div className="flex items-start justify-between">
           <div className="flex-1 flex items-center gap-3">
@@ -106,18 +108,6 @@ export function ListView({
           </div>
           <div className="flex items-center gap-1 mt-1">
             <button
-              onClick={onOpenFoodprints}
-              className="icon-btn relative"
-              aria-label="食物足跡"
-            >
-              <Footprints size={20} className="text-[#c9a961]/80" />
-              {foodprintsCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 text-[9px] text-[#c9a961] tracking-normal font-medium">
-                  {foodprintsCount}
-                </span>
-              )}
-            </button>
-            <button
               onClick={onOpenAnnouncements}
               className="icon-btn relative -mr-2"
               aria-label="公告"
@@ -132,7 +122,7 @@ export function ListView({
         <div className="mt-4 h-[1px] bg-gradient-to-r from-[#c9a961]/40 via-[#c9a961]/10 to-transparent" />
       </div>
 
-      {/* 今晚吃什麼 */}
+      {/* 今晚吃什麼（隨頁面捲動） */}
       {wantItems.length > 0 && (
         <div className="px-6 mb-4">
           <button
@@ -154,7 +144,7 @@ export function ListView({
         </div>
       )}
 
-      {/* 未整理截圖入口（只在有 pending 時顯示） */}
+      {/* 未整理截圖入口（只在有 pending 時顯示，隨頁面捲動） */}
       {pendingInspirations.length > 0 && (
         <div className="px-6 mb-4">
           <button
@@ -182,53 +172,56 @@ export function ListView({
         </div>
       )}
 
-      {/* Search */}
-      <div className="px-6 mb-1">
-        <div className="relative">
-          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#666]" />
-          <input
-            type="text"
-            placeholder="搜尋"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="w-full pl-10 pr-10 py-3 bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-full text-[15px] text-[#f5f1e8] placeholder-[#555] tracking-wider focus:outline-none transition-colors"
-          />
-          {search && (
-            <button onClick={() => setSearch('')} className="absolute right-3.5 top-1/2 -translate-y-1/2">
-              <X size={14} className="text-[#666]" />
-            </button>
-          )}
+      {/* ── Sticky 篩選列：往下滑時固定在跑馬燈下方，隨時可搜尋/切換 ── */}
+      <div
+        className="sticky z-20 bg-[#0a0a0a]/95 backdrop-blur-md border-b border-[#1f1f1f]"
+        style={{ top: STICKY_TOP }}
+      >
+        {/* Search */}
+        <div className="px-6 pt-3 pb-2.5">
+          <div className="relative">
+            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#666]" />
+            <input
+              type="text"
+              placeholder="搜尋"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="w-full pl-10 pr-10 py-3 bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-full text-[15px] text-[#f5f1e8] placeholder-[#555] tracking-wider focus:outline-none transition-colors"
+            />
+            {search && (
+              <button onClick={() => setSearch('')} className="absolute right-3.5 top-1/2 -translate-y-1/2">
+                <X size={14} className="text-[#666]" />
+              </button>
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* 優雅下劃線 tabs */}
-      <div className="px-6 mt-4 mb-3">
-        <div className="flex items-center gap-8 border-b border-[#1f1f1f]">
-          {TABS.map(t => (
-            <button
-              key={t.value}
-              onClick={() => setActiveTab(t.value)}
-              className={`relative pb-3 pt-1 text-[15px] tracking-[0.3em] transition-colors ${
-                activeTab === t.value ? 'text-[#c9a961]' : 'text-[#555] hover:text-[#888]'
-              }`}
-            >
-              {t.label}
-              <span className="ml-1.5 text-[11px] tracking-normal opacity-60">
-                {counts[t.value]}
-              </span>
-              {activeTab === t.value && (
-                <div className="absolute bottom-[-1px] left-0 right-0 h-[2px] rounded-full bg-gradient-to-r from-[#c9a961] via-[#e6c87a] to-[#c9a961] shadow-[0_0_8px_rgba(201,169,97,0.5)]" />
-              )}
-            </button>
-          ))}
+        {/* 優雅下劃線 tabs */}
+        <div className="px-6">
+          <div className="flex items-center gap-8 border-b border-[#1f1f1f]">
+            {TABS.map(t => (
+              <button
+                key={t.value}
+                onClick={() => setActiveTab(t.value)}
+                className={`relative pb-3 pt-1 text-[15px] tracking-[0.3em] transition-colors ${
+                  activeTab === t.value ? 'text-[#c9a961]' : 'text-[#555] hover:text-[#888]'
+                }`}
+              >
+                {t.label}
+                <span className="ml-1.5 text-[11px] tracking-normal opacity-60">
+                  {counts[t.value]}
+                </span>
+                {activeTab === t.value && (
+                  <div className="absolute bottom-[-1px] left-0 right-0 h-[2px] rounded-full bg-gradient-to-r from-[#c9a961] via-[#e6c87a] to-[#c9a961] shadow-[0_0_8px_rgba(201,169,97,0.5)]" />
+                )}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* 縣市篩選（只在有資料時出現） */}
-      {cityCounts.length > 0 && (
-        <div className="mt-3 mb-2">
-          <div className="px-6 mb-2 text-[10px] tracking-[0.4em] text-[#c9a961]/60">REGION</div>
-          <div className="overflow-x-auto px-6 pb-1" style={{ scrollbarWidth: 'none' }}>
+        {/* 縣市篩選（只在有資料時出現） */}
+        {cityCounts.length > 0 && (
+          <div className="overflow-x-auto px-6 py-2.5" style={{ scrollbarWidth: 'none' }}>
             <div className="flex gap-2 w-max">
               <button
                 onClick={() => setActiveCity(null)}
@@ -247,11 +240,11 @@ export function ListView({
               ))}
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* List */}
-      <div className="flex-1 overflow-y-auto px-6 pb-28 pt-3">
+      <div className="px-6 pt-4 pb-28">
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <div className="text-[#c9a961]/40 text-3xl tracking-[0.5em] mb-4">— —</div>
