@@ -206,9 +206,12 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onSignOut, o
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1 text-[12px] text-[#c9a961] tracking-wider mt-2"
                 >
-                  看備份 repo
+                  看備份 repo（私人 · 需登入 GitHub）
                   <ExternalLink size={11} />
                 </a>
+                <p className="text-[11px] text-[#666] tracking-wider leading-relaxed mt-1">
+                  是私人 repo，沒登入 GitHub 點進去會顯示 404，屬正常。
+                </p>
               </div>
             </div>
           </div>
