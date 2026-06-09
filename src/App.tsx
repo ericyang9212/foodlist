@@ -67,6 +67,13 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
     return map;
   }, [inspirations.items]);
 
+  // food id → food，給靈感相簿用（點截圖能跳到它變成的食物）
+  const foodById = useMemo(() => {
+    const map: Record<string, FoodItem> = {};
+    items.forEach(f => { map[f.id] = f; });
+    return map;
+  }, [items]);
+
   const handleOpen = (item: FoodItem) => setDetail(item);
 
   const handleEdit = (item: FoodItem) => {
@@ -199,6 +206,11 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
           onDelete={inspirations.deleteInspiration}
           onUpdate={inspirations.updateInspiration}
           onConvertToFood={handleConvertInspiration}
+          foodById={foodById}
+          onOpenFood={(id) => {
+            const f = foodById[id];
+            if (f) { setShowInbox(false); setDetail(f); }
+          }}
           onClose={() => setShowInbox(false)}
         />
       )}

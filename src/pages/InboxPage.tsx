@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { ImagePlus, Check, Trash2, ArrowRight, X, Loader2, ArrowLeft } from 'lucide-react';
-import type { Inspiration } from '../types';
+import type { Inspiration, FoodItem } from '../types';
 import { PLATFORM_LABELS } from '../types';
 import { safeHttpUrl } from '../lib/url';
 
@@ -11,10 +11,12 @@ interface Props {
   onDelete: (id: string) => void;
   onUpdate: (insp: Inspiration) => void;
   onConvertToFood: (insp: Inspiration) => void;
+  foodById: Record<string, FoodItem>;
+  onOpenFood: (foodId: string) => void;
   onClose: () => void;
 }
 
-export function InboxPage({ items, loading, onUpload, onDelete, onUpdate, onConvertToFood, onClose }: Props) {
+export function InboxPage({ items, loading, onUpload, onDelete, onUpdate, onConvertToFood, foodById, onOpenFood, onClose }: Props) {
   const [selected, setSelected] = useState<Inspiration | null>(null);
   const [uploading, setUploading] = useState(false);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
@@ -176,6 +178,8 @@ export function InboxPage({ items, loading, onUpload, onDelete, onUpdate, onConv
           onDelete={() => { onDelete(selected.id); setSelected(null); }}
           onUpdate={(next) => { onUpdate(next); setSelected(next); }}
           onConvert={() => { onConvertToFood(selected); setSelected(null); }}
+          linkedFood={selected.convertedFoodId ? foodById[selected.convertedFoodId] : undefined}
+          onOpenFood={onOpenFood}
         />
       )}
     </div>
@@ -212,13 +216,15 @@ function InspirationThumbnail({
 }
 
 function InspirationDetail({
-  insp, onClose, onDelete, onUpdate, onConvert,
+  insp, onClose, onDelete, onUpdate, onConvert, linkedFood, onOpenFood,
 }: {
   insp: Inspiration;
   onClose: () => void;
   onDelete: () => void;
   onUpdate: (insp: Inspiration) => void;
   onConvert: () => void;
+  linkedFood?: FoodItem;
+  onOpenFood: (foodId: string) => void;
 }) {
   const [note, setNote] = useState(insp.note ?? '');
   const [baseNote, setBaseNote] = useState(insp.note ?? '');
@@ -315,16 +321,29 @@ function InspirationDetail({
       )}
       {insp.convertedFoodId && (
         <div
-          className="px-6 pt-4 border-t border-[#1f1f1f] flex items-center justify-between gap-4"
+          className="px-6 pt-4 border-t border-[#1f1f1f] space-y-3"
           style={{ paddingBottom: 'max(20px, env(safe-area-inset-bottom))' }}
         >
-          <span className="text-[13px] tracking-widest text-[#666]">已加入想吃清單 ✓</span>
+          {linkedFood ? (
+            <button
+              onClick={() => onOpenFood(insp.convertedFoodId!)}
+              className="w-full flex items-center gap-4 bg-[#0f0f0f] border border-[#c9a961]/30 hover:border-[#c9a961]/60 hover:bg-[#c9a961]/5 rounded-[6px] active:scale-[0.99] transition-all px-5 py-4 text-left"
+            >
+              <div className="flex-1 min-w-0">
+                <div className="text-[10px] tracking-[0.4em] text-[#c9a961]/70 mb-1">已整理成</div>
+                <div className="text-[17px] text-[#f5f1e8] tracking-wide truncate">{linkedFood.name}</div>
+              </div>
+              <ArrowRight size={20} className="text-[#c9a961] flex-shrink-0" strokeWidth={2.5} />
+            </button>
+          ) : (
+            <div className="text-[13px] tracking-widest text-[#666] text-center py-1">已加入想吃清單 ✓</div>
+          )}
           <button
             onClick={() => { if (confirm('刪除這張截圖？')) onDelete(); }}
-            className="btn-neutral px-4 py-2.5 text-[13px] tracking-[0.2em] flex items-center gap-1.5"
+            className="w-full flex items-center justify-center gap-1.5 text-[13px] tracking-[0.2em] text-[#8a8478] hover:text-[#a85959] py-2 transition-colors"
           >
             <Trash2 size={14} />
-            刪除
+            刪除這張截圖
           </button>
         </div>
       )}
