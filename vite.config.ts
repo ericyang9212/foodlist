@@ -8,7 +8,7 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       injectRegister: 'auto',
       // 沿用既有的 public/manifest.webmanifest 與 icons，外掛只負責 service worker
       manifest: false,
