@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, X, Sparkles, ImagePlus, ChevronRight, Bell } from 'lucide-react';
+import { Search, X, Sparkles, Bell, Images } from 'lucide-react';
 import { FoodCard } from '../components/FoodCard';
 import { TonightModal } from '../components/TonightModal';
 import type { FoodItem, Inspiration } from '../types';
@@ -108,6 +108,18 @@ export function ListView({
           </div>
           <div className="flex items-center gap-1 mt-1">
             <button
+              onClick={onOpenInbox}
+              className="icon-btn relative"
+              aria-label="靈感匣"
+            >
+              <Images size={20} className="text-[#c9a961]/80" />
+              {pendingInspirations.length > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 text-[9px] text-[#c9a961] tracking-normal font-medium">
+                  {pendingInspirations.length}
+                </span>
+              )}
+            </button>
+            <button
               onClick={onOpenAnnouncements}
               className="icon-btn relative -mr-2"
               aria-label="公告"
@@ -140,34 +152,6 @@ export function ListView({
               </div>
               <Sparkles size={28} className="text-[#c9a961]" />
             </div>
-          </button>
-        </div>
-      )}
-
-      {/* 未整理截圖入口（只在有 pending 時顯示，隨頁面捲動） */}
-      {pendingInspirations.length > 0 && (
-        <div className="px-6 mb-4">
-          <button
-            onClick={onOpenInbox}
-            className="w-full flex items-center gap-3 bg-[#161616] border border-[#2a2a2a] hover:border-[#c9a961]/40 rounded-[5px] px-4 py-3 transition-colors"
-          >
-            <div className="flex -space-x-2">
-              {pendingInspirations.slice(0, 3).map(insp => (
-                <div key={insp.id} className="w-10 h-10 border-2 border-[#0a0a0a] overflow-hidden bg-[#222]">
-                  {insp.imageUrl && (
-                    <img src={insp.imageUrl} alt="" className="w-full h-full object-cover" />
-                  )}
-                </div>
-              ))}
-            </div>
-            <div className="flex-1 text-left">
-              <div className="flex items-center gap-1.5 text-[13px] text-[#c9a961] tracking-wider">
-                <ImagePlus size={13} />
-                {pendingInspirations.length} 個未整理截圖
-              </div>
-              <div className="text-[11px] text-[#666] tracking-wider mt-0.5">點開整理成想吃</div>
-            </div>
-            <ChevronRight size={18} className="text-[#666]" />
           </button>
         </div>
       )}

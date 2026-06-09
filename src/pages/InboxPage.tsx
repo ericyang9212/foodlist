@@ -144,16 +144,20 @@ export function InboxPage({ items, loading, onUpload, onDelete, onUpdate, onConv
           </div>
         )}
 
-        {/* 已轉成清單區 */}
+        {/* 相簿：已整理過的截圖收藏 */}
         {converted.length > 0 && (
-          <>
-            <div className="text-[11px] tracking-[0.4em] text-[#555] mb-3 mt-4">ARCHIVED</div>
-            <div className="grid grid-cols-3 gap-2 opacity-60">
+          <div className="mt-2">
+            <div className="flex items-baseline gap-2 mb-1">
+              <span className="text-[14px] tracking-[0.3em] text-[#c9a961]/90">相簿</span>
+              <span className="text-[11px] text-[#666] tracking-widest">{converted.length}</span>
+            </div>
+            <div className="text-[11px] text-[#666] tracking-wider mb-3">整理過的截圖都收進這本相簿</div>
+            <div className="grid grid-cols-3 gap-1.5">
               {converted.map(insp => (
-                <InspirationThumbnail key={insp.id} insp={insp} small onClick={() => setSelected(insp)} />
+                <InspirationThumbnail key={insp.id} insp={insp} small hideCheck onClick={() => setSelected(insp)} />
               ))}
             </div>
-          </>
+          </div>
         )}
 
         {items.length === 0 && !loading && (
@@ -179,12 +183,12 @@ export function InboxPage({ items, loading, onUpload, onDelete, onUpdate, onConv
 }
 
 function InspirationThumbnail({
-  insp, onClick, small,
-}: { insp: Inspiration; onClick: () => void; small?: boolean }) {
+  insp, onClick, small, hideCheck,
+}: { insp: Inspiration; onClick: () => void; small?: boolean; hideCheck?: boolean }) {
   return (
     <button
       onClick={onClick}
-      className={`relative bg-[#161616] border border-[#2a2a2a] overflow-hidden active:scale-[0.98] transition-transform ${
+      className={`relative bg-[#161616] border border-[#2a2a2a] rounded-[5px] overflow-hidden active:scale-[0.98] transition-transform ${
         small ? 'aspect-square' : 'aspect-[3/4]'
       }`}
     >
@@ -198,7 +202,7 @@ function InspirationThumbnail({
           <p className="text-[12px] text-[#f5f1e8] line-clamp-2 leading-tight">{insp.note}</p>
         </div>
       )}
-      {insp.convertedFoodId && (
+      {insp.convertedFoodId && !hideCheck && (
         <div className="absolute top-1.5 right-1.5 bg-[#c9a961] text-[#0a0a0a] p-0.5 rounded-full">
           <Check size={10} strokeWidth={3} />
         </div>
