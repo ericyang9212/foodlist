@@ -9,11 +9,12 @@ interface Props {
   loading: boolean;
   onUpload: (file: File, note: string) => Promise<void>;
   onDelete: (id: string) => void;
+  onUpdate: (insp: Inspiration) => void;
   onConvertToFood: (insp: Inspiration) => void;
   onClose: () => void;
 }
 
-export function InboxPage({ items, loading, onUpload, onDelete, onConvertToFood, onClose }: Props) {
+export function InboxPage({ items, loading, onUpload, onDelete, onUpdate, onConvertToFood, onClose }: Props) {
   const [selected, setSelected] = useState<Inspiration | null>(null);
   const [uploading, setUploading] = useState(false);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
@@ -169,6 +170,7 @@ export function InboxPage({ items, loading, onUpload, onDelete, onConvertToFood,
           insp={selected}
           onClose={() => setSelected(null)}
           onDelete={() => { onDelete(selected.id); setSelected(null); }}
+          onUpdate={(next) => { onUpdate(next); setSelected(next); }}
           onConvert={() => { onConvertToFood(selected); setSelected(null); }}
         />
       )}
@@ -206,39 +208,66 @@ function InspirationThumbnail({
 }
 
 function InspirationDetail({
-  insp, onClose, onDelete, onConvert,
+  insp, onClose, onDelete, onUpdate, onConvert,
 }: {
   insp: Inspiration;
   onClose: () => void;
   onDelete: () => void;
+  onUpdate: (insp: Inspiration) => void;
   onConvert: () => void;
 }) {
+  const [note, setNote] = useState(insp.note ?? '');
+  const [baseNote, setBaseNote] = useState(insp.note ?? '');
+  const noteChanged = note.trim() !== baseNote.trim();
+
+  const saveNote = () => {
+    const trimmed = note.trim();
+    onUpdate({ ...insp, note: trimmed || undefined });
+    setBaseNote(trimmed);
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-[#0a0a0a]" style={{ maxWidth: 430, margin: '0 auto' }}>
-      <div className="flex items-center justify-between px-6 py-5 border-b border-[#1f1f1f]">
-        <button onClick={onClose} className="p-1">
+      <div
+        className="flex items-center justify-between px-6 pb-4 border-b border-[#1f1f1f]"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}
+      >
+        <button onClick={onClose} className="icon-btn">
           <X size={22} className="text-[#8a8478]" />
         </button>
         <div className="text-[12px] tracking-[0.4em] text-[#c9a961]/80">靈感</div>
-        <button onClick={() => { if (confirm('刪除這個靈感？')) onDelete(); }} className="p-1">
-          <Trash2 size={19} className="text-[#6a4444]" />
+        <button onClick={() => { if (confirm('刪除這個靈感？')) onDelete(); }} className="icon-btn">
+          <Trash2 size={19} className="text-[#a85959]" />
         </button>
       </div>
 
       <div className="flex-1 overflow-y-auto">
         {insp.imageUrl && (
           <div className="bg-black">
-            <img src={insp.imageUrl} alt="" className="w-full max-h-[60vh] object-contain mx-auto" />
+            <img src={insp.imageUrl} alt="" className="w-full max-h-[55vh] object-contain mx-auto" />
           </div>
         )}
 
         <div className="px-6 py-6 space-y-5">
-          {insp.note && (
-            <div>
-              <div className="text-[12px] tracking-[0.4em] text-[#c9a961]/60 mb-2">備註</div>
-              <p className="text-[#d6d0c0] text-[15px] leading-relaxed">{insp.note}</p>
-            </div>
-          )}
+          {/* 備註：可直接編輯 */}
+          <div>
+            <div className="text-[12px] tracking-[0.4em] text-[#c9a961]/60 mb-2">備註</div>
+            <textarea
+              value={note}
+              onChange={e => setNote(e.target.value)}
+              rows={2}
+              placeholder="加一句備註（哪看到的、想吃什麼）"
+              className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 px-3 py-2.5 text-[15px] text-[#f5f1e8] placeholder-[#555] focus:outline-none resize-none leading-relaxed"
+            />
+            {noteChanged && (
+              <button
+                onClick={saveNote}
+                className="btn-primary mt-2 px-4 py-2 text-[13px] tracking-[0.2em] flex items-center gap-1.5"
+              >
+                <Check size={14} /> 儲存備註
+              </button>
+            )}
+          </div>
           {insp.platform && (
             <div>
               <div className="text-[12px] tracking-[0.4em] text-[#c9a961]/60 mb-2">來源</div>
@@ -282,10 +311,17 @@ function InspirationDetail({
       )}
       {insp.convertedFoodId && (
         <div
-          className="px-6 py-5 border-t border-[#1f1f1f] text-center text-[13px] tracking-widest text-[#666]"
+          className="px-6 pt-4 border-t border-[#1f1f1f] flex items-center justify-between gap-4"
           style={{ paddingBottom: 'max(20px, env(safe-area-inset-bottom))' }}
         >
-          已加入想吃清單 ✓
+          <span className="text-[13px] tracking-widest text-[#666]">已加入想吃清單 ✓</span>
+          <button
+            onClick={() => { if (confirm('刪除這張截圖？')) onDelete(); }}
+            className="btn-neutral px-4 py-2.5 text-[13px] tracking-[0.2em] flex items-center gap-1.5"
+          >
+            <Trash2 size={14} />
+            刪除
+          </button>
         </div>
       )}
     </div>

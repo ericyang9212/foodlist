@@ -197,6 +197,7 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
             await inspirations.addInspiration({ imageUrl: url, note: note || undefined });
           }}
           onDelete={inspirations.deleteInspiration}
+          onUpdate={inspirations.updateInspiration}
           onConvertToFood={handleConvertInspiration}
           onClose={() => setShowInbox(false)}
         />
