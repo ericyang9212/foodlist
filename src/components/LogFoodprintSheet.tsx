@@ -73,10 +73,14 @@ export function LogFoodprintSheet({ food, uploadPhoto, onSave, onClose }: Props)
       onClick={onClose}
     >
       <div
-        className="w-full max-w-[430px] bg-[#0f0f0f] border-t sm:border border-[#c9a961]/30 sm:rounded-[8px]"
+        className="w-full max-w-[430px] bg-gradient-to-b from-[#131313] to-[#0d0c0a] border-t sm:border border-[#c9a961]/30 rounded-t-[16px] sm:rounded-[14px]"
         onClick={e => e.stopPropagation()}
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
+        {/* 抽屜把手 */}
+        <div className="flex justify-center pt-2.5 sm:hidden">
+          <div className="w-9 h-1 rounded-full bg-[#3a3a3a]" />
+        </div>
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#1f1f1f]">
           <button onClick={onClose} className="icon-btn">
@@ -146,7 +150,7 @@ export function LogFoodprintSheet({ food, uploadPhoto, onSave, onClose }: Props)
               type="date"
               value={dateStr}
               onChange={e => setDateStr(e.target.value)}
-              className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[5px] px-3 py-2.5 text-[15px] text-[#f5f1e8] focus:outline-none"
+              className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-2.5 text-[15px] text-[#f5f1e8] focus:outline-none"
             />
           </div>
 
@@ -158,7 +162,7 @@ export function LogFoodprintSheet({ food, uploadPhoto, onSave, onClose }: Props)
                 <img
                   src={localPreview}
                   alt=""
-                  className="max-w-full max-h-48 rounded-[5px] border border-[#c9a961]/30"
+                  className="max-w-full max-h-48 rounded-[8px] border border-[#c9a961]/30"
                 />
                 <button
                   onClick={() => { setPendingFile(null); setLocalPreview(null); }}
@@ -170,7 +174,7 @@ export function LogFoodprintSheet({ food, uploadPhoto, onSave, onClose }: Props)
             ) : (
               <button
                 onClick={() => fileRef.current?.click()}
-                className="w-full border border-dashed border-[#c9a961]/40 hover:border-[#c9a961] hover:bg-[#c9a961]/5 bg-[#0f0d0a] rounded-[5px] py-5 flex flex-col items-center justify-center gap-1.5 transition-all"
+                className="w-full border border-dashed border-[#c9a961]/40 hover:border-[#c9a961] hover:bg-[#c9a961]/5 bg-[#0f0d0a] rounded-[8px] py-5 flex flex-col items-center justify-center gap-1.5 transition-all"
               >
                 <ImagePlus size={20} className="text-[#c9a961]" />
                 <span className="text-[12px] tracking-wider text-[#c9a961]/80">加一張照片</span>
@@ -197,7 +201,7 @@ export function LogFoodprintSheet({ food, uploadPhoto, onSave, onClose }: Props)
               value={note}
               onChange={e => setNote(e.target.value)}
               rows={2}
-              className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[5px] px-3 py-2.5 text-[14px] text-[#f5f1e8] placeholder-[#555] focus:outline-none resize-none leading-relaxed"
+              className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-2.5 text-[14px] text-[#f5f1e8] placeholder-[#555] focus:outline-none resize-none leading-relaxed"
             />
           </div>
         </div>

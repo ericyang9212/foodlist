@@ -139,7 +139,7 @@ export function ListView({
         <div className="px-6 mb-4">
           <button
             onClick={() => setShowTonight(true)}
-            className="group w-full relative bg-gradient-to-br from-[#1a1612] to-[#0f0d0a] border border-[#c9a961]/40 hover:border-[#c9a961] hover:shadow-[0_4px_20px_rgba(201,169,97,0.25)] rounded-[6px] transition-all py-6 px-6 overflow-hidden"
+            className="group w-full relative bg-gradient-to-br from-[#1a1612] to-[#0f0d0a] border border-[#c9a961]/40 hover:border-[#c9a961] hover:shadow-[0_4px_20px_rgba(201,169,97,0.25)] rounded-[12px] transition-all py-6 px-6 overflow-hidden"
           >
             <div className="absolute top-0 right-0 w-32 h-32 bg-[#c9a961]/5 rounded-full blur-2xl -mr-10 -mt-10" />
             <div className="relative flex items-center justify-between">

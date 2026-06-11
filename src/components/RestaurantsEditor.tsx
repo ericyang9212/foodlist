@@ -89,7 +89,7 @@ function RestaurantRow({ restaurant: r, onEdit, onRemove }: {
 }) {
   const region = [r.city, r.area].filter(Boolean).join(' · ');
   return (
-    <div className="bg-[#161616] border border-[#2a2a2a] rounded-[5px] p-5">
+    <div className="card-surface rounded-[8px] p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <p className="text-[17px] text-[#f5f1e8] font-medium tracking-wide">{r.name}</p>
@@ -201,7 +201,7 @@ function RestaurantForm({ initial, submitLabel, onSubmit, onCancel }: {
   };
 
   return (
-    <div className="bg-[#0f0f0f] border border-[#c9a961]/30 rounded-[5px] p-5 space-y-3.5">
+    <div className="bg-gradient-to-b from-[#131313] to-[#0e0d0b] border border-[#c9a961]/30 rounded-[10px] p-5 space-y-3.5">
       <input
         type="text"
         autoFocus

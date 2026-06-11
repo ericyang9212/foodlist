@@ -52,7 +52,7 @@ export function InboxPage({ items, loading, onUpload, onDelete, onUpdate, onConv
   };
 
   return (
-    <div className="fixed inset-0 z-40 flex flex-col bg-[#0a0a0a]" style={{ maxWidth: 430, margin: '0 auto' }}>
+    <div className="fixed inset-0 z-40 flex flex-col bg-[#0a0a0a] animate-fadein" style={{ maxWidth: 430, margin: '0 auto' }}>
       {/* Top bar */}
       <div
         className="flex items-center justify-between px-6 pb-3 border-b border-[#1f1f1f]"
@@ -289,7 +289,7 @@ function InspirationDetail({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-[#0a0a0a]" style={{ maxWidth: 430, margin: '0 auto' }}>
+    <div className="fixed inset-0 z-50 flex flex-col bg-[#0a0a0a] animate-fadein" style={{ maxWidth: 430, margin: '0 auto' }}>
       <div
         className="flex items-center justify-between px-6 pb-4 border-b border-[#1f1f1f]"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}

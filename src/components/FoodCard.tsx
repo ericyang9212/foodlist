@@ -26,7 +26,7 @@ export function FoodCard({ item, thumbnailUrl, onOpen }: Props) {
   return (
     <div
       onClick={() => onOpen(item)}
-      className="group relative bg-[#161616] border border-[#2a2a2a] hover:border-[#c9a961]/40 hover:shadow-[0_4px_16px_rgba(201,169,97,0.08)] rounded-[5px] transition-all cursor-pointer active:scale-[0.99]"
+      className="group relative card-surface hover:!border-[#c9a961]/40 hover:shadow-[0_6px_20px_rgba(201,169,97,0.1)] rounded-[8px] overflow-hidden transition-all cursor-pointer active:scale-[0.99]"
     >
       <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-gradient-to-b from-[#c9a961] to-transparent opacity-60" />
 
@@ -76,8 +76,9 @@ export function FoodCard({ item, thumbnailUrl, onOpen }: Props) {
 
         {/* 縮圖（從靈感來的） */}
         {thumbnailUrl && (
-          <div className="flex-shrink-0 w-20 h-20 rounded-[4px] bg-[#0a0a0a] border border-[#2a2a2a] overflow-hidden">
+          <div className="relative flex-shrink-0 w-20 h-20 rounded-[6px] bg-[#0a0a0a] border border-[#2a2a2a] overflow-hidden">
             <Thumb src={thumbnailUrl} className="w-full h-full object-cover" />
+            <div className="pointer-events-none absolute inset-0 rounded-[6px] ring-1 ring-inset ring-white/5" />
           </div>
         )}
       </div>

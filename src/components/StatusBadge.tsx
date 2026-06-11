@@ -7,7 +7,7 @@ interface Props {
 
 export function StatusBadge({ status }: Props) {
   return (
-    <span className={`inline-flex items-center text-[12px] tracking-[0.25em] px-2.5 py-1 rounded-sm border ${STATUS_STYLES[status]}`}>
+    <span className={`inline-flex items-center text-[12px] tracking-[0.25em] px-3 py-1 rounded-full border ${STATUS_STYLES[status]}`}>
       {STATUS_LABELS[status]}
     </span>
   );

@@ -68,7 +68,7 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onSignOut, o
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-[#0a0a0a]" style={{ maxWidth: 430, margin: '0 auto' }}>
+    <div className="fixed inset-0 z-50 flex flex-col bg-[#0a0a0a] animate-fadein" style={{ maxWidth: 430, margin: '0 auto' }}>
       <div
         className="flex items-center justify-between px-6 pb-4 border-b border-[#1f1f1f]"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}
@@ -85,7 +85,7 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onSignOut, o
 
       <div className="flex-1 overflow-y-auto px-6 py-6">
         {/* ── 使用說明（固定置頂、可折疊） ── */}
-        <div className="border border-[#c9a961]/30 bg-gradient-to-br from-[#141210] to-[#0d0c0a] rounded-[6px] overflow-hidden mb-8">
+        <div className="border border-[#c9a961]/30 bg-gradient-to-br from-[#141210] to-[#0d0c0a] rounded-[10px] overflow-hidden mb-8">
           <button
             onClick={() => setGuideOpen(o => !o)}
             className="w-full flex items-center gap-3 px-5 py-4 text-left"
@@ -130,7 +130,7 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onSignOut, o
               return (
                 <article
                   key={a.id}
-                  className={`border rounded-[6px] overflow-hidden transition-colors ${
+                  className={`border rounded-[10px] overflow-hidden transition-colors ${
                     isUnread
                       ? 'bg-gradient-to-br from-[#1a1612] to-[#0f0d0a] border-[#c9a961]/35'
                       : 'bg-[#121212] border-[#1a1a1a]'
@@ -192,7 +192,7 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onSignOut, o
           <div className="text-[11px] tracking-[0.4em] text-[#c9a961]/70 mb-4">MY DATA</div>
 
           {/* 自動備份說明 */}
-          <div className="bg-[#0f0f0f] border border-[#2a2a2a] rounded-[6px] p-4 mb-3">
+          <div className="bg-[#0f0f0f] border border-[#2a2a2a] rounded-[10px] p-4 mb-3">
             <div className="flex items-start gap-3">
               <Cloud size={20} className="text-[#c9a961] flex-shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
@@ -220,7 +220,7 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onSignOut, o
           <button
             onClick={handleDownload}
             disabled={downloading}
-            className="w-full flex items-center gap-3 bg-[#0f0f0f] border border-[#2a2a2a] hover:border-[#c9a961]/40 hover:bg-[#c9a961]/5 rounded-[6px] px-4 py-4 transition-all disabled:opacity-50"
+            className="w-full flex items-center gap-3 bg-[#0f0f0f] border border-[#2a2a2a] hover:border-[#c9a961]/40 hover:bg-[#c9a961]/5 rounded-[10px] px-4 py-4 transition-all disabled:opacity-50"
           >
             <Download size={18} className="text-[#c9a961] flex-shrink-0" />
             <div className="flex-1 text-left">
@@ -234,7 +234,7 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onSignOut, o
           {/* 登出 */}
           <button
             onClick={onSignOut}
-            className="w-full flex items-center gap-3 mt-3 border border-[#2a2a2a] hover:border-[#a85959]/50 rounded-[6px] px-4 py-3.5 transition-all"
+            className="w-full flex items-center gap-3 mt-3 border border-[#2a2a2a] hover:border-[#a85959]/50 rounded-[10px] px-4 py-3.5 transition-all"
           >
             <LogOut size={17} className="text-[#8a8478] flex-shrink-0" />
             <span className="text-[14px] text-[#8a8478] tracking-wider">登出</span>

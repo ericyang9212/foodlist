@@ -98,7 +98,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
   const previewSrc = localPreview ?? imageUrl;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-[#0a0a0a]" style={{ maxWidth: 430, margin: '0 auto' }}>
+    <div className="fixed inset-0 z-50 flex flex-col bg-[#0a0a0a] animate-fadein" style={{ maxWidth: 430, margin: '0 auto' }}>
       {/* Header */}
       <div
         className="flex items-center justify-between px-6 pb-4 border-b border-[#1f1f1f]"
@@ -216,7 +216,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
                 <select
                   value={cuisineType}
                   onChange={e => setCuisineType(e.target.value)}
-                  className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[5px] px-3 py-3 text-[15px] text-[#f5f1e8] focus:outline-none transition-colors"
+                  className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-3 text-[15px] text-[#f5f1e8] focus:outline-none transition-colors"
                 >
                   <option value="">—</option>
                   {CUISINE_TYPES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -267,7 +267,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
                   value={notes}
                   onChange={e => setNotes(e.target.value)}
                   rows={3}
-                  className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[5px] px-3 py-3 text-[15px] text-[#f5f1e8] placeholder-[#555] focus:outline-none resize-none leading-relaxed transition-colors"
+                  className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-3 text-[15px] text-[#f5f1e8] placeholder-[#555] focus:outline-none resize-none leading-relaxed transition-colors"
                 />
               </div>
 

@@ -99,7 +99,7 @@ export function TonightModal({ candidates, onOpen, onClose }: Props) {
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center px-6"
          onClick={onClose}>
       <div
-        className="relative w-full max-w-sm bg-[#0f0f0f] border border-[#c9a961]/30 rounded-[8px] shadow-[0_20px_60px_rgba(0,0,0,0.5),0_0_40px_rgba(201,169,97,0.15)] px-8 py-10"
+        className="relative w-full max-w-sm bg-gradient-to-b from-[#131313] to-[#0d0c0a] border border-[#c9a961]/30 rounded-[14px] shadow-[0_20px_60px_rgba(0,0,0,0.5),0_0_40px_rgba(201,169,97,0.15)] px-8 py-10 animate-fadein"
         onClick={e => e.stopPropagation()}
       >
         <button onClick={onClose} className="absolute top-3 right-3 icon-btn">

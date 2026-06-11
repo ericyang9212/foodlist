@@ -13,26 +13,42 @@
 
 * {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
   margin: 0;
   font-family: 'Noto Serif TC', 'Songti TC', 'Source Han Serif TC', 'PingFang TC', -apple-system, serif;
-  background: #0a0a0a;
+  background: #050505;
   color: #f5f1e8;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 #root {
   min-height: 100svh;
   max-width: 430px;
   margin: 0 auto;
-  background: #0a0a0a;
   position: relative;
+  /* 黑底加一層極淡的金暈，避免死黑、增加縱深 */
+  background:
+    radial-gradient(120% 50% at 50% 0%, rgba(201, 169, 97, 0.05) 0%, rgba(201, 169, 97, 0) 60%),
+    #0a0a0a;
 }
 
 ::-webkit-scrollbar {
   width: 0;
+}
+
+/* 反白選取也走金色 */
+::selection {
+  background: rgba(201, 169, 97, 0.35);
+  color: #f5f1e8;
+}
+
+/* 數字等寬，列表數量對齊更穩 */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }
 
 /* Gold gradient accent for headers */
@@ -55,6 +71,22 @@ body {
   animation: slideup 0.25s ease-out;
 }
 
+/* 全頁覆蓋層的進場：淡入 + 輕微上浮，比硬切高級 */
+@keyframes fadein {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.animate-fadein {
+  animation: fadein 0.22s ease-out;
+}
+
+/* 卡片表面：細漸層 + 內光，比平塗多一層質感 */
+.card-surface {
+  background: linear-gradient(160deg, #181818 0%, #121212 100%);
+  border: 1px solid #262626;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
 @keyframes marquee {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
@@ -66,7 +98,7 @@ body {
 .btn-primary {
   background: linear-gradient(135deg, #e6c87a 0%, #c9a961 50%, #a88d4f 100%);
   color: #0a0a0a;
-  border-radius: 5px;
+  border-radius: 6px;
   box-shadow:
     inset 0 1px 0 rgba(255, 240, 200, 0.35),
     inset 0 -1px 0 rgba(0, 0, 0, 0.2),
@@ -97,7 +129,7 @@ body {
   border: 1px solid rgba(201, 169, 97, 0.5);
   color: #c9a961;
   background: rgba(201, 169, 97, 0.04);
-  border-radius: 5px;
+  border-radius: 6px;
   transition: all 0.15s ease;
   font-weight: 500;
 }
@@ -114,7 +146,7 @@ body {
   border: 1px solid #2a2a2a;
   color: #8a8478;
   background: transparent;
-  border-radius: 5px;
+  border-radius: 6px;
   transition: all 0.15s ease;
 }
 .btn-neutral:hover {
@@ -151,7 +183,7 @@ body {
   border: 1px solid rgba(140, 70, 70, 0.4);
   color: #a85959;
   background: rgba(140, 70, 70, 0.05);
-  border-radius: 5px;
+  border-radius: 6px;
   transition: all 0.15s ease;
 }
 .btn-danger:hover {

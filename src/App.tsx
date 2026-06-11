@@ -171,9 +171,11 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
       </div>
 
       <nav
-        className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-[#0a0a0a] border-t border-[#1f1f1f] flex items-center justify-around px-4 pt-3 z-40"
+        className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-[#0a0a0a]/90 backdrop-blur-md flex items-center justify-around px-4 pt-3 z-40"
         style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}
       >
+        {/* 頂緣金色細線，取代生硬的灰邊 */}
+        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#c9a961]/30 to-transparent" />
         <NavBtn icon={<List size={22} />} label="清單" active={tab === 'list'} onClick={() => setTab('list')} />
 
         <button onClick={handleAddNew} className="flex flex-col items-center px-4">

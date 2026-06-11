@@ -167,7 +167,7 @@ export function FoodprintsPage({ items, onDelete }: Props) {
 
 function StatCard({ label, value }: { label: string; value: number }) {
   return (
-    <div className="bg-[#0f0f0f] border border-[#1f1f1f] rounded-[5px] py-4 px-3 text-center">
+    <div className="card-surface rounded-[8px] py-4 px-3 text-center">
       <div className="text-[28px] text-gold-gradient font-medium tracking-wide leading-none mb-1">
         {value}
       </div>
@@ -179,7 +179,7 @@ function StatCard({ label, value }: { label: string; value: number }) {
 function FoodprintCard({ item, onDelete }: { item: Foodprint; onDelete: () => void }) {
   const region = [item.restaurantCity, item.restaurantArea].filter(Boolean).join(' ');
   return (
-    <div className="bg-[#161616] border border-[#2a2a2a] rounded-[5px] p-4">
+    <div className="card-surface rounded-[8px] p-4">
       <div className="flex items-start gap-3">
         <div className="text-[11px] tracking-[0.25em] text-[#c9a961]/80 w-12 flex-shrink-0 mt-0.5">
           {dateLabel(item.ateAt)}
