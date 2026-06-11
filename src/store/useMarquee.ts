@@ -10,22 +10,35 @@ export function useMarquee() {
   const [data, setData] = useState<MarqueeData>({ text: '', speed: 30 });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    supabase
+  const fetchOne = useCallback(async () => {
+    const { data } = await supabase
       .from('marquee')
       .select('text, speed_seconds')
       .eq('id', 1)
-      .single()
-      .then(({ data }) => {
-        if (data) {
-          setData({
-            text: (data.text as string) ?? '',
-            speed: (data.speed_seconds as number) ?? 30,
-          });
-        }
-        setLoading(false);
+      .single();
+    if (data) {
+      setData({
+        text: (data.text as string) ?? '',
+        speed: (data.speed_seconds as number) ?? 30,
       });
+    }
+    setLoading(false);
   }, []);
+
+  useEffect(() => {
+    fetchOne();
+  }, [fetchOne]);
+
+  // 即時同步：對方改了跑馬燈馬上看到
+  useEffect(() => {
+    const ch = supabase
+      .channel('rt-marquee')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'marquee' }, () => {
+        fetchOne();
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [fetchOne]);
 
   const update = useCallback(async (next: MarqueeData) => {
     setData(next);

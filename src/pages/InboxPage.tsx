@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { ImagePlus, Check, Trash2, ArrowRight, X, Loader2, ArrowLeft } from 'lucide-react';
+import { ImagePlus, Check, Trash2, ArrowRight, X, Loader2, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Inspiration, FoodItem } from '../types';
 import { PLATFORM_LABELS } from '../types';
 import { safeHttpUrl } from '../lib/url';
@@ -170,18 +170,26 @@ export function InboxPage({ items, loading, onUpload, onDelete, onUpdate, onConv
         )}
       </div>
 
-      {/* 靈感詳細 */}
-      {selected && (
-        <InspirationDetail
-          insp={selected}
-          onClose={() => setSelected(null)}
-          onDelete={() => { onDelete(selected.id); setSelected(null); }}
-          onUpdate={(next) => { onUpdate(next); setSelected(next); }}
-          onConvert={() => { onConvertToFood(selected); setSelected(null); }}
-          linkedFood={selected.convertedFoodId ? foodById[selected.convertedFoodId] : undefined}
-          onOpenFood={onOpenFood}
-        />
-      )}
+      {/* 靈感詳細（同一區的截圖可左右滑換頁，像翻相簿） */}
+      {selected && (() => {
+        const siblings = selected.convertedFoodId ? converted : pending;
+        const idx = siblings.findIndex(i => i.id === selected.id);
+        return (
+          <InspirationDetail
+            key={selected.id}
+            insp={selected}
+            position={idx >= 0 ? { index: idx, total: siblings.length } : undefined}
+            onPrev={idx > 0 ? () => setSelected(siblings[idx - 1]) : undefined}
+            onNext={idx >= 0 && idx < siblings.length - 1 ? () => setSelected(siblings[idx + 1]) : undefined}
+            onClose={() => setSelected(null)}
+            onDelete={() => { onDelete(selected.id); setSelected(null); }}
+            onUpdate={(next) => { onUpdate(next); setSelected(next); }}
+            onConvert={() => { onConvertToFood(selected); setSelected(null); }}
+            linkedFood={selected.convertedFoodId ? foodById[selected.convertedFoodId] : undefined}
+            onOpenFood={onOpenFood}
+          />
+        );
+      })()}
     </div>
   );
 }
@@ -222,6 +230,8 @@ function InspirationThumbnail({
         <img
           src={insp.imageUrl}
           alt=""
+          loading="lazy"
+          decoding="async"
           className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.06]"
         />
       ) : (
@@ -244,7 +254,7 @@ function InspirationThumbnail({
 }
 
 function InspirationDetail({
-  insp, onClose, onDelete, onUpdate, onConvert, linkedFood, onOpenFood,
+  insp, onClose, onDelete, onUpdate, onConvert, linkedFood, onOpenFood, onPrev, onNext, position,
 }: {
   insp: Inspiration;
   onClose: () => void;
@@ -253,15 +263,31 @@ function InspirationDetail({
   onConvert: () => void;
   linkedFood?: FoodItem;
   onOpenFood: (foodId: string) => void;
+  onPrev?: () => void;
+  onNext?: () => void;
+  position?: { index: number; total: number };
 }) {
   const [note, setNote] = useState(insp.note ?? '');
   const [baseNote, setBaseNote] = useState(insp.note ?? '');
   const noteChanged = note.trim() !== baseNote.trim();
+  const touchStartX = useRef<number | null>(null);
 
   const saveNote = () => {
     const trimmed = note.trim();
     onUpdate({ ...insp, note: trimmed || undefined });
     setBaseNote(trimmed);
+  };
+
+  // 左右滑切換上一張 / 下一張
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current == null) return;
+    const delta = e.changedTouches[0].clientX - touchStartX.current;
+    touchStartX.current = null;
+    if (delta > 60 && onPrev) onPrev();
+    else if (delta < -60 && onNext) onNext();
   };
 
   return (
@@ -282,8 +308,39 @@ function InspirationDetail({
       <div className="flex-1 overflow-y-auto">
         {insp.imageUrl && (
           <div className="px-5 pt-5">
-            <div className="rounded-[10px] overflow-hidden border border-[#1f1f1f] bg-black shadow-[0_6px_24px_rgba(0,0,0,0.45)]">
+            <div
+              className="relative rounded-[10px] overflow-hidden border border-[#1f1f1f] bg-black shadow-[0_6px_24px_rgba(0,0,0,0.45)]"
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
+            >
               <img src={insp.imageUrl} alt="" className="w-full max-h-[52vh] object-contain mx-auto" />
+
+              {/* 翻頁箭頭 */}
+              {onPrev && (
+                <button
+                  onClick={onPrev}
+                  className="absolute left-1.5 top-1/2 -translate-y-1/2 bg-black/45 backdrop-blur-sm rounded-full p-1.5 text-[#e6c87a] hover:bg-black/70 transition-colors"
+                  aria-label="上一張"
+                >
+                  <ChevronLeft size={20} />
+                </button>
+              )}
+              {onNext && (
+                <button
+                  onClick={onNext}
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 bg-black/45 backdrop-blur-sm rounded-full p-1.5 text-[#e6c87a] hover:bg-black/70 transition-colors"
+                  aria-label="下一張"
+                >
+                  <ChevronRight size={20} />
+                </button>
+              )}
+
+              {/* 頁碼 */}
+              {position && position.total > 1 && (
+                <div className="absolute bottom-2 right-2.5 bg-black/55 backdrop-blur-sm rounded-full px-2.5 py-0.5 text-[11px] tracking-[0.2em] text-[#d6c89a] tabular-nums">
+                  {position.index + 1} / {position.total}
+                </div>
+              )}
             </div>
           </div>
         )}

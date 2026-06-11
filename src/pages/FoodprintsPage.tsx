@@ -203,7 +203,7 @@ function FoodprintCard({ item, onDelete }: { item: Foodprint; onDelete: () => vo
         </div>
         {item.photoUrl && (
           <div className="w-14 h-14 rounded-[4px] border border-[#2a2a2a] overflow-hidden flex-shrink-0">
-            <img src={item.photoUrl} alt="" className="w-full h-full object-cover" />
+            <img src={item.photoUrl} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
           </div>
         )}
         <button

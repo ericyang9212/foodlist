@@ -61,28 +61,39 @@ export function useStore() {
     });
   }, []);
 
-  // 背景同步
-  useEffect(() => {
-    let cancelled = false;
-    supabase
+  // 從 server 抓最新（初次載入與 realtime 事件共用）
+  const fetchAll = useCallback(async (opts?: { silent?: boolean }) => {
+    const { data, error } = await supabase
       .from('food_items')
       .select('*')
-      .order('created_at', { ascending: false })
-      .then(({ data, error }) => {
-        if (cancelled) return;
-        if (error) {
-          // 有快取就靜默用快取；完全沒資料才提示
-          if (cached.length === 0) toast.error('載入失敗，請檢查網路後重新整理');
-        } else if (data) {
-          const mapped = data.map(fromRow);
-          setItemsRaw(mapped);
-          writeCache(CACHE_KEY, mapped);
-        }
-        setLoading(false);
-      });
-    return () => { cancelled = true; };
+      .order('created_at', { ascending: false });
+    if (error) {
+      // 有快取就靜默用快取；完全沒資料才提示
+      if (!opts?.silent && cached.length === 0) toast.error('載入失敗，請檢查網路後重新整理');
+    } else if (data) {
+      const mapped = data.map(fromRow);
+      setItemsRaw(mapped);
+      writeCache(CACHE_KEY, mapped);
+    }
+    setLoading(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // 背景同步
+  useEffect(() => {
+    fetchAll();
+  }, [fetchAll]);
+
+  // 即時同步：對方（或自己其他裝置）改了資料就重新抓
+  useEffect(() => {
+    const ch = supabase
+      .channel('rt-food-items')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'food_items' }, () => {
+        fetchAll({ silent: true });
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [fetchAll]);
 
   const addItem = useCallback(async (item: FoodItem): Promise<boolean> => {
     // optimistic

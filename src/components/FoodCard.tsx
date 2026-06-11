@@ -7,6 +7,16 @@ interface Props {
   onOpen: (item: FoodItem) => void;
 }
 
+function timeAgo(iso: string): string {
+  const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+  if (days < 1) return '今天';
+  if (days === 1) return '昨天';
+  if (days < 7) return `${days} 天前`;
+  if (days < 30) return `${Math.floor(days / 7)} 週前`;
+  if (days < 365) return `${Math.floor(days / 30)} 個月前`;
+  return `${Math.floor(days / 365)} 年前`;
+}
+
 export function FoodCard({ item, thumbnailUrl, onOpen }: Props) {
   // 優先顯示縣市，沒設縣市才退到區域
   const regions = Array.from(new Set(item.restaurants.map(r => r.city || r.area).filter(Boolean)));
@@ -37,6 +47,11 @@ export function FoodCard({ item, thumbnailUrl, onOpen }: Props) {
                 {'★'.repeat(item.rating)}
               </span>
             )}
+            {item.status === 'tried' && (
+              <span className="text-[12px] text-[#8a8478] tracking-wider">
+                上次吃 · {timeAgo(item.updatedAt)}
+              </span>
+            )}
           </div>
 
           {/* 候選店家 */}
@@ -55,7 +70,7 @@ export function FoodCard({ item, thumbnailUrl, onOpen }: Props) {
         {/* 縮圖（從靈感來的） */}
         {thumbnailUrl && (
           <div className="flex-shrink-0 w-20 h-20 rounded-[4px] bg-[#0a0a0a] border border-[#2a2a2a] overflow-hidden">
-            <img src={thumbnailUrl} alt="" className="w-full h-full object-cover" />
+            <img src={thumbnailUrl} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
           </div>
         )}
       </div>

@@ -46,24 +46,33 @@ export function useInspirations() {
     });
   }, []);
 
-  useEffect(() => {
-    let cancelled = false;
-    supabase
+  const fetchAll = useCallback(async () => {
+    const { data, error } = await supabase
       .from('inspirations')
       .select('*')
-      .order('created_at', { ascending: false })
-      .then(({ data, error }) => {
-        if (cancelled) return;
-        if (!error && data) {
-          const mapped = data.map(fromRow);
-          setItemsRaw(mapped);
-          writeCache(CACHE_KEY, mapped);
-        }
-        setLoading(false);
-      });
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+      .order('created_at', { ascending: false });
+    if (!error && data) {
+      const mapped = data.map(fromRow);
+      setItemsRaw(mapped);
+      writeCache(CACHE_KEY, mapped);
+    }
+    setLoading(false);
   }, []);
+
+  useEffect(() => {
+    fetchAll();
+  }, [fetchAll]);
+
+  // 即時同步：對方改了靈感（新增截圖、整理、刪除）就重新抓
+  useEffect(() => {
+    const ch = supabase
+      .channel('rt-inspirations')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'inspirations' }, () => {
+        fetchAll();
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [fetchAll]);
 
   // 上傳一張圖（先壓縮）到 Supabase Storage
   const uploadImage = useCallback(async (file: File): Promise<string> => {

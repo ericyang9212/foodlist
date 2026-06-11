@@ -62,24 +62,33 @@ export function useFoodprints() {
     });
   }, []);
 
-  useEffect(() => {
-    let cancelled = false;
-    supabase
+  const fetchAll = useCallback(async () => {
+    const { data, error } = await supabase
       .from('foodprints')
       .select('*')
-      .order('ate_at', { ascending: false })
-      .then(({ data, error }) => {
-        if (cancelled) return;
-        if (!error && data) {
-          const mapped = data.map(fromRow);
-          setItemsRaw(mapped);
-          writeCache(CACHE_KEY, mapped);
-        }
-        setLoading(false);
-      });
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+      .order('ate_at', { ascending: false });
+    if (!error && data) {
+      const mapped = data.map(fromRow);
+      setItemsRaw(mapped);
+      writeCache(CACHE_KEY, mapped);
+    }
+    setLoading(false);
   }, []);
+
+  useEffect(() => {
+    fetchAll();
+  }, [fetchAll]);
+
+  // 即時同步：對方記了足跡就重新抓
+  useEffect(() => {
+    const ch = supabase
+      .channel('rt-foodprints')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'foodprints' }, () => {
+        fetchAll();
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [fetchAll]);
 
   const uploadPhoto = useCallback(async (file: File): Promise<string> => {
     const compressed = await compressImage(file);
