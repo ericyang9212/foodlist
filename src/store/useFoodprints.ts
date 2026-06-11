@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { readCache, writeCache } from '../lib/cache';
 import { compressImage } from '../lib/image';
-import { deleteImageByUrl } from '../lib/storage';
+import { deleteImageByUrl, uploadThumb } from '../lib/storage';
 import { toast } from '../lib/toast';
 import { makeId } from '../lib/id';
 import type { Foodprint } from '../types';
@@ -93,7 +93,8 @@ export function useFoodprints() {
   const uploadPhoto = useCallback(async (file: File): Promise<string> => {
     const compressed = await compressImage(file);
     const ext = compressed.type === 'image/webp' ? 'webp' : compressed.type === 'image/jpeg' ? 'jpg' : (compressed.name.split('.').pop() || 'jpg');
-    const path = `${makeId()}-${Date.now()}.${ext}`;
+    const base = `${makeId()}-${Date.now()}`;
+    const path = `${base}.${ext}`;
     const { error } = await supabase.storage
       .from('foodprints')
       .upload(path, compressed, { contentType: compressed.type, upsert: false });
@@ -101,6 +102,7 @@ export function useFoodprints() {
       toast.error('照片上傳失敗');
       throw error;
     }
+    await uploadThumb('foodprints', base, ext, file);
     const { data } = supabase.storage.from('foodprints').getPublicUrl(path);
     return data.publicUrl;
   }, []);

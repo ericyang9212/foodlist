@@ -52,3 +52,12 @@ export async function compressImage(
 function canvasToBlob(canvas: HTMLCanvasElement, type: string, quality: number): Promise<Blob | null> {
   return new Promise(resolve => canvas.toBlob(b => resolve(b), type, quality));
 }
+
+// 由主圖 URL 推導列表縮圖 URL（上傳時以同名 -thumb 後綴存放）。
+// 舊圖沒有縮圖檔，UI 端用 onError 退回主圖即可。
+export function thumbUrlFor(url?: string | null): string | undefined {
+  if (!url) return undefined;
+  const m = url.match(/^(.*)(\.[A-Za-z0-9]+)$/);
+  if (!m) return undefined;
+  return `${m[1]}-thumb${m[2]}`;
+}

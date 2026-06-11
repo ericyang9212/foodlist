@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import { readCache, writeCache } from '../lib/cache';
 import { compressImage } from '../lib/image';
-import { deleteImageByUrl } from '../lib/storage';
+import { deleteImageByUrl, uploadThumb } from '../lib/storage';
 import { toast } from '../lib/toast';
 import { makeId } from '../lib/id';
 import type { Inspiration } from '../types';
@@ -74,11 +74,12 @@ export function useInspirations() {
     return () => { supabase.removeChannel(ch); };
   }, [fetchAll]);
 
-  // 上傳一張圖（先壓縮）到 Supabase Storage
+  // 上傳一張圖（先壓縮）到 Supabase Storage；同時存一張 -thumb 縮圖給列表用
   const uploadImage = useCallback(async (file: File): Promise<string> => {
     const compressed = await compressImage(file);
     const ext = compressed.type === 'image/webp' ? 'webp' : compressed.type === 'image/jpeg' ? 'jpg' : (compressed.name.split('.').pop() || 'jpg');
-    const path = `${makeId()}-${Date.now()}.${ext}`;
+    const base = `${makeId()}-${Date.now()}`;
+    const path = `${base}.${ext}`;
     const { error } = await supabase.storage
       .from('inspirations')
       .upload(path, compressed, { contentType: compressed.type, upsert: false });
@@ -86,6 +87,7 @@ export function useInspirations() {
       toast.error('圖片上傳失敗');
       throw error;
     }
+    await uploadThumb('inspirations', base, ext, file);
     const { data } = supabase.storage.from('inspirations').getPublicUrl(path);
     return data.publicUrl;
   }, []);

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { MapPin, Trash2, Compass, ExternalLink } from 'lucide-react';
+import { Thumb } from '../components/Thumb';
 import type { Foodprint } from '../types';
 
 interface Props {
@@ -203,7 +204,7 @@ function FoodprintCard({ item, onDelete }: { item: Foodprint; onDelete: () => vo
         </div>
         {item.photoUrl && (
           <div className="w-14 h-14 rounded-[4px] border border-[#2a2a2a] overflow-hidden flex-shrink-0">
-            <img src={item.photoUrl} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
+            <Thumb src={item.photoUrl} className="w-full h-full object-cover" />
           </div>
         )}
         <button

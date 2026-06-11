@@ -1,4 +1,6 @@
 import { StatusBadge } from './StatusBadge';
+import { Thumb } from './Thumb';
+import { staleLabel } from '../lib/stale';
 import type { FoodItem } from '../types';
 
 interface Props {
@@ -52,6 +54,11 @@ export function FoodCard({ item, thumbnailUrl, onOpen }: Props) {
                 上次吃 · {timeAgo(item.updatedAt)}
               </span>
             )}
+            {item.status === 'want' && staleLabel(item.createdAt) && (
+              <span className="text-[12px] text-[#666] tracking-wider">
+                躺了 {staleLabel(item.createdAt)}
+              </span>
+            )}
           </div>
 
           {/* 候選店家 */}
@@ -70,7 +77,7 @@ export function FoodCard({ item, thumbnailUrl, onOpen }: Props) {
         {/* 縮圖（從靈感來的） */}
         {thumbnailUrl && (
           <div className="flex-shrink-0 w-20 h-20 rounded-[4px] bg-[#0a0a0a] border border-[#2a2a2a] overflow-hidden">
-            <img src={thumbnailUrl} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
+            <Thumb src={thumbnailUrl} className="w-full h-full object-cover" />
           </div>
         )}
       </div>

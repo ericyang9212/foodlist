@@ -1,5 +1,6 @@
 import { ArrowLeft, Edit3, Trash2, Check } from 'lucide-react';
 import { StatusBadge } from '../components/StatusBadge';
+import { Thumb } from '../components/Thumb';
 import { RestaurantsEditor } from '../components/RestaurantsEditor';
 import { OCCASION_LABELS } from '../types';
 import type { FoodItem, Restaurant } from '../types';
@@ -55,7 +56,7 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
             </h1>
             {thumbnailUrl && (
               <div className="flex-shrink-0 w-24 h-24 rounded-[6px] border border-[#c9a961]/40 overflow-hidden shadow-[0_4px_16px_rgba(201,169,97,0.15)]">
-                <img src={thumbnailUrl} alt="" className="w-full h-full object-cover" />
+                <Thumb src={thumbnailUrl} className="w-full h-full object-cover" />
               </div>
             )}
           </div>

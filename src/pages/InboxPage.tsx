@@ -3,6 +3,7 @@ import { ImagePlus, Check, Trash2, ArrowRight, X, Loader2, ArrowLeft, ChevronLef
 import type { Inspiration, FoodItem } from '../types';
 import { PLATFORM_LABELS } from '../types';
 import { safeHttpUrl } from '../lib/url';
+import { Thumb } from '../components/Thumb';
 
 interface Props {
   items: Inspiration[];
@@ -227,11 +228,8 @@ function InspirationThumbnail({
       }`}
     >
       {insp.imageUrl ? (
-        <img
+        <Thumb
           src={insp.imageUrl}
-          alt=""
-          loading="lazy"
-          decoding="async"
           className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.06]"
         />
       ) : (

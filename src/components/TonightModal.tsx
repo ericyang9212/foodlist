@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { X, Shuffle, ChevronRight, SlidersHorizontal } from 'lucide-react';
+import { X, Shuffle, ChevronRight, SlidersHorizontal, MapPin } from 'lucide-react';
+import { mapsUrlForFood } from '../lib/maps';
+import { isStale } from '../lib/stale';
 import type { FoodItem } from '../types';
 
 interface Props {
@@ -26,6 +28,13 @@ export function TonightModal({ candidates, onOpen, onClose }: Props) {
   const [showFilters, setShowFilters] = useState(false);
   const [cityFilter, setCityFilter] = useState<string | null>(null);
   const [cuisineFilter, setCuisineFilter] = useState<string | null>(null);
+  const [staleOnly, setStaleOnly] = useState(false);
+
+  // 冷宮：躺超過 3 個月還沒吃的
+  const staleCount = useMemo(
+    () => candidates.filter(i => isStale(i.createdAt)).length,
+    [candidates]
+  );
 
   // 從候選裡蒐集出可用的縣市 / 料理類型
   const cityCounts = useMemo(() => {
@@ -50,9 +59,10 @@ export function TonightModal({ candidates, onOpen, onClose }: Props) {
     return candidates.filter(item => {
       if (cityFilter && !item.restaurants.some(r => r.city === cityFilter)) return false;
       if (cuisineFilter && item.cuisineType !== cuisineFilter) return false;
+      if (staleOnly && !isStale(item.createdAt)) return false;
       return true;
     });
-  }, [candidates, cityFilter, cuisineFilter]);
+  }, [candidates, cityFilter, cuisineFilter, staleOnly]);
 
   // 篩選變動時重抽
   useEffect(() => {
@@ -82,8 +92,8 @@ export function TonightModal({ candidates, onOpen, onClose }: Props) {
     }, 60);
   };
 
-  const hasFilter = cityFilter !== null || cuisineFilter !== null;
-  const canFilter = cityCounts.length > 0 || cuisineCounts.length > 0;
+  const hasFilter = cityFilter !== null || cuisineFilter !== null || staleOnly;
+  const canFilter = cityCounts.length > 0 || cuisineCounts.length > 0 || staleCount > 0;
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center px-6"
@@ -112,12 +122,24 @@ export function TonightModal({ candidates, onOpen, onClose }: Props) {
             >
               <SlidersHorizontal size={13} />
               {hasFilter
-                ? `已篩選 · ${[cityFilter, cuisineFilter].filter(Boolean).join(' · ')}`
+                ? `已篩選 · ${[cityFilter, cuisineFilter, staleOnly ? '冷宮' : null].filter(Boolean).join(' · ')}`
                 : '加篩選條件'}
             </button>
 
             {showFilters && (
               <div className="mt-3 space-y-3 pt-3 border-t border-[#1f1f1f]">
+                {staleCount > 0 && (
+                  <div>
+                    <div className="text-[10px] tracking-[0.4em] text-[#666] mb-2">冷宮</div>
+                    <button
+                      onClick={() => setStaleOnly(!staleOnly)}
+                      className={`text-[11px] tracking-[0.2em] px-2.5 py-1 ${staleOnly ? 'chip chip-active' : 'chip'}`}
+                    >
+                      躺超過 3 個月 · {staleCount}
+                    </button>
+                  </div>
+                )}
+
                 {cityCounts.length > 0 && (
                   <div>
                     <div className="text-[10px] tracking-[0.4em] text-[#666] mb-2">縣市</div>
@@ -166,7 +188,7 @@ export function TonightModal({ candidates, onOpen, onClose }: Props) {
 
                 {hasFilter && (
                   <button
-                    onClick={() => { setCityFilter(null); setCuisineFilter(null); }}
+                    onClick={() => { setCityFilter(null); setCuisineFilter(null); setStaleOnly(false); }}
                     className="w-full text-[11px] tracking-[0.3em] text-[#666] hover:text-[#c9a961] py-1.5 transition-colors"
                   >
                     清除全部篩選
@@ -202,14 +224,23 @@ export function TonightModal({ candidates, onOpen, onClose }: Props) {
                 就決定它了
                 <ChevronRight size={18} strokeWidth={2.5} />
               </button>
-              <button
-                onClick={shuffle}
-                disabled={pool.length <= 1 || shuffling}
-                className="btn-secondary w-full flex items-center justify-center gap-2 py-4 text-[14px] tracking-[0.3em] disabled:opacity-40"
-              >
-                <Shuffle size={14} />
-                再抽一個
-              </button>
+              <div className="flex gap-2.5">
+                <button
+                  onClick={() => window.open(mapsUrlForFood(current), '_blank', 'noopener,noreferrer')}
+                  className="btn-secondary flex-1 flex items-center justify-center gap-2 py-4 text-[14px] tracking-[0.3em]"
+                >
+                  <MapPin size={14} />
+                  帶我去
+                </button>
+                <button
+                  onClick={shuffle}
+                  disabled={pool.length <= 1 || shuffling}
+                  className="btn-secondary flex-1 flex items-center justify-center gap-2 py-4 text-[14px] tracking-[0.3em] disabled:opacity-40"
+                >
+                  <Shuffle size={14} />
+                  再抽一個
+                </button>
+              </div>
             </div>
           </>
         ) : (
