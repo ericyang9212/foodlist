@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { X, Shuffle, ChevronRight, SlidersHorizontal } from 'lucide-react';
 import type { FoodItem } from '../types';
 
@@ -59,15 +59,24 @@ export function TonightModal({ candidates, onOpen, onClose }: Props) {
     setCurrent(pickRandom(pool));
   }, [pool]);
 
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // modal 關閉時清掉跑到一半的動畫
+  useEffect(() => () => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+  }, []);
+
   const shuffle = () => {
-    if (pool.length <= 1) return;
+    if (pool.length <= 1 || shuffling) return;
     setShuffling(true);
     let count = 0;
-    const interval = setInterval(() => {
-      setCurrent(pickRandom(pool, current ?? undefined));
+    intervalRef.current = setInterval(() => {
+      // 用 functional update 拿到最新值，每一跳都避開上一個
+      setCurrent(prev => pickRandom(pool, prev ?? undefined));
       count++;
       if (count > 6) {
-        clearInterval(interval);
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        intervalRef.current = null;
         setShuffling(false);
       }
     }, 60);

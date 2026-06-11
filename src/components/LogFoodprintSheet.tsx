@@ -39,7 +39,9 @@ export function LogFoodprintSheet({ food, uploadPhoto, onSave, onClose }: Props)
       let photoUrl: string | undefined;
       if (pendingFile) photoUrl = await uploadPhoto(pendingFile);
 
-      const ateAtIso = new Date(`${dateStr}T${new Date().toTimeString().slice(0, 5)}:00`).toISOString();
+      // 日期欄被清空或格式不對時退回今天，避免 Invalid Date 讓儲存直接失敗
+      const candidate = new Date(`${dateStr}T${new Date().toTimeString().slice(0, 5)}:00`);
+      const ateAtIso = (dateStr && !Number.isNaN(candidate.getTime()) ? candidate : new Date()).toISOString();
 
       await onSave({
         foodId: food.id,

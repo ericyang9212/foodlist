@@ -111,7 +111,7 @@ function RestaurantRow({ restaurant: r, onEdit, onRemove }: {
             </p>
           ) : (
             <p className="text-[11px] text-[#666] tracking-wider mt-2">
-              未定位 · 貼 Google Maps 連結可讓它出現在「附近」
+              未定位 · 貼 Google Maps 連結可自動取得位置
             </p>
           )}
         </div>

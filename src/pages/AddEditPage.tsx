@@ -58,7 +58,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
   };
 
   const handleSave = async () => {
-    if (!name.trim()) return;
+    if (!name.trim() || uploading) return;
     const now = new Date().toISOString();
 
     // 如果有 pending file，先上傳取得 URL
@@ -78,15 +78,17 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
     onSave({
       id: item?.id ?? makeId(),
       name: name.trim(),
-      description: undefined,
+      // 表單沒有這幾個欄位，編輯時必須保留原值，否則會被洗掉
+      description: item?.description,
       status,
       cuisineType: cuisineType || undefined,
       occasions,
       restaurants,
       mustOrder: item?.mustOrder ?? [],
       notes: notes.trim() || undefined,
-      waitTime: undefined,
+      waitTime: item?.waitTime,
       rating: rating as FoodItem['rating'],
+      inspirationIds: item?.inspirationIds,
       createdAt: item?.createdAt ?? now,
       updatedAt: now,
     }, finalImage);
@@ -133,7 +135,10 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
                 placeholder="例如：海底撈"
                 value={name}
                 onChange={e => setName(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleSave()}
+                onKeyDown={e => {
+                  // 注音/拼音選字的 Enter 不算送出
+                  if (e.key === 'Enter' && !e.nativeEvent.isComposing) handleSave();
+                }}
                 className="w-full bg-transparent border-b border-[#2a2a2a] focus:border-[#c9a961]/60 pb-3 text-[26px] text-[#f5f1e8] placeholder-[#3a3a3a] tracking-wide focus:outline-none transition-colors"
               />
             </div>

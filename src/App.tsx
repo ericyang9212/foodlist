@@ -123,8 +123,10 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
   };
 
   // 刪除食物時順手釋放指向它的靈感（讓截圖回到未整理、可重新利用）
-  const handleDeleteFood = (id: string) => {
-    deleteItem(id);
+  // 等刪除確定成功才釋放，避免刪除失敗回滾後圖片卻已脫鉤
+  const handleDeleteFood = async (id: string) => {
+    const ok = await deleteItem(id);
+    if (!ok) return;
     inspirations.items
       .filter(insp => insp.convertedFoodId === id)
       .forEach(insp => inspirations.updateInspiration({ ...insp, convertedFoodId: undefined }));
@@ -233,19 +235,14 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
           uploadPhoto={foodprints.uploadPhoto}
           onSave={async (p) => {
             await foodprints.addFoodprint(p);
-            // 同步把食物狀態改成 tried
-            if (loggingFood.status === 'want') {
-              updateItem({
-                ...loggingFood,
-                status: 'tried',
-                updatedAt: new Date().toISOString(),
-              });
-            } else {
-              updateItem({
-                ...loggingFood,
-                updatedAt: new Date().toISOString(),
-              });
-            }
+            // 同步把食物狀態改成 tried；詳情頁若開著也要跟著更新
+            const updated: FoodItem = {
+              ...loggingFood,
+              status: loggingFood.status === 'want' ? 'tried' : loggingFood.status,
+              updatedAt: new Date().toISOString(),
+            };
+            updateItem(updated);
+            setDetail(prev => (prev && prev.id === updated.id ? updated : prev));
           }}
           onClose={() => setLoggingFood(null)}
         />
