@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { List, Footprints, Plus } from 'lucide-react';
 import { useStore } from './store/useStore';
 import { useInspirations } from './store/useInspirations';
@@ -73,6 +73,11 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
     items.forEach(f => { map[f.id] = f; });
     return map;
   }, [items]);
+
+  // realtime：清單被（對方）更新時，開著的詳情頁要跟著最新資料；被刪掉就自動關閉
+  useEffect(() => {
+    setDetail(prev => (prev ? foodById[prev.id] ?? null : prev));
+  }, [foodById]);
 
   const handleOpen = (item: FoodItem) => setDetail(item);
 

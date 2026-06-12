@@ -125,7 +125,10 @@ export function useFoodprints() {
       return null;
     }
     const inserted = fromRow(data);
-    setItems(prev => prev.map(i => i.id === newOne.id ? inserted : i));
+    // 樂觀列可能已被並發的 realtime 重抓洗掉 → 不在就補回
+    setItems(prev => prev.some(i => i.id === newOne.id)
+      ? prev.map(i => i.id === newOne.id ? inserted : i)
+      : [inserted, ...prev]);
     return inserted;
   }, [setItems]);
 

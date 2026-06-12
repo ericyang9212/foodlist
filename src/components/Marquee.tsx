@@ -19,6 +19,8 @@ export function Marquee({ data, onUpdate }: Props) {
         style={{
           paddingTop: 'calc(env(safe-area-inset-top) + 12px)',
           paddingBottom: '12px',
+          // 與有文字的跑馬燈同高（56px+瀏海），清單吸頂列以此為基準，避免中間露縫
+          minHeight: 'calc(env(safe-area-inset-top) + 56px)',
         }}
       >
         <Pencil size={11} />

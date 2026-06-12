@@ -108,7 +108,10 @@ export function useStore() {
       toast.error('新增失敗，請再試一次');
       return false;
     }
-    setItems(prev => prev.map(i => i.id === item.id ? fromRow(data) : i));
+    // 若樂觀列已被並發的 realtime 重抓洗掉，map 會找不到 → 直接補回，避免新項目從畫面消失
+    setItems(prev => prev.some(i => i.id === item.id)
+      ? prev.map(i => i.id === item.id ? fromRow(data) : i)
+      : [fromRow(data), ...prev]);
     return true;
   }, [setItems]);
 

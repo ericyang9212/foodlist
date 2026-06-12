@@ -64,10 +64,22 @@ export function TonightModal({ candidates, onOpen, onClose }: Props) {
     });
   }, [candidates, cityFilter, cuisineFilter, staleOnly]);
 
-  // 篩選變動時重抽
+  // pool「內容」變了才處理；物件換新但內容相同（realtime 重抓資料）不能害目前的抽選被換掉
+  const poolKey = useMemo(() => pool.map(i => i.id).sort().join('|'), [pool]);
+  const poolRef = useRef(pool);
+  poolRef.current = pool;
+
   useEffect(() => {
-    setCurrent(pickRandom(pool));
-  }, [pool]);
+    const p = poolRef.current;
+    setCurrent(prev => {
+      // 目前抽到的還在 pool 裡 → 保留（但換成最新資料）；不在了才重抽
+      if (prev) {
+        const fresh = p.find(i => i.id === prev.id);
+        if (fresh) return fresh;
+      }
+      return pickRandom(p);
+    });
+  }, [poolKey]);
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
