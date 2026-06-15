@@ -1,8 +1,11 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { readCache, writeCache } from '../lib/cache';
+import { patchList, descByString } from '../lib/realtime';
 import { toast } from '../lib/toast';
 import type { FoodItem, Status } from '../types';
+
+const byCreatedDesc = descByString<FoodItem>(i => i.createdAt);
 
 const CACHE_KEY = 'cache_food_items';
 
@@ -47,10 +50,10 @@ function toRow(item: FoodItem) {
 }
 
 export function useStore() {
-  // 冷啟動先用快取資料，畫面立即可見
-  const cached = readCache<FoodItem[]>(CACHE_KEY, []);
-  const [items, setItemsRaw] = useState<FoodItem[]>(cached);
-  const [loading, setLoading] = useState(cached.length === 0);
+  // 冷啟動先用快取資料，畫面立即可見（惰性初始化：只在掛載時讀一次 localStorage）
+  const [items, setItemsRaw] = useState<FoodItem[]>(() => readCache<FoodItem[]>(CACHE_KEY, []));
+  const [loading, setLoading] = useState(items.length === 0);
+  const hadCache = useRef(items.length > 0);
 
   // 統一更新並寫快取
   const setItems = useCallback((updater: FoodItem[] | ((prev: FoodItem[]) => FoodItem[])) => {
@@ -69,14 +72,13 @@ export function useStore() {
       .order('created_at', { ascending: false });
     if (error) {
       // 有快取就靜默用快取；完全沒資料才提示
-      if (!opts?.silent && cached.length === 0) toast.error('載入失敗，請檢查網路後重新整理');
+      if (!opts?.silent && !hadCache.current) toast.error('載入失敗，請檢查網路後重新整理');
     } else if (data) {
       const mapped = data.map(fromRow);
       setItemsRaw(mapped);
       writeCache(CACHE_KEY, mapped);
     }
     setLoading(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 背景同步
@@ -84,16 +86,21 @@ export function useStore() {
     fetchAll();
   }, [fetchAll]);
 
-  // 即時同步：對方（或自己其他裝置）改了資料就重新抓
+  // 即時同步：用 payload 就地 patch（不整表重抓）；斷線重連時補抓一次以免漏接
   useEffect(() => {
+    const subbedOnce = { v: false };
     const ch = supabase
       .channel('rt-food-items')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'food_items' }, () => {
-        fetchAll({ silent: true });
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'food_items' }, payload => {
+        setItems(prev => patchList(prev, payload, fromRow, byCreatedDesc));
       })
-      .subscribe();
+      .subscribe(status => {
+        if (status !== 'SUBSCRIBED') return;
+        if (subbedOnce.v) fetchAll({ silent: true });
+        else subbedOnce.v = true;
+      });
     return () => { supabase.removeChannel(ch); };
-  }, [fetchAll]);
+  }, [fetchAll, setItems]);
 
   const addItem = useCallback(async (item: FoodItem): Promise<boolean> => {
     // optimistic

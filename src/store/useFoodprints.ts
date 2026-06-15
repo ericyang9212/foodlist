@@ -3,11 +3,13 @@ import { supabase } from '../lib/supabase';
 import { readCache, writeCache } from '../lib/cache';
 import { compressImage } from '../lib/image';
 import { deleteImageByUrl, uploadThumb } from '../lib/storage';
+import { patchList, descByString } from '../lib/realtime';
 import { toast } from '../lib/toast';
 import { makeId } from '../lib/id';
 import type { Foodprint } from '../types';
 
 const CACHE_KEY = 'cache_foodprints';
+const byAteAtDesc = descByString<Foodprint>(p => p.ateAt);
 
 function fromRow(row: Record<string, unknown>): Foodprint {
   return {
@@ -50,9 +52,8 @@ function toRow(p: Foodprint) {
 }
 
 export function useFoodprints() {
-  const cached = readCache<Foodprint[]>(CACHE_KEY, []);
-  const [items, setItemsRaw] = useState<Foodprint[]>(cached);
-  const [loading, setLoading] = useState(cached.length === 0);
+  const [items, setItemsRaw] = useState<Foodprint[]>(() => readCache<Foodprint[]>(CACHE_KEY, []));
+  const [loading, setLoading] = useState(items.length === 0);
 
   const setItems = useCallback((updater: Foodprint[] | ((p: Foodprint[]) => Foodprint[])) => {
     setItemsRaw(prev => {
@@ -79,16 +80,21 @@ export function useFoodprints() {
     fetchAll();
   }, [fetchAll]);
 
-  // 即時同步：對方記了足跡就重新抓
+  // 即時同步：用 payload 就地 patch；斷線重連時補抓一次
   useEffect(() => {
+    const subbedOnce = { v: false };
     const ch = supabase
       .channel('rt-foodprints')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'foodprints' }, () => {
-        fetchAll();
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'foodprints' }, payload => {
+        setItems(prev => patchList(prev, payload, fromRow, byAteAtDesc));
       })
-      .subscribe();
+      .subscribe(status => {
+        if (status !== 'SUBSCRIBED') return;
+        if (subbedOnce.v) fetchAll();
+        else subbedOnce.v = true;
+      });
     return () => { supabase.removeChannel(ch); };
-  }, [fetchAll]);
+  }, [fetchAll, setItems]);
 
   const uploadPhoto = useCallback(async (file: File): Promise<string> => {
     const compressed = await compressImage(file);
@@ -121,6 +127,8 @@ export function useFoodprints() {
       .single();
     if (error || !data) {
       setItems(prev => prev.filter(i => i.id !== newOne.id)); // rollback
+      // photoUrl 是剛上傳的新檔 → 寫入失敗就清掉，避免 storage 孤兒
+      if (newOne.photoUrl) void deleteImageByUrl(newOne.photoUrl);
       toast.error('足跡記錄失敗，請再試一次');
       return null;
     }

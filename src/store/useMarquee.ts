@@ -29,16 +29,17 @@ export function useMarquee() {
     fetchOne();
   }, [fetchOne]);
 
-  // 即時同步：對方改了跑馬燈馬上看到
+  // 即時同步：用 payload 直接套用（單列設定，免重抓）
   useEffect(() => {
     const ch = supabase
       .channel('rt-marquee')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'marquee' }, () => {
-        fetchOne();
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'marquee' }, payload => {
+        const row = payload.new as { text?: string; speed_seconds?: number } | null;
+        if (row) setData({ text: row.text ?? '', speed: row.speed_seconds ?? 30 });
       })
       .subscribe();
     return () => { supabase.removeChannel(ch); };
-  }, [fetchOne]);
+  }, []);
 
   const update = useCallback(async (next: MarqueeData) => {
     setData(next);

@@ -8,6 +8,7 @@ interface Props {
   items: FoodItem[];
   inspirations: Inspiration[];
   imageByFoodId: Record<string, string>;
+  lastEatenByFoodId: Record<string, string>;
   unreadAnnouncements: number;
   onOpen: (item: FoodItem) => void;
   onOpenInbox: () => void;
@@ -28,7 +29,7 @@ const CITY_FILTER_KEY = 'foodlist_city_filter';
 const STICKY_TOP = 'calc(env(safe-area-inset-top) + 56px)';
 
 export function ListView({
-  items, inspirations, imageByFoodId,
+  items, inspirations, imageByFoodId, lastEatenByFoodId,
   unreadAnnouncements,
   onOpen, onOpenInbox, onOpenAnnouncements,
 }: Props) {
@@ -243,6 +244,7 @@ export function ListView({
                 key={item.id}
                 item={item}
                 thumbnailUrl={imageByFoodId[item.id]}
+                lastEatenAt={lastEatenByFoodId[item.id]}
                 onOpen={onOpen}
               />
             ))}

@@ -3,11 +3,13 @@ import { supabase } from '../lib/supabase';
 import { readCache, writeCache } from '../lib/cache';
 import { compressImage } from '../lib/image';
 import { deleteImageByUrl, uploadThumb } from '../lib/storage';
+import { patchList, descByString } from '../lib/realtime';
 import { toast } from '../lib/toast';
 import { makeId } from '../lib/id';
 import type { Inspiration } from '../types';
 
 const CACHE_KEY = 'cache_inspirations';
+const byCreatedDesc = descByString<Inspiration>(i => i.createdAt);
 
 function fromRow(row: Record<string, unknown>): Inspiration {
   return {
@@ -34,9 +36,8 @@ function toRow(item: Inspiration) {
 }
 
 export function useInspirations() {
-  const cached = readCache<Inspiration[]>(CACHE_KEY, []);
-  const [items, setItemsRaw] = useState<Inspiration[]>(cached);
-  const [loading, setLoading] = useState(cached.length === 0);
+  const [items, setItemsRaw] = useState<Inspiration[]>(() => readCache<Inspiration[]>(CACHE_KEY, []));
+  const [loading, setLoading] = useState(items.length === 0);
 
   const setItems = useCallback((updater: Inspiration[] | ((p: Inspiration[]) => Inspiration[])) => {
     setItemsRaw(prev => {
@@ -63,16 +64,21 @@ export function useInspirations() {
     fetchAll();
   }, [fetchAll]);
 
-  // 即時同步：對方改了靈感（新增截圖、整理、刪除）就重新抓
+  // 即時同步：用 payload 就地 patch；斷線重連時補抓一次
   useEffect(() => {
+    const subbedOnce = { v: false };
     const ch = supabase
       .channel('rt-inspirations')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'inspirations' }, () => {
-        fetchAll();
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'inspirations' }, payload => {
+        setItems(prev => patchList(prev, payload, fromRow, byCreatedDesc));
       })
-      .subscribe();
+      .subscribe(status => {
+        if (status !== 'SUBSCRIBED') return;
+        if (subbedOnce.v) fetchAll();
+        else subbedOnce.v = true;
+      });
     return () => { supabase.removeChannel(ch); };
-  }, [fetchAll]);
+  }, [fetchAll, setItems]);
 
   // 上傳一張圖（先壓縮）到 Supabase Storage；同時存一張 -thumb 縮圖給列表用
   const uploadImage = useCallback(async (file: File): Promise<string> => {
@@ -106,6 +112,8 @@ export function useInspirations() {
       .single();
     if (error || !data) {
       setItems(prev => prev.filter(i => i.id !== newItem.id)); // rollback
+      // input.imageUrl 一定是剛上傳的新檔（既有靈感走 updateInspiration）→ 寫入失敗就清掉，避免 storage 孤兒
+      if (newItem.imageUrl) void deleteImageByUrl(newItem.imageUrl);
       toast.error('靈感收藏失敗，請再試一次');
       return null;
     }

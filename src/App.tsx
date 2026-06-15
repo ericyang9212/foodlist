@@ -81,6 +81,15 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
     return map;
   }, [items]);
 
+  // food id → 最後一次吃的時間（取自足跡，才是真正的「上次吃」，而非 updatedAt）
+  const lastEatenByFoodId = useMemo(() => {
+    const map: Record<string, string> = {};
+    foodprints.items.forEach(p => {
+      if (!map[p.foodId] || p.ateAt > map[p.foodId]) map[p.foodId] = p.ateAt;
+    });
+    return map;
+  }, [foodprints.items]);
+
   // realtime：清單被（對方）更新時，開著的詳情頁要跟著最新資料；被刪掉就自動關閉
   useEffect(() => {
     setDetail(prev => (prev ? foodById[prev.id] ?? null : prev));
@@ -118,12 +127,9 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
 
   // 新增 / 編輯食物儲存，可帶圖
   const handleSave = async (item: FoodItem, attachedImageUrl?: string) => {
-    if (editing) {
-      updateItem(item);
-    } else {
-      addItem(item);
-    }
-    await syncFoodImage(item.id, attachedImageUrl);
+    // 等食物實際寫入成功再處理圖片連結，避免食物回滾後靈感仍指向不存在的食物
+    const ok = editing ? await updateItem(item) : await addItem(item);
+    if (ok) await syncFoodImage(item.id, attachedImageUrl);
     setEditing(undefined);
     setShowAdd(false);
     setFromInspiration(null);
@@ -168,6 +174,7 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
             items={items}
             inspirations={inspirations.items}
             imageByFoodId={imageByFoodId}
+            lastEatenByFoodId={lastEatenByFoodId}
             unreadAnnouncements={announcements.unreadCount}
             onOpen={handleOpen}
             onOpenInbox={() => setShowInbox(true)}

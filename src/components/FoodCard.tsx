@@ -6,6 +6,7 @@ import type { FoodItem } from '../types';
 interface Props {
   item: FoodItem;
   thumbnailUrl?: string;
+  lastEatenAt?: string;
   onOpen: (item: FoodItem) => void;
 }
 
@@ -19,7 +20,7 @@ function timeAgo(iso: string): string {
   return `${Math.floor(days / 365)} 年前`;
 }
 
-export function FoodCard({ item, thumbnailUrl, onOpen }: Props) {
+export function FoodCard({ item, thumbnailUrl, lastEatenAt, onOpen }: Props) {
   // 優先顯示縣市，沒設縣市才退到區域
   const regions = Array.from(new Set(item.restaurants.map(r => r.city || r.area).filter(Boolean)));
 
@@ -49,9 +50,9 @@ export function FoodCard({ item, thumbnailUrl, onOpen }: Props) {
                 {'★'.repeat(item.rating)}
               </span>
             )}
-            {item.status === 'tried' && (
+            {item.status === 'tried' && lastEatenAt && (
               <span className="text-[12px] text-[#8a8478] tracking-wider">
-                上次吃 · {timeAgo(item.updatedAt)}
+                上次吃 · {timeAgo(lastEatenAt)}
               </span>
             )}
             {item.status === 'want' && staleLabel(item.createdAt) && (
