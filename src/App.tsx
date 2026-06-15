@@ -6,6 +6,8 @@ import { useAnnouncements } from './store/useAnnouncements';
 import { useMarquee } from './store/useMarquee';
 import { useFoodprints } from './store/useFoodprints';
 import { useAuth } from './store/useAuth';
+import { useAppConfig } from './store/useAppConfig';
+import { MaintenanceScreen } from './pages/MaintenanceScreen';
 import { AnnouncementsModal } from './components/AnnouncementsModal';
 import { Marquee } from './components/Marquee';
 import { LogFoodprintSheet } from './components/LogFoodprintSheet';
@@ -32,10 +34,15 @@ function FullScreenLoader() {
   );
 }
 
-// 最外層：先過 auth，未登入只給登入畫面，登入後才掛載資料層
+// 在網址加 ?admin 可略過維護畫面（維護期間仍想自己進去用 / 預覽）
+const BYPASS_MAINTENANCE = new URLSearchParams(window.location.search).has('admin');
+
+// 最外層：先過維護旗標與 auth，未登入只給登入畫面，登入後才掛載資料層
 export default function App() {
+  const config = useAppConfig();
   const auth = useAuth();
-  if (!auth.ready) return <FullScreenLoader />;
+  if (!config.ready || !auth.ready) return <FullScreenLoader />;
+  if (config.maintenance && !BYPASS_MAINTENANCE) return <MaintenanceScreen message={config.message} />;
   if (!auth.session) return <LoginScreen onSignIn={auth.signIn} />;
   return <AppInner onSignOut={auth.signOut} />;
 }
