@@ -72,9 +72,9 @@ export const STATUS_LABELS: Record<Status, string> = {
 };
 
 export const STATUS_STYLES: Record<Status, string> = {
-  want: 'text-[#e6c87a] border-[#c9a961]/40',
-  tried: 'text-[#8a8478] border-[#3a3a3a]',
-  skip: 'text-[#555] border-[#2a2a2a]',
+  want: 'text-[#ead8aa] border-[#c9a961]/40',
+  tried: 'text-[#9a9384] border-[#3a352b]',
+  skip: 'text-[#666] border-[#2a2a2a]',
 };
 
 export const OCCASION_LABELS: Record<Occasion, string> = {

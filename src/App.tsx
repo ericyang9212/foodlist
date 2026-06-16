@@ -198,8 +198,8 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
         <NavBtn icon={<List size={22} />} label="清單" active={tab === 'list'} onClick={() => setTab('list')} />
 
         <button onClick={handleAddNew} className="flex flex-col items-center px-4">
-          <div className="w-16 h-16 bg-[#c9a961] rounded-full flex items-center justify-center shadow-[0_0_24px_rgba(201,169,97,0.4)] active:scale-95 transition-transform -mt-9 ring-1 ring-[#e6c87a]/30">
-            <Plus size={30} className="text-[#0a0a0a]" strokeWidth={2.5} />
+          <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-[0_4px_24px_rgba(201,169,97,0.45)] active:scale-95 transition-transform -mt-9 ring-1 ring-[#f0deae]/40" style={{ background: 'linear-gradient(150deg,#f0deae 0%,#d6b974 55%,#b1934f 100%)' }}>
+            <Plus size={30} className="text-[#100d07]" strokeWidth={2.5} />
           </div>
         </button>
 
@@ -293,7 +293,7 @@ function NavBtn({ icon, label, active, onClick }: {
     <button
       onClick={onClick}
       className={`flex flex-col items-center gap-1.5 px-6 py-1 transition-colors ${
-        active ? 'text-[#c9a961]' : 'text-[#555]'
+        active ? 'text-[#ead8aa]' : 'text-[#5d574c]'
       }`}
     >
       {icon}

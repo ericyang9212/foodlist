@@ -142,18 +142,20 @@ export function ListView({
         <div className="px-6 mb-4">
           <button
             onClick={() => setShowTonight(true)}
-            className="group w-full relative bg-gradient-to-br from-[#1a1612] to-[#0f0d0a] border border-[#c9a961]/40 hover:border-[#c9a961] hover:shadow-[0_4px_20px_rgba(201,169,97,0.25)] rounded-[12px] transition-all py-6 px-6 overflow-hidden"
+            className="group w-full relative bg-gradient-to-br from-[#221b10] to-[#100d09] border border-[#c9a961]/35 hover:border-[#c9a961]/70 hover:shadow-[0_6px_26px_rgba(201,169,97,0.2)] rounded-[16px] transition-all py-6 px-6 overflow-hidden"
           >
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[#c9a961]/5 rounded-full blur-2xl -mr-10 -mt-10" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#c9a961]/8 rounded-full blur-2xl -mr-10 -mt-10" />
             <div className="relative flex items-center justify-between">
               <div className="text-left">
-                <div className="text-[12px] tracking-[0.5em] text-[#c9a961]/80 mb-2">TONIGHT</div>
-                <div className="text-[20px] text-[#f5f1e8] tracking-[0.15em] font-medium">今晚吃什麼？</div>
-                <div className="text-[13px] text-[#8a8478] tracking-wider mt-1.5">
+                <div className="text-[11px] tracking-[0.5em] text-[#c9a961]/80 mb-2.5">TONIGHT</div>
+                <div className="text-[21px] text-[#f6efe0] tracking-[0.08em] font-medium" style={{ fontFamily: "'Noto Serif TC', serif" }}>今晚吃什麼？</div>
+                <div className="text-[13px] text-[#8d877a] tracking-wider mt-2">
                   從 {wantItems.length} 個想吃的隨機抽
                 </div>
               </div>
-              <Sparkles size={28} className="text-[#c9a961]" />
+              <div className="w-[52px] h-[52px] rounded-full border border-[#c9a961]/45 flex items-center justify-center flex-shrink-0">
+                <Sparkles size={24} className="text-[#ead8aa]" />
+              </div>
             </div>
           </button>
         </div>
@@ -161,7 +163,7 @@ export function ListView({
 
       {/* ── Sticky 篩選列：往下滑時固定在跑馬燈下方，隨時可搜尋/切換 ── */}
       <div
-        className="sticky z-20 bg-[#0a0a0a]/95 backdrop-blur-md border-b border-[#1f1f1f]"
+        className="sticky z-20 bg-[#0b0a08]/95 backdrop-blur-md border-b border-[#1f1f1f]"
         style={{ top: STICKY_TOP }}
       >
         {/* Search */}
@@ -192,7 +194,7 @@ export function ListView({
                   key={t.value}
                   onClick={() => setActiveTab(t.value)}
                   className={`relative pb-3 pt-1 text-[15px] tracking-[0.3em] transition-colors ${
-                    activeTab === t.value ? 'text-[#c9a961]' : 'text-[#555] hover:text-[#888]'
+                    activeTab === t.value ? 'text-[#ead8aa]' : 'text-[#555] hover:text-[#888]'
                   }`}
                 >
                   {t.label}
@@ -200,22 +202,21 @@ export function ListView({
                     {counts[t.value]}
                   </span>
                   {activeTab === t.value && (
-                    <div className="absolute bottom-[-1px] left-0 right-0 h-[2px] rounded-full bg-gradient-to-r from-[#c9a961] via-[#e6c87a] to-[#c9a961] shadow-[0_0_8px_rgba(201,169,97,0.5)]" />
+                    <div className="absolute bottom-[-1px] left-0 right-0 h-[2px] rounded-full bg-gradient-to-r from-[#c9a961] via-[#ead8aa] to-[#c9a961] shadow-[0_0_8px_rgba(201,169,97,0.5)]" />
                   )}
                 </button>
               ))}
             </div>
-            <div className="flex items-center gap-2 text-[12px] tracking-[0.2em] pb-2.5">
+            <div className="flex items-center rounded-full border border-[#2a2a2a] p-[3px] mb-1.5 text-[12px] tracking-[0.12em]">
               <button
                 onClick={() => setViewMode('food')}
-                className={`transition-colors ${viewMode === 'food' ? 'text-[#c9a961]' : 'text-[#555] hover:text-[#888]'}`}
+                className={`px-3.5 py-1.5 rounded-full transition-colors ${viewMode === 'food' ? 'bg-[#d6b974] text-[#100d07] font-medium' : 'text-[#8d877a]'}`}
               >
                 食物
               </button>
-              <span className="text-[#2a2a2a]">·</span>
               <button
                 onClick={() => setViewMode('place')}
-                className={`transition-colors ${viewMode === 'place' ? 'text-[#c9a961]' : 'text-[#555] hover:text-[#888]'}`}
+                className={`px-3.5 py-1.5 rounded-full transition-colors ${viewMode === 'place' ? 'bg-[#d6b974] text-[#100d07] font-medium' : 'text-[#8d877a]'}`}
               >
                 店家
               </button>
