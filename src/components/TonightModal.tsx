@@ -38,7 +38,7 @@ export function TonightModal({ candidates, lastEatenByFoodId, onOpen, onClose }:
   const [staleOnly, setStaleOnly] = useState(false);
   const [excludeRecent, setExcludeRecent] = useState(false);
 
-  // 冷宮：躺超過 3 個月還沒吃的
+  // 塵封：躺超過 3 個月還沒吃的
   const staleCount = useMemo(
     () => candidates.filter(i => isStale(i.createdAt)).length,
     [candidates]
@@ -149,7 +149,7 @@ export function TonightModal({ candidates, lastEatenByFoodId, onOpen, onClose }:
             >
               <SlidersHorizontal size={13} />
               {hasFilter
-                ? `已篩選 · ${[cityFilter, cuisineFilter, staleOnly ? '冷宮' : null, excludeRecent ? '排除最近' : null].filter(Boolean).join(' · ')}`
+                ? `已篩選 · ${[cityFilter, cuisineFilter, staleOnly ? '塵封' : null, excludeRecent ? '排除最近' : null].filter(Boolean).join(' · ')}`
                 : '加篩選條件'}
             </button>
 
@@ -157,7 +157,7 @@ export function TonightModal({ candidates, lastEatenByFoodId, onOpen, onClose }:
               <div className="mt-3 space-y-3 pt-3 border-t border-[#1f1f1f]">
                 {staleCount > 0 && (
                   <div>
-                    <div className="text-[10px] tracking-[0.4em] text-[#666] mb-2">冷宮</div>
+                    <div className="text-[10px] tracking-[0.4em] text-[#666] mb-2">塵封</div>
                     <button
                       onClick={() => setStaleOnly(!staleOnly)}
                       className={`text-[11px] tracking-[0.2em] px-2.5 py-1 ${staleOnly ? 'chip chip-active' : 'chip'}`}
