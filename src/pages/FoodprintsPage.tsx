@@ -1,7 +1,12 @@
-import { useMemo } from 'react';
-import { MapPin, Trash2, Compass, ExternalLink } from 'lucide-react';
+import { useMemo, useState, lazy, Suspense } from 'react';
+import { MapPin, Trash2, Compass, ExternalLink, Loader2 } from 'lucide-react';
 import { Thumb } from '../components/Thumb';
 import type { Foodprint } from '../types';
+
+// 地圖只在切到「地圖」分頁時才載入，避免 Leaflet 拖慢首次開啟
+const FoodprintsMap = lazy(() =>
+  import('../components/FoodprintsMap').then(m => ({ default: m.FoodprintsMap }))
+);
 
 interface Props {
   items: Foodprint[];
@@ -35,6 +40,8 @@ function dateLabel(iso: string) {
 }
 
 export function FoodprintsPage({ items, onDelete }: Props) {
+  const [view, setView] = useState<'timeline' | 'map'>('timeline');
+
   const stats = useMemo(() => {
     const foods = new Set(items.map(i => i.foodId));
     const restaurants = new Set(items.map(i => `${i.restaurantName ?? ''}|${i.restaurantCity ?? ''}`).filter(s => s !== '|'));
@@ -115,9 +122,39 @@ export function FoodprintsPage({ items, onDelete }: Props) {
               </div>
             )}
 
-            {/* 時間軸 */}
+            {/* 時間軸 / 地圖 切換 */}
             <div>
-              <div className="text-[10px] tracking-[0.4em] text-[#c9a961]/60 mb-4">TIMELINE</div>
+              <div className="flex items-center justify-between mb-4">
+                <div className="text-[10px] tracking-[0.4em] text-[#c9a961]/60">
+                  {view === 'timeline' ? 'TIMELINE' : 'MAP'}
+                </div>
+                <div className="flex items-center gap-2 text-[12px] tracking-[0.2em]">
+                  <button
+                    onClick={() => setView('timeline')}
+                    className={`transition-colors ${view === 'timeline' ? 'text-[#c9a961]' : 'text-[#555] hover:text-[#888]'}`}
+                  >
+                    時間軸
+                  </button>
+                  <span className="text-[#2a2a2a]">·</span>
+                  <button
+                    onClick={() => setView('map')}
+                    className={`transition-colors ${view === 'map' ? 'text-[#c9a961]' : 'text-[#555] hover:text-[#888]'}`}
+                  >
+                    地圖
+                  </button>
+                </div>
+              </div>
+              {view === 'map' ? (
+                <Suspense
+                  fallback={
+                    <div className="flex items-center justify-center" style={{ height: '60vh' }}>
+                      <Loader2 size={22} className="animate-spin text-[#c9a961]/70" />
+                    </div>
+                  }
+                >
+                  <FoodprintsMap items={items} />
+                </Suspense>
+              ) : (
               <div className="space-y-7">
                 {grouped.map(([month, prints]) => (
                   <div key={month}>
@@ -134,6 +171,7 @@ export function FoodprintsPage({ items, onDelete }: Props) {
                   </div>
                 ))}
               </div>
+              )}
             </div>
           </>
         ) : (

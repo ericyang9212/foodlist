@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Search, X, Sparkles, Bell, Images } from 'lucide-react';
 import { FoodCard } from '../components/FoodCard';
+import { PlacesView } from '../components/PlacesView';
 import { TonightModal } from '../components/TonightModal';
 import type { FoodItem, Inspiration } from '../types';
 
@@ -39,6 +40,7 @@ export function ListView({
     try { return localStorage.getItem(CITY_FILTER_KEY); } catch { return null; }
   });
   const [showTonight, setShowTonight] = useState(false);
+  const [viewMode, setViewMode] = useState<'food' | 'place'>('food');
 
   // 持久化縣市選擇
   React.useEffect(() => {
@@ -181,26 +183,43 @@ export function ListView({
           </div>
         </div>
 
-        {/* 優雅下劃線 tabs */}
+        {/* 優雅下劃線 tabs + 食物/店家 視角切換 */}
         <div className="px-6">
-          <div className="flex items-center gap-8 border-b border-[#1f1f1f]">
-            {TABS.map(t => (
+          <div className="flex items-center justify-between border-b border-[#1f1f1f]">
+            <div className="flex items-center gap-8">
+              {TABS.map(t => (
+                <button
+                  key={t.value}
+                  onClick={() => setActiveTab(t.value)}
+                  className={`relative pb-3 pt-1 text-[15px] tracking-[0.3em] transition-colors ${
+                    activeTab === t.value ? 'text-[#c9a961]' : 'text-[#555] hover:text-[#888]'
+                  }`}
+                >
+                  {t.label}
+                  <span className="ml-1.5 text-[11px] tracking-normal opacity-60">
+                    {counts[t.value]}
+                  </span>
+                  {activeTab === t.value && (
+                    <div className="absolute bottom-[-1px] left-0 right-0 h-[2px] rounded-full bg-gradient-to-r from-[#c9a961] via-[#e6c87a] to-[#c9a961] shadow-[0_0_8px_rgba(201,169,97,0.5)]" />
+                  )}
+                </button>
+              ))}
+            </div>
+            <div className="flex items-center gap-2 text-[12px] tracking-[0.2em] pb-2.5">
               <button
-                key={t.value}
-                onClick={() => setActiveTab(t.value)}
-                className={`relative pb-3 pt-1 text-[15px] tracking-[0.3em] transition-colors ${
-                  activeTab === t.value ? 'text-[#c9a961]' : 'text-[#555] hover:text-[#888]'
-                }`}
+                onClick={() => setViewMode('food')}
+                className={`transition-colors ${viewMode === 'food' ? 'text-[#c9a961]' : 'text-[#555] hover:text-[#888]'}`}
               >
-                {t.label}
-                <span className="ml-1.5 text-[11px] tracking-normal opacity-60">
-                  {counts[t.value]}
-                </span>
-                {activeTab === t.value && (
-                  <div className="absolute bottom-[-1px] left-0 right-0 h-[2px] rounded-full bg-gradient-to-r from-[#c9a961] via-[#e6c87a] to-[#c9a961] shadow-[0_0_8px_rgba(201,169,97,0.5)]" />
-                )}
+                食物
               </button>
-            ))}
+              <span className="text-[#2a2a2a]">·</span>
+              <button
+                onClick={() => setViewMode('place')}
+                className={`transition-colors ${viewMode === 'place' ? 'text-[#c9a961]' : 'text-[#555] hover:text-[#888]'}`}
+              >
+                店家
+              </button>
+            </div>
           </div>
         </div>
 
@@ -237,6 +256,8 @@ export function ListView({
               {items.length === 0 ? '點下方 + 新增想吃的食物' : '無符合的食物'}
             </p>
           </div>
+        ) : viewMode === 'place' ? (
+          <PlacesView foods={filtered} onOpen={onOpen} />
         ) : (
           <div className="flex flex-col gap-3">
             {filtered.map(item => (
@@ -255,6 +276,7 @@ export function ListView({
       {showTonight && (
         <TonightModal
           candidates={wantItems}
+          lastEatenByFoodId={lastEatenByFoodId}
           onOpen={onOpen}
           onClose={() => setShowTonight(false)}
         />

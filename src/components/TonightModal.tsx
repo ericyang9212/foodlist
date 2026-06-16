@@ -6,8 +6,15 @@ import type { FoodItem } from '../types';
 
 interface Props {
   candidates: FoodItem[]; // 從「想吃」清單來
+  lastEatenByFoodId: Record<string, string>;
   onOpen: (item: FoodItem) => void;
   onClose: () => void;
+}
+
+const RECENT_DAYS = 30;
+function eatenWithin(iso: string | undefined, days: number): boolean {
+  if (!iso) return false;
+  return Date.now() - new Date(iso).getTime() < days * 86400000;
 }
 
 function pickRandom<T>(arr: T[], avoid?: T): T | null {
@@ -22,18 +29,25 @@ function pickRandom<T>(arr: T[], avoid?: T): T | null {
   return pick;
 }
 
-export function TonightModal({ candidates, onOpen, onClose }: Props) {
+export function TonightModal({ candidates, lastEatenByFoodId, onOpen, onClose }: Props) {
   const [current, setCurrent] = useState<FoodItem | null>(null);
   const [shuffling, setShuffling] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [cityFilter, setCityFilter] = useState<string | null>(null);
   const [cuisineFilter, setCuisineFilter] = useState<string | null>(null);
   const [staleOnly, setStaleOnly] = useState(false);
+  const [excludeRecent, setExcludeRecent] = useState(false);
 
   // 冷宮：躺超過 3 個月還沒吃的
   const staleCount = useMemo(
     () => candidates.filter(i => isStale(i.createdAt)).length,
     [candidates]
+  );
+
+  // 最近吃過的候選數（只有 > 0 才顯示「排除最近吃過」選項，避免無效開關）
+  const recentCount = useMemo(
+    () => candidates.filter(i => eatenWithin(lastEatenByFoodId[i.id], RECENT_DAYS)).length,
+    [candidates, lastEatenByFoodId]
   );
 
   // 從候選裡蒐集出可用的縣市 / 料理類型
@@ -60,9 +74,10 @@ export function TonightModal({ candidates, onOpen, onClose }: Props) {
       if (cityFilter && !item.restaurants.some(r => r.city === cityFilter)) return false;
       if (cuisineFilter && item.cuisineType !== cuisineFilter) return false;
       if (staleOnly && !isStale(item.createdAt)) return false;
+      if (excludeRecent && eatenWithin(lastEatenByFoodId[item.id], RECENT_DAYS)) return false;
       return true;
     });
-  }, [candidates, cityFilter, cuisineFilter, staleOnly]);
+  }, [candidates, cityFilter, cuisineFilter, staleOnly, excludeRecent, lastEatenByFoodId]);
 
   // pool「內容」變了才處理；物件換新但內容相同（realtime 重抓資料）不能害目前的抽選被換掉
   const poolKey = useMemo(() => pool.map(i => i.id).sort().join('|'), [pool]);
@@ -104,8 +119,8 @@ export function TonightModal({ candidates, onOpen, onClose }: Props) {
     }, 60);
   };
 
-  const hasFilter = cityFilter !== null || cuisineFilter !== null || staleOnly;
-  const canFilter = cityCounts.length > 0 || cuisineCounts.length > 0 || staleCount > 0;
+  const hasFilter = cityFilter !== null || cuisineFilter !== null || staleOnly || excludeRecent;
+  const canFilter = cityCounts.length > 0 || cuisineCounts.length > 0 || staleCount > 0 || recentCount > 0;
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center px-6"
@@ -134,7 +149,7 @@ export function TonightModal({ candidates, onOpen, onClose }: Props) {
             >
               <SlidersHorizontal size={13} />
               {hasFilter
-                ? `已篩選 · ${[cityFilter, cuisineFilter, staleOnly ? '冷宮' : null].filter(Boolean).join(' · ')}`
+                ? `已篩選 · ${[cityFilter, cuisineFilter, staleOnly ? '冷宮' : null, excludeRecent ? '排除最近' : null].filter(Boolean).join(' · ')}`
                 : '加篩選條件'}
             </button>
 
@@ -148,6 +163,18 @@ export function TonightModal({ candidates, onOpen, onClose }: Props) {
                       className={`text-[11px] tracking-[0.2em] px-2.5 py-1 ${staleOnly ? 'chip chip-active' : 'chip'}`}
                     >
                       躺超過 3 個月 · {staleCount}
+                    </button>
+                  </div>
+                )}
+
+                {recentCount > 0 && (
+                  <div>
+                    <div className="text-[10px] tracking-[0.4em] text-[#666] mb-2">最近吃過</div>
+                    <button
+                      onClick={() => setExcludeRecent(!excludeRecent)}
+                      className={`text-[11px] tracking-[0.2em] px-2.5 py-1 ${excludeRecent ? 'chip chip-active' : 'chip'}`}
+                    >
+                      排除近 30 天吃過 · {recentCount}
                     </button>
                   </div>
                 )}
@@ -200,7 +227,7 @@ export function TonightModal({ candidates, onOpen, onClose }: Props) {
 
                 {hasFilter && (
                   <button
-                    onClick={() => { setCityFilter(null); setCuisineFilter(null); setStaleOnly(false); }}
+                    onClick={() => { setCityFilter(null); setCuisineFilter(null); setStaleOnly(false); setExcludeRecent(false); }}
                     className="w-full text-[11px] tracking-[0.3em] text-[#666] hover:text-[#c9a961] py-1.5 transition-colors"
                   >
                     清除全部篩選
