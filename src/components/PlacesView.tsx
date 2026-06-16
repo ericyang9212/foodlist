@@ -65,29 +65,48 @@ export function PlacesView({ foods, imageByFoodId = {}, onOpen }: Props) {
 
   return (
     <div className="flex flex-col gap-3">
-      {groups.map(g => {
+      {groups.map((g, idx) => {
         const isOpen = open.has(g.key);
-        const cover = g.foods.map(f => imageByFoodId[f.id]).find(Boolean);
+        const covers = g.foods.map(f => imageByFoodId[f.id]).filter(Boolean) as string[];
+        const isTop = idx === 0 && g.foods.length >= 2;
         return (
-          <div key={g.key} className="card-surface rounded-[14px] overflow-hidden">
+          <div key={g.key} className={`card-surface rounded-[14px] overflow-hidden ${isTop ? '!border-[#c9a961]/35' : ''}`}>
             <button
               onClick={() => toggle(g.key)}
               className="w-full flex items-center gap-3.5 px-4 py-4 text-left active:bg-[#c9a961]/5 transition-colors"
             >
-              <div className="w-12 h-12 rounded-[10px] overflow-hidden border border-[#c9a961]/20 bg-[#1c1813] flex items-center justify-center flex-shrink-0">
-                {cover
-                  ? <Thumb src={cover} className="w-full h-full object-cover" />
-                  : <Store size={20} className="text-[#c9a961]/50" />}
-              </div>
+              {/* 菜色縮圖小堆疊（每家不同、有幾道一目了然）；沒圖則用店家圖示 */}
+              {covers.length > 0 ? (
+                <div className="flex flex-shrink-0">
+                  {covers.slice(0, 3).map((url, i) => (
+                    <div
+                      key={i}
+                      className={`w-11 h-11 rounded-[10px] overflow-hidden border-2 border-[#0d0b08] bg-[#1c1813] ${i > 0 ? '-ml-4' : ''}`}
+                      style={{ zIndex: 3 - i }}
+                    >
+                      <Thumb src={url} className="w-full h-full object-cover" />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="w-11 h-11 rounded-[10px] border border-[#c9a961]/20 bg-[#1c1813] flex items-center justify-center flex-shrink-0">
+                  <Store size={19} className="text-[#c9a961]/50" />
+                </div>
+              )}
               <div className="flex-1 min-w-0">
-                <h3 className="text-[17px] text-[#f2ecdd] font-medium tracking-wide truncate">{g.name}</h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-[17px] text-[#f2ecdd] font-medium tracking-wide truncate">{g.name}</h3>
+                  {isTop && (
+                    <span className="flex-shrink-0 text-[10px] tracking-[0.15em] text-[#ead8aa] border border-[#c9a961]/40 rounded-full px-2 py-[1px]">最想去</span>
+                  )}
+                </div>
                 <div className="flex items-center gap-1.5 mt-1 text-[#8d877a]">
                   <MapPin size={11} className="flex-shrink-0" />
                   <span className="text-[12px] tracking-wide truncate">{g.region || '未填地區'}</span>
                 </div>
               </div>
               <div className="flex items-center gap-2.5 flex-shrink-0">
-                <span className="text-[12px] text-[#d6b974] tracking-wider">{g.foods.length} 樣</span>
+                <span className="text-[11px] text-[#d6b974] tracking-wider border border-[#c9a961]/25 rounded-full px-2.5 py-1">{g.foods.length} 樣</span>
                 <ChevronDown size={18} className={`text-[#8d877a] transition-transform ${isOpen ? 'rotate-180' : ''}`} />
               </div>
             </button>
