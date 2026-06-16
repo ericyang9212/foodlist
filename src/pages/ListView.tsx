@@ -258,7 +258,7 @@ export function ListView({
             </p>
           </div>
         ) : viewMode === 'place' ? (
-          <PlacesView foods={filtered} onOpen={onOpen} />
+          <PlacesView foods={filtered} imageByFoodId={imageByFoodId} onOpen={onOpen} />
         ) : (
           <div className="flex flex-col gap-3">
             {filtered.map(item => (
