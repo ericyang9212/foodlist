@@ -97,6 +97,15 @@ body {
   to { transform: translateX(-50%); }
 }
 
+/* 多則跑馬燈切換時的淡入 */
+@keyframes mqfade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-mqfade {
+  animation: mqfade 0.6s ease;
+}
+
 /* ───── 按鈕系統 ───── */
 
 /* 主要 CTA：金漸層 + 立體感 + 光暈 */
