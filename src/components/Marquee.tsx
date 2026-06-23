@@ -134,7 +134,7 @@ function MarqueeEditor({
 
         {/* 文字 */}
         <div>
-          <div className="text-[13px] tracking-[0.4em] text-[#c9a961]/60 mb-3">想流什麼訊息？</div>
+          <div className="text-[13px] tracking-[0.4em] text-[#c9a961]/60 mb-3">想留什麼訊息？</div>
           <textarea
             autoFocus
             placeholder={`一行一則訊息，例如：\n本週末記得訂位\n要試試新開的拉麵店\n生日快樂 🎂`}
