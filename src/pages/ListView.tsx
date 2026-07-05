@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from 'react';
-import { Search, X, Sparkles, Bell, Images } from 'lucide-react';
+import { Search, X, Sparkles, Bell, Images, Plus } from 'lucide-react';
 import { FoodCard } from '../components/FoodCard';
 import { PlacesView } from '../components/PlacesView';
 import { TonightModal } from '../components/TonightModal';
+import { QuickAddRegularSheet } from '../components/QuickAddRegularSheet';
 import type { FoodItem, Inspiration } from '../types';
 
 interface Props {
@@ -14,6 +15,7 @@ interface Props {
   onOpen: (item: FoodItem) => void;
   onOpenInbox: () => void;
   onOpenAnnouncements: () => void;
+  onAddRegular: (item: FoodItem) => Promise<unknown> | void;
 }
 
 type FilterTab = 'want' | 'tried' | 'all';
@@ -32,7 +34,7 @@ const STICKY_TOP = 'calc(env(safe-area-inset-top) + 56px)';
 export function ListView({
   items, inspirations, imageByFoodId, lastEatenByFoodId,
   unreadAnnouncements,
-  onOpen, onOpenInbox, onOpenAnnouncements,
+  onOpen, onOpenInbox, onOpenAnnouncements, onAddRegular,
 }: Props) {
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<FilterTab>('want');
@@ -40,6 +42,7 @@ export function ListView({
     try { return localStorage.getItem(CITY_FILTER_KEY); } catch { return null; }
   });
   const [showTonight, setShowTonight] = useState(false);
+  const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [viewMode, setViewMode] = useState<'food' | 'place'>('food');
 
   // 持久化縣市選擇
@@ -87,6 +90,8 @@ export function ListView({
   }, [items]);
 
   const wantItems = useMemo(() => items.filter(i => i.status === 'want'), [items]);
+  // 回訪池：吃過的安心牌（不含標了「不好吃」的）
+  const triedItems = useMemo(() => items.filter(i => i.status === 'tried'), [items]);
   const pendingInspirations = inspirations.filter(i => !i.convertedFoodId);
 
   return (
@@ -138,7 +143,7 @@ export function ListView({
       </div>
 
       {/* 今晚吃什麼（隨頁面捲動） */}
-      {wantItems.length > 0 && (
+      {(wantItems.length > 0 || triedItems.length > 0) && (
         <div className="px-6 mb-4">
           <button
             onClick={() => setShowTonight(true)}
@@ -150,7 +155,9 @@ export function ListView({
                 <div className="text-[11px] tracking-[0.5em] text-[#c9a961]/80 mb-2.5">TONIGHT</div>
                 <div className="text-[21px] text-[#f6efe0] tracking-[0.08em] font-medium" style={{ fontFamily: "'Noto Serif TC', serif" }}>今晚吃什麼？</div>
                 <div className="text-[13px] text-[#8d877a] tracking-wider mt-2">
-                  從 {wantItems.length} 個想吃的隨機抽
+                  {wantItems.length > 0
+                    ? `從 ${wantItems.length} 個想吃的抽${triedItems.length > 0 ? ' · 或回訪' : ''}`
+                    : `從 ${triedItems.length} 間回訪的抽`}
                 </div>
               </div>
               <div className="w-[52px] h-[52px] rounded-full border border-[#c9a961]/45 flex items-center justify-center flex-shrink-0">
@@ -250,6 +257,16 @@ export function ListView({
 
       {/* List */}
       <div className="px-6 pt-4 pb-28">
+        {/* 嘗過分頁：快速加常去的店（直接進嘗過，餵給抽籤的「回訪」） */}
+        {activeTab === 'tried' && !search && (
+          <button
+            onClick={() => setShowQuickAdd(true)}
+            className="w-full mb-3 border border-dashed border-[#c9a961]/30 text-[#c9a961]/80 hover:border-[#c9a961]/60 hover:text-[#ead8aa] rounded-[14px] py-3.5 flex items-center justify-center gap-2 text-[13px] tracking-[0.2em] transition-colors"
+          >
+            <Plus size={15} />
+            快速加常去的店
+          </button>
+        )}
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <div className="text-[#c9a961]/40 text-3xl tracking-[0.5em] mb-4">— —</div>
@@ -276,10 +293,25 @@ export function ListView({
 
       {showTonight && (
         <TonightModal
-          candidates={wantItems}
+          wantItems={wantItems}
+          triedItems={triedItems}
           lastEatenByFoodId={lastEatenByFoodId}
           onOpen={onOpen}
           onClose={() => setShowTonight(false)}
+          onQuickAdd={() => { setShowTonight(false); setShowQuickAdd(true); }}
+        />
+      )}
+
+      {showQuickAdd && (
+        <QuickAddRegularSheet
+          onSave={async (item) => {
+            await onAddRegular(item);
+            setShowQuickAdd(false);
+            // 加完切到「嘗過」且清掉縣市篩選，確保剛加的一定看得到
+            setActiveTab('tried');
+            setActiveCity(null);
+          }}
+          onClose={() => setShowQuickAdd(false)}
         />
       )}
     </div>

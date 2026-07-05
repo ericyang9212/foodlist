@@ -1,14 +1,16 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { X, Shuffle, ChevronRight, SlidersHorizontal, MapPin } from 'lucide-react';
+import { X, Shuffle, ChevronRight, SlidersHorizontal, MapPin, Plus } from 'lucide-react';
 import { mapsUrlForFood } from '../lib/maps';
 import { isStale } from '../lib/stale';
 import type { FoodItem } from '../types';
 
 interface Props {
-  candidates: FoodItem[]; // 從「想吃」清單來
+  wantItems: FoodItem[];   // 想吃（探索：試新的）
+  triedItems: FoodItem[];  // 嘗過（回訪：吃過的安心牌）
   lastEatenByFoodId: Record<string, string>;
   onOpen: (item: FoodItem) => void;
   onClose: () => void;
+  onQuickAdd?: () => void; // 回訪池是空的時候，給個「快速加常去的店」入口
 }
 
 const RECENT_DAYS = 30;
@@ -29,7 +31,9 @@ function pickRandom<T>(arr: T[], avoid?: T): T | null {
   return pick;
 }
 
-export function TonightModal({ candidates, lastEatenByFoodId, onOpen, onClose }: Props) {
+export function TonightModal({ wantItems, triedItems, lastEatenByFoodId, onOpen, onClose, onQuickAdd }: Props) {
+  // 抽籤來源：想吃（探索）／回訪（吃過還想再吃）。預設抽有東西的那邊。
+  const [source, setSource] = useState<'want' | 'tried'>(wantItems.length > 0 ? 'want' : 'tried');
   const [current, setCurrent] = useState<FoodItem | null>(null);
   const [shuffling, setShuffling] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
@@ -37,6 +41,22 @@ export function TonightModal({ candidates, lastEatenByFoodId, onOpen, onClose }:
   const [cuisineFilter, setCuisineFilter] = useState<string | null>(null);
   const [staleOnly, setStaleOnly] = useState(false);
   const [excludeRecent, setExcludeRecent] = useState(false);
+
+  const candidates = useMemo(
+    () => (source === 'want' ? wantItems : triedItems),
+    [source, wantItems, triedItems]
+  );
+
+  // 換來源時把篩選歸零，避免帶著上一個來源的條件把新池子篩成空的
+  const switchSource = (s: 'want' | 'tried') => {
+    if (s === source) return;
+    setSource(s);
+    setCityFilter(null);
+    setCuisineFilter(null);
+    setStaleOnly(false);
+    setExcludeRecent(false);
+    setShowFilters(false);
+  };
 
   // 塵封：躺超過 3 個月還沒吃的
   const staleCount = useMemo(
@@ -136,9 +156,27 @@ export function TonightModal({ candidates, lastEatenByFoodId, onOpen, onClose }:
           <X size={18} />
         </button>
 
-        <div className="text-center mb-7">
+        <div className="text-center mb-6">
           <div className="text-[13px] tracking-[0.5em] text-[#c9a961]/70 mb-3">TONIGHT</div>
           <div className="h-[1px] w-12 bg-[#c9a961]/40 mx-auto" />
+        </div>
+
+        {/* 抽籤來源：想吃（試新的）／回訪（吃過的安心牌） */}
+        <div className="flex justify-center mb-6">
+          <div className="inline-flex items-center rounded-full border border-[#2a2a2a] p-[3px] text-[13px] tracking-[0.15em]">
+            <button
+              onClick={() => switchSource('want')}
+              className={`px-5 py-1.5 rounded-full transition-colors ${source === 'want' ? 'bg-[#d6b974] text-[#100d07] font-medium' : 'text-[#8d877a]'}`}
+            >
+              想吃{wantItems.length > 0 && <span className="ml-1 opacity-70">{wantItems.length}</span>}
+            </button>
+            <button
+              onClick={() => switchSource('tried')}
+              className={`px-5 py-1.5 rounded-full transition-colors ${source === 'tried' ? 'bg-[#d6b974] text-[#100d07] font-medium' : 'text-[#8d877a]'}`}
+            >
+              回訪{triedItems.length > 0 && <span className="ml-1 opacity-70">{triedItems.length}</span>}
+            </button>
+          </div>
         </div>
 
         {/* 縣市快選：想去哪先挑，選了就只抽那一帶 */}
@@ -287,13 +325,32 @@ export function TonightModal({ candidates, lastEatenByFoodId, onOpen, onClose }:
             </div>
           </>
         ) : (
-          <div className="text-center py-12">
-            <p className="text-[#777] text-[15px] tracking-wider mb-2">
-              {hasFilter ? '這個範圍沒有想吃的食物' : '沒有想吃的食物'}
-            </p>
-            <p className="text-[#555] text-[13px] tracking-widest">
-              {hasFilter ? '試試清除或換條件' : '先去清單新增幾個吧'}
-            </p>
+          <div className="text-center py-10">
+            {hasFilter ? (
+              <>
+                <p className="text-[#777] text-[15px] tracking-wider mb-2">這個範圍沒有可抽的</p>
+                <p className="text-[#555] text-[13px] tracking-widest">試試清除或換條件</p>
+              </>
+            ) : source === 'want' ? (
+              <>
+                <p className="text-[#777] text-[15px] tracking-wider mb-2">還沒有想吃的食物</p>
+                <p className="text-[#555] text-[13px] tracking-widest">先去清單新增幾個吧</p>
+              </>
+            ) : (
+              <>
+                <p className="text-[#777] text-[15px] tracking-wider mb-2">還沒有吃過的紀錄</p>
+                <p className="text-[#555] text-[13px] tracking-widest mb-5">加幾間常去的店，之後就能從這裡抽</p>
+                {onQuickAdd && (
+                  <button
+                    onClick={onQuickAdd}
+                    className="btn-secondary inline-flex items-center gap-2 px-5 py-2.5 text-[13px] tracking-[0.2em]"
+                  >
+                    <Plus size={14} />
+                    快速加常去的店
+                  </button>
+                )}
+              </>
+            )}
           </div>
         )}
       </div>

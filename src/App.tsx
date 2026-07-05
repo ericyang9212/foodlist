@@ -179,6 +179,7 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
             onOpen={handleOpen}
             onOpenInbox={() => setShowInbox(true)}
             onOpenAnnouncements={() => setShowAnnouncements(true)}
+            onAddRegular={addItem}
           />
         )}
         {tab === 'foodprints' && (
