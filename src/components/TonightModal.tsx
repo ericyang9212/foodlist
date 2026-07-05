@@ -119,8 +119,11 @@ export function TonightModal({ candidates, lastEatenByFoodId, onOpen, onClose }:
     }, 60);
   };
 
-  const hasFilter = cityFilter !== null || cuisineFilter !== null || staleOnly || excludeRecent;
-  const canFilter = cityCounts.length > 0 || cuisineCounts.length > 0 || staleCount > 0 || recentCount > 0;
+  // 縣市挑選提到最上面（想去哪先選，一鍵就抽那一帶）；其餘條件收在「更多條件」
+  const hasCityChoices = cityCounts.length > 0;
+  const hasAdvanced = staleCount > 0 || recentCount > 0 || cuisineCounts.length > 0;
+  const advancedActive = cuisineFilter !== null || staleOnly || excludeRecent;
+  const hasFilter = cityFilter !== null || advancedActive;
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center px-6"
@@ -138,19 +141,43 @@ export function TonightModal({ candidates, lastEatenByFoodId, onOpen, onClose }:
           <div className="h-[1px] w-12 bg-[#c9a961]/40 mx-auto" />
         </div>
 
-        {/* 篩選區 */}
-        {canFilter && (
+        {/* 縣市快選：想去哪先挑，選了就只抽那一帶 */}
+        {hasCityChoices && (
+          <div className="mb-6">
+            <div className="text-[11px] tracking-[0.35em] text-[#8a8478] text-center mb-3">想去哪個縣市？</div>
+            <div className="flex flex-wrap justify-center gap-1.5">
+              <button
+                onClick={() => setCityFilter(null)}
+                className={`text-[12px] tracking-[0.15em] px-3 py-1.5 ${cityFilter === null ? 'chip chip-active' : 'chip'}`}
+              >
+                不限
+              </button>
+              {cityCounts.map(([city, count]) => (
+                <button
+                  key={city}
+                  onClick={() => setCityFilter(cityFilter === city ? null : city)}
+                  className={`text-[12px] tracking-[0.15em] px-3 py-1.5 ${cityFilter === city ? 'chip chip-active' : 'chip'}`}
+                >
+                  {city} · {count}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 更多條件：塵封 / 最近吃過 / 類型 */}
+        {hasAdvanced && (
           <div className="mb-7">
             <button
               onClick={() => setShowFilters(!showFilters)}
               className={`w-full flex items-center justify-center gap-2 py-2 text-[12px] tracking-[0.3em] transition-colors ${
-                hasFilter ? 'text-[#c9a961]' : 'text-[#666] hover:text-[#c9a961]/80'
+                advancedActive ? 'text-[#c9a961]' : 'text-[#666] hover:text-[#c9a961]/80'
               }`}
             >
               <SlidersHorizontal size={13} />
-              {hasFilter
-                ? `已篩選 · ${[cityFilter, cuisineFilter, staleOnly ? '塵封' : null, excludeRecent ? '排除最近' : null].filter(Boolean).join(' · ')}`
-                : '加篩選條件'}
+              {advancedActive
+                ? `已選 · ${[cuisineFilter, staleOnly ? '塵封' : null, excludeRecent ? '排除最近' : null].filter(Boolean).join(' · ')}`
+                : '更多條件'}
             </button>
 
             {showFilters && (
@@ -179,29 +206,6 @@ export function TonightModal({ candidates, lastEatenByFoodId, onOpen, onClose }:
                   </div>
                 )}
 
-                {cityCounts.length > 0 && (
-                  <div>
-                    <div className="text-[10px] tracking-[0.4em] text-[#666] mb-2">縣市</div>
-                    <div className="flex flex-wrap gap-1.5">
-                      <button
-                        onClick={() => setCityFilter(null)}
-                        className={`text-[11px] tracking-[0.2em] px-2.5 py-1 ${cityFilter === null ? 'chip chip-active' : 'chip'}`}
-                      >
-                        全部
-                      </button>
-                      {cityCounts.map(([city, count]) => (
-                        <button
-                          key={city}
-                          onClick={() => setCityFilter(cityFilter === city ? null : city)}
-                          className={`text-[11px] tracking-[0.2em] px-2.5 py-1 ${cityFilter === city ? 'chip chip-active' : 'chip'}`}
-                        >
-                          {city} · {count}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
                 {cuisineCounts.length > 0 && (
                   <div>
                     <div className="text-[10px] tracking-[0.4em] text-[#666] mb-2">類型</div>
@@ -225,12 +229,12 @@ export function TonightModal({ candidates, lastEatenByFoodId, onOpen, onClose }:
                   </div>
                 )}
 
-                {hasFilter && (
+                {advancedActive && (
                   <button
-                    onClick={() => { setCityFilter(null); setCuisineFilter(null); setStaleOnly(false); setExcludeRecent(false); }}
+                    onClick={() => { setCuisineFilter(null); setStaleOnly(false); setExcludeRecent(false); }}
                     className="w-full text-[11px] tracking-[0.3em] text-[#666] hover:text-[#c9a961] py-1.5 transition-colors"
                   >
-                    清除全部篩選
+                    清除條件
                   </button>
                 )}
               </div>
