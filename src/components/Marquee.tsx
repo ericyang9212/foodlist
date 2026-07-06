@@ -1,4 +1,5 @@
-import { useState, useEffect, useLayoutEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
+import type { CSSProperties } from 'react';
 import { Pencil, X, Loader2, Check } from 'lucide-react';
 import type { MarqueeData } from '../store/useMarquee';
 
@@ -30,25 +31,24 @@ function usePrefersReducedMotion(): boolean {
   return reduce;
 }
 
-const SPAN = 'text-[16px] tracking-[0.25em] font-medium';
+const SPAN = 'text-[15px] tracking-[0.32em] font-medium italic';
 
-// 共用的跑馬燈內容：短句置中靜止、長句橫向捲動、多則淡入淡出輪播；尊重「減少動態」
+// 優雅的跑馬燈字體：襯線 + 斜體，呼應全站的香檳金質感，搭配柔和金色光暈
+function textStyle(hex: string): CSSProperties {
+  return {
+    color: hex,
+    fontFamily: "'Noto Serif TC', 'Songti TC', 'Source Han Serif TC', serif",
+    textShadow: `0 0 14px ${hex}4d`,
+  };
+}
+
+// 共用的跑馬燈內容：單句連續橫向捲動、多則淡入淡出輪播；尊重「減少動態」
 function MarqueeText({ lines, speed, hex, maskColor = '#0a0a0a' }: {
   lines: string[]; speed: number; hex: string; maskColor?: string;
 }) {
   const isMulti = lines.length >= 2;
   const reduce = usePrefersReducedMotion();
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const measureRef = useRef<HTMLSpanElement>(null);
-  const [overflow, setOverflow] = useState(false);
   const [idx, setIdx] = useState(0);
-
-  // 單句：量測是否塞不下 → 塞得下就靜止、塞不下才捲
-  useLayoutEffect(() => {
-    if (isMulti) { setOverflow(false); return; }
-    const w = wrapRef.current, m = measureRef.current;
-    if (w && m) setOverflow(m.offsetWidth > w.clientWidth - 24);
-  }, [lines, isMulti]);
 
   // 多則：定時淡入淡出切換
   useEffect(() => {
@@ -62,26 +62,22 @@ function MarqueeText({ lines, speed, hex, maskColor = '#0a0a0a' }: {
   if (lines.length === 0) return null;
 
   return (
-    <div ref={wrapRef} className="relative w-full h-11 flex items-center overflow-hidden">
+    <div className="relative w-full h-11 flex items-center overflow-hidden">
       <div className="absolute left-0 top-0 bottom-0 w-8 z-10 pointer-events-none" style={{ background: `linear-gradient(90deg, ${maskColor}, transparent)` }} />
       <div className="absolute right-0 top-0 bottom-0 w-8 z-10 pointer-events-none" style={{ background: `linear-gradient(270deg, ${maskColor}, transparent)` }} />
 
-      {!isMulti && (
-        <span ref={measureRef} aria-hidden className={`${SPAN} whitespace-nowrap fixed -left-[9999px] top-0`}>{lines[0]}</span>
-      )}
-
       {isMulti ? (
         <div key={idx} className="w-full text-center px-6 animate-mqfade">
-          <span className={`${SPAN} inline-block max-w-full truncate align-bottom`} style={{ color: hex }}>{lines[idx]}</span>
+          <span className={`${SPAN} inline-block max-w-full truncate align-bottom`} style={textStyle(hex)}>{lines[idx]}</span>
         </div>
-      ) : overflow && !reduce ? (
-        <div className="flex whitespace-nowrap" style={{ animation: `marquee ${speed}s linear infinite` }}>
-          <span className={`${SPAN} px-5`} style={{ color: hex }}>{lines[0]}</span>
-          <span className={`${SPAN} px-5`} aria-hidden style={{ color: hex }}>{lines[0]}</span>
+      ) : reduce ? (
+        <div className="w-full text-center px-6">
+          <span className={`${SPAN} inline-block max-w-full truncate align-bottom`} style={textStyle(hex)}>{lines[0]}</span>
         </div>
       ) : (
-        <div className="w-full text-center px-6">
-          <span className={`${SPAN} inline-block max-w-full truncate align-bottom`} style={{ color: hex }}>{lines[0]}</span>
+        <div className="flex whitespace-nowrap" style={{ animation: `marquee ${speed}s linear infinite` }}>
+          <span className={`${SPAN} px-8`} style={textStyle(hex)}>{lines[0]}</span>
+          <span className={`${SPAN} px-8`} aria-hidden style={textStyle(hex)}>{lines[0]}</span>
         </div>
       )}
     </div>
