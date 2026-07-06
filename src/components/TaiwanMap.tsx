@@ -83,7 +83,10 @@ export function TaiwanMap({ counts, onSelect }: Props) {
             }}
             onMouseEnter={() => setHoveredId(county.id)}
             onMouseLeave={() => setHoveredId(null)}
-            onClick={() => onSelect(county.name)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelect(county.name);
+            }}
           >
             <title>{`${county.name} · ${count} 筆足跡`}</title>
           </path>

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { MapPin, Trash2, Compass } from 'lucide-react';
+import { MapPin, Trash2, Compass, X } from 'lucide-react';
 import { Thumb } from '../components/Thumb';
 import { TaiwanMap } from '../components/TaiwanMap';
 import type { Foodprint } from '../types';
@@ -95,7 +95,7 @@ export function FoodprintsPage({ items, onDelete }: Props) {
         </h1>
       </div>
 
-      <div className="relative w-full" style={{ height: MAP_HEIGHT }}>
+      <div className="relative w-full" style={{ height: MAP_HEIGHT }} onClick={() => setSelectedCity(null)}>
         <TaiwanMap counts={cityCounts} onSelect={handleSelectCity} />
 
         {Object.keys(cityCounts).length === 0 && (
@@ -107,12 +107,22 @@ export function FoodprintsPage({ items, onDelete }: Props) {
         )}
 
         {selectedCity && (
-          <div className="absolute left-3 right-3 bottom-3 card-surface rounded-[8px] p-3.5 bg-[#141210]/95 border border-[#2a2a2a] max-h-[55%] overflow-y-auto">
+          <div
+            className="absolute left-3 right-3 bottom-3 card-surface rounded-[8px] p-3.5 bg-[#141210]/95 border border-[#2a2a2a] max-h-[55%] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-baseline gap-2 mb-2">
               <h3 className="text-[14px] text-[#f5f1e8] font-medium tracking-wide">{selectedCity}</h3>
               <span className="text-[11px] text-[#c9a961]/80 tracking-wider">
                 {(storesByCity.get(selectedCity) ?? []).length} 家店
               </span>
+              <button
+                onClick={() => setSelectedCity(null)}
+                className="icon-btn !p-1 ml-auto"
+                title="關閉"
+              >
+                <X size={14} />
+              </button>
             </div>
             {(storesByCity.get(selectedCity)?.length ?? 0) > 0 ? (
               <>
@@ -155,29 +165,31 @@ export function FoodprintsPage({ items, onDelete }: Props) {
 
         {items.length > 0 ? (
           <>
-            <div className="relative pl-1">
-              <div className="absolute left-[6px] top-1 bottom-1 w-[1px] bg-gradient-to-b from-[#c9a961]/50 via-[#c9a961]/20 to-transparent" />
-              <div className="space-y-7">
-                {grouped.map(([month, prints]) => (
-                  <div key={month} className="relative pl-6">
-                    <div className="absolute left-0 top-1 w-[11px] h-[11px] rounded-full bg-[#0f0d0a] border-2 border-[#c9a961]" />
-                    <div className="flex items-center gap-3 mb-3">
-                      <span className="text-[12px] tracking-[0.3em] text-[#c9a961]/80">{month}</span>
-                      <div className="h-[1px] flex-1 bg-[#1a1a1a]" />
-                      <span className="text-[10px] text-[#666] tracking-widest">{prints.length}</span>
+            <div className="max-h-[50vh] overflow-y-auto pr-1">
+              <div className="relative pl-1">
+                <div className="absolute left-[6px] top-1 bottom-1 w-[1px] bg-gradient-to-b from-[#c9a961]/50 via-[#c9a961]/20 to-transparent" />
+                <div className="space-y-7">
+                  {grouped.map(([month, prints]) => (
+                    <div key={month} className="relative pl-6">
+                      <div className="absolute left-0 top-1 w-[11px] h-[11px] rounded-full bg-[#0f0d0a] border-2 border-[#c9a961]" />
+                      <div className="flex items-center gap-3 mb-3">
+                        <span className="text-[12px] tracking-[0.3em] text-[#c9a961]/80">{month}</span>
+                        <div className="h-[1px] flex-1 bg-[#1a1a1a]" />
+                        <span className="text-[10px] text-[#666] tracking-widest">{prints.length}</span>
+                      </div>
+                      <div className="space-y-2.5">
+                        {prints.map(p => (
+                          <FoodprintCard
+                            key={p.id}
+                            item={p}
+                            onDelete={() => onDelete(p.id)}
+                            onClick={() => handleCardClick(p)}
+                          />
+                        ))}
+                      </div>
                     </div>
-                    <div className="space-y-2.5">
-                      {prints.map(p => (
-                        <FoodprintCard
-                          key={p.id}
-                          item={p}
-                          onDelete={() => onDelete(p.id)}
-                          onClick={() => handleCardClick(p)}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
             {visibleCount < items.length && (
