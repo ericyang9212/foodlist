@@ -1,14 +1,9 @@
-import { useMemo, useState, lazy, Suspense } from 'react';
-import { MapPin, Trash2, Compass, Loader2 } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { MapPin, Trash2, Compass } from 'lucide-react';
 import { Thumb } from '../components/Thumb';
+import { TaiwanMap } from '../components/TaiwanMap';
 import type { Foodprint } from '../types';
-import type { FlyTarget } from '../components/FoodprintsMap';
-import { resolveFoodprintLocation } from '../lib/foodprintGeo';
-
-// 地圖只在切到「足跡」分頁時才載入，避免 Leaflet 拖慢首次開啟
-const FoodprintsMap = lazy(() =>
-  import('../components/FoodprintsMap').then(m => ({ default: m.FoodprintsMap }))
-);
+import { resolveCityName } from '../lib/foodprintGeo';
 
 interface Props {
   items: Foodprint[];
@@ -42,13 +37,29 @@ function dateLabel(iso: string) {
 }
 
 const PAGE_SIZE = 30;
-const MAP_HEIGHT = 220;
+const MAP_HEIGHT = 280;
 
 export function FoodprintsPage({ items, onDelete }: Props) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
-  const [flyTarget, setFlyTarget] = useState<FlyTarget | null>(null);
+  const [selectedCity, setSelectedCity] = useState<string | null>(null);
 
   const visibleItems = useMemo(() => items.slice(0, visibleCount), [items, visibleCount]);
+
+  // 各縣市的足跡數（決定地圖填色深淺）跟店名清單（決定底部 panel 內容）
+  const { cityCounts, storesByCity } = useMemo(() => {
+    const counts: Record<string, number> = {};
+    const stores = new Map<string, string[]>();
+    items.forEach(p => {
+      const city = resolveCityName(p);
+      if (!city) return;
+      counts[city] = (counts[city] || 0) + 1;
+      const label = p.restaurantName || p.foodName;
+      const list = stores.get(city) ?? [];
+      if (!list.includes(label)) list.push(label);
+      stores.set(city, list);
+    });
+    return { cityCounts: counts, storesByCity: stores };
+  }, [items]);
 
   const grouped = useMemo(() => {
     const m = new Map<string, Foodprint[]>();
@@ -66,9 +77,13 @@ export function FoodprintsPage({ items, onDelete }: Props) {
   );
 
   function handleCardClick(item: Foodprint) {
-    const loc = resolveFoodprintLocation(item);
-    if (!loc) return;
-    setFlyTarget({ ...loc, label: item.restaurantName || item.foodName });
+    const city = resolveCityName(item);
+    if (!city) return;
+    setSelectedCity(city);
+  }
+
+  function handleSelectCity(city: string) {
+    setSelectedCity(prev => (prev === city ? null : city));
   }
 
   return (
@@ -81,15 +96,44 @@ export function FoodprintsPage({ items, onDelete }: Props) {
       </div>
 
       <div className="relative w-full" style={{ height: MAP_HEIGHT }}>
-        <Suspense
-          fallback={
-            <div className="w-full h-full flex items-center justify-center">
-              <Loader2 size={22} className="animate-spin text-[#c9a961]/70" />
+        <TaiwanMap counts={cityCounts} onSelect={handleSelectCity} />
+
+        {Object.keys(cityCounts).length === 0 && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <p className="text-[13px] text-[#76705f] tracking-wider text-center px-8 bg-[#0b0a08]/80 py-3 rounded-[10px]">
+              還沒有標上地圖的足跡<br />記錄時填了縣市就會出現在這裡
+            </p>
+          </div>
+        )}
+
+        {selectedCity && (
+          <div className="absolute left-3 right-3 bottom-3 card-surface rounded-[8px] p-3.5 bg-[#141210]/95 border border-[#2a2a2a] max-h-[55%] overflow-y-auto">
+            <div className="flex items-baseline gap-2 mb-2">
+              <h3 className="text-[14px] text-[#f5f1e8] font-medium tracking-wide">{selectedCity}</h3>
+              <span className="text-[11px] text-[#c9a961]/80 tracking-wider">
+                {(storesByCity.get(selectedCity) ?? []).length} 家店
+              </span>
             </div>
-          }
-        >
-          <FoodprintsMap items={items} flyTarget={flyTarget} />
-        </Suspense>
+            {(storesByCity.get(selectedCity)?.length ?? 0) > 0 ? (
+              <>
+                <ul className="space-y-1">
+                  {(storesByCity.get(selectedCity) ?? []).slice(0, 5).map(name => (
+                    <li key={name} className="text-[12px] text-[#a89a7d] tracking-wide truncate">
+                      {name}
+                    </li>
+                  ))}
+                </ul>
+                {(storesByCity.get(selectedCity)!.length > 5) && (
+                  <p className="text-[11px] text-[#666] tracking-wider mt-1.5">
+                    還有 {storesByCity.get(selectedCity)!.length - 5} 家
+                  </p>
+                )}
+              </>
+            ) : (
+              <p className="text-[12px] text-[#666] tracking-wide">還沒有這個縣市的足跡</p>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="px-5 pt-5 pb-28">
