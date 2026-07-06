@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { MapContainer, TileLayer, useMap } from 'react-leaflet';
+import { CircleMarker, MapContainer, TileLayer, useMap } from 'react-leaflet';
 import * as L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { Foodprint } from '../types';
@@ -114,6 +114,7 @@ function buildHeatData(items: Foodprint[]): HeatData {
 }
 
 // 熱區圖層：去過越多次／越密集的地方顏色越深（金 → 橘 → 深紅），稀疏處淡到透明
+// radius/blur 刻意壓小：太大會讓幾個點糊成一整片色塊，看起來像氣象圖而不是「幾個熱點」
 function HeatLayer({ points }: { points: L.HeatLatLngTuple[] }) {
   const map = useMap();
 
@@ -124,14 +125,14 @@ function HeatLayer({ points }: { points: L.HeatLatLngTuple[] }) {
     loadHeatPlugin().then(() => {
       if (cancelled) return;
       layer = L.heatLayer(points, {
-        radius: 22,
-        blur: 15,
+        radius: 17,
+        blur: 13,
         max: 6, // 同一處累積約 6 次造訪就到最深紅；次數少則偏淡金
         // maxZoom 刻意設得很低：leaflet.heat 預設會依「目前縮放 vs maxZoom」的差距去衰減強度
         // （假設使用者要放大才看得到熱點），但這裡地圖一開始就 fitBounds 到全部資料，
         // 縮放程度本來就偏低，若用預設會被壓到幾乎看不見，所以固定用未衰減的滿強度。
         maxZoom: 1,
-        minOpacity: 0.12,
+        minOpacity: 0.35,
         gradient: {
           0.0: 'rgba(201,169,97,0)',
           0.25: 'rgba(214,185,116,0.6)',
@@ -147,6 +148,28 @@ function HeatLayer({ points }: { points: L.HeatLatLngTuple[] }) {
   }, [map, points]);
 
   return null;
+}
+
+// 在每個資料點上疊一顆小圓點，讓使用者看得出這些是實際地點，不是模糊雲團
+function PointDots({ points }: { points: L.HeatLatLngTuple[] }) {
+  return (
+    <>
+      {points.map(([lat, lng], i) => (
+        <CircleMarker
+          key={i}
+          center={[lat, lng]}
+          radius={5}
+          pathOptions={{
+            color: '#f4e8cf',
+            weight: 1,
+            opacity: 0.6,
+            fillColor: '#f4e8cf',
+            fillOpacity: 0.55,
+          }}
+        />
+      ))}
+    </>
+  );
 }
 
 // 自動把視野收攏到所有資料點的範圍內，沒資料時退回台灣整體視角
@@ -172,11 +195,14 @@ export function FoodprintsMap({ items }: { items: Foodprint[] }) {
     return L.latLngBounds(points.map(([lat, lng]) => [lat, lng]));
   }, [points]);
 
+  // 點太少時熱力圖會整片糊成一坨，改直接顯示一般定位點就好
+  const useHeat = points.length >= 3;
+
   return (
     <div>
       <div
         className="relative rounded-[14px] overflow-hidden border border-[#1f1f1f]"
-        style={{ height: 'clamp(340px, 52vh, 480px)' }}
+        style={{ height: '280px', width: '100%' }}
       >
         <MapContainer
           center={TAIWAN_CENTER}
@@ -188,7 +214,8 @@ export function FoodprintsMap({ items }: { items: Foodprint[] }) {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
             url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
           />
-          <HeatLayer points={points} />
+          {useHeat && <HeatLayer points={points} />}
+          <PointDots points={points} />
           <FitToData bounds={bounds} />
         </MapContainer>
 
