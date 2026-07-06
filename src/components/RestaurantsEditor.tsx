@@ -11,10 +11,11 @@ const EMPTY: Omit<Restaurant, 'id'> = { name: '', city: '', area: '', googleMaps
 interface Props {
   restaurants: Restaurant[];
   onChange: (next: Restaurant[]) => void;
+  title?: string; // 區塊標題（新制下這區是「其他分店」，舊資料仍是「候選店家」）
 }
 
 // 共用：候選店家的增 / 刪 / 改（含自動定位）。詳情頁與新增頁共用。
-export function RestaurantsEditor({ restaurants, onChange }: Props) {
+export function RestaurantsEditor({ restaurants, onChange, title = '候選店家' }: Props) {
   const [adding, setAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -31,7 +32,7 @@ export function RestaurantsEditor({ restaurants, onChange }: Props) {
     <div>
       <div className="flex items-center justify-between mb-4">
         <div className="text-[13px] tracking-[0.4em] text-[#c9a961]/60">
-          候選店家 · {restaurants.length}
+          {title} · {restaurants.length}
         </div>
         {!adding && !editingId && (
           <button

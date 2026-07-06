@@ -104,7 +104,8 @@ export function TonightModal({ wantItems, triedItems, lastEatenByFoodId, onOpen,
   // pool「內容」變了才處理；物件換新但內容相同（realtime 重抓資料）不能害目前的抽選被換掉
   const poolKey = useMemo(() => pool.map(i => i.id).sort().join('|'), [pool]);
   const poolRef = useRef(pool);
-  poolRef.current = pool;
+  // render 期間不能寫 ref：每次 commit 後同步最新 pool（放在讀取它的 effect 之前，確保先跑）
+  useEffect(() => { poolRef.current = pool; });
 
   useEffect(() => {
     const p = poolRef.current;

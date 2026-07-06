@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { X, Bell, Download, Cloud, ExternalLink, LogOut, ChevronDown, BookOpen } from 'lucide-react';
 import type { Announcement } from '../store/useAnnouncements';
 import { supabase } from '../lib/supabase';
+import { toast } from '../lib/toast';
 
 interface Props {
   items: Announcement[];
@@ -13,11 +14,11 @@ interface Props {
 
 // 使用說明內容（靜態、固定置頂）
 const GUIDE: { label: string; desc: string }[] = [
-  { label: '清單', desc: '你想吃的食物都在這。上方切「想吃 / 嘗過 / 全部」，也能用搜尋或縣市篩選；點卡片看詳情、編輯。' },
-  { label: '＋ 新增', desc: '中間金色按鈕新增一道想吃的。可加多家候選店家——貼上 Google Maps 連結就會自動定位；也能填必點、評分、場合。' },
-  { label: '今晚吃什麼', desc: '清單頁上方按一下，從「想吃」裡隨機幫你抽一家，選擇障礙救星。' },
-  { label: '靈感匣', desc: '看到想吃的截圖先丟進靈感匣（清單頁的未整理截圖入口），有空再一鍵轉成正式的想吃。' },
-  { label: '足跡', desc: '吃過後在詳情頁按「今天吃了」，就會記進「足跡」分頁，累積成你的美食統計與時間軸。' },
+  { label: '清單', desc: '想吃與吃過的都在這。上方切「想吃 / 嘗過 / 全部」，可搜尋、按縣市篩選，也能切「店家」視角以店彙整；點卡片看詳情、編輯。' },
+  { label: '＋ 新增', desc: '中間金色按鈕新增：填店家名稱、點「吃什麼」類別，選縣市或貼 Google 地圖連結會自動定位；其他分店和更多細節收在選填。' },
+  { label: '今晚吃什麼', desc: '清單上方按一下開抽籤：來源可切「想吃 / 回訪 / 全部」，想去哪個縣市先選再抽；抽到能直接「帶我去」或再抽一個。' },
+  { label: '靈感匣', desc: '看到想吃的截圖先丟進靈感匣（清單右上角圖示），有空再一鍵轉成正式的想吃；整理過的截圖會收進相簿。' },
+  { label: '足跡', desc: '在詳情頁按「今天吃了」記一筆，「足跡」分頁會累積成台灣縣市地圖與時間軸；點地圖上的縣市能看你們在那裡吃過什麼。' },
   { label: '備份', desc: '這頁最下方可看每日自動異地備份、手動下載 JSON、以及登出。' },
 ];
 
@@ -25,7 +26,9 @@ async function downloadBackup() {
   const tables = ['food_items', 'inspirations', 'announcements', 'foodprints', 'marquee'] as const;
   const dump: Record<string, unknown> = { _backed_up_at: new Date().toISOString() };
   for (const t of tables) {
-    const { data } = await supabase.from(t).select('*');
+    // 任何一張表讀失敗就整份中止：寧可沒下載，也不要下載到缺資料的「假備份」
+    const { data, error } = await supabase.from(t).select('*');
+    if (error) throw error;
     dump[t] = data ?? [];
   }
   const blob = new Blob([JSON.stringify(dump, null, 2)], { type: 'application/json' });
@@ -62,6 +65,8 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onSignOut, o
     setDownloading(true);
     try {
       await downloadBackup();
+    } catch {
+      toast.error('備份下載失敗，請檢查網路後再試');
     } finally {
       setDownloading(false);
     }

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
+import { toast } from '../lib/toast';
 
 export interface MarqueeData {
   text: string;
@@ -27,7 +28,9 @@ export function useMarquee() {
     setLoading(false);
   }, []);
 
+  // 首載抓資料（setState 發生在 await 之後，非同步、不會同步串聯 render）
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchOne();
   }, [fetchOne]);
 
@@ -44,8 +47,8 @@ export function useMarquee() {
   }, []);
 
   const update = useCallback(async (next: MarqueeData) => {
-    setData(next);
-    await supabase
+    setData(next); // optimistic
+    const { error } = await supabase
       .from('marquee')
       .update({
         text: next.text,
@@ -54,7 +57,13 @@ export function useMarquee() {
         updated_at: new Date().toISOString(),
       })
       .eq('id', 1);
-  }, []);
+    if (error) {
+      // 寫入失敗：跳提示、把畫面還原成資料庫目前的值，並丟出讓編輯器留在原地
+      toast.error('跑馬燈儲存失敗，請再試一次');
+      await fetchOne();
+      throw error;
+    }
+  }, [fetchOne]);
 
   return { data, loading, update };
 }

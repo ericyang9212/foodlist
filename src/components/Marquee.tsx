@@ -9,7 +9,7 @@ interface Props {
 }
 
 // 情境色：key 存進資料庫，hex 用於顯示
-export const MARQUEE_COLORS: { key: string; label: string; hex: string }[] = [
+const MARQUEE_COLORS: { key: string; label: string; hex: string }[] = [
   { key: 'gold', label: '金', hex: '#ead8aa' },
   { key: 'rose', label: '玫瑰', hex: '#e6a9c4' },
   { key: 'red', label: '暖紅', hex: '#e6a07a' },
@@ -20,10 +20,10 @@ function colorHexOf(key: string): string {
 }
 
 function usePrefersReducedMotion(): boolean {
-  const [reduce, setReduce] = useState(false);
+  // 初始值直接讀 matchMedia（惰性初始化），effect 只負責訂閱變更
+  const [reduce, setReduce] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setReduce(mq.matches);
     const h = () => setReduce(mq.matches);
     mq.addEventListener?.('change', h);
     return () => mq.removeEventListener?.('change', h);
@@ -50,10 +50,10 @@ function MarqueeText({ lines, speed, hex, maskColor = '#0a0a0a' }: {
   const reduce = usePrefersReducedMotion();
   const [idx, setIdx] = useState(0);
 
-  // 多則：定時淡入淡出切換
+  // 多則：定時淡入淡出切換。
+  // 內容變更時由呼叫端用 key remount 重置 idx，effect 裡不需要同步 setState。
   useEffect(() => {
-    if (!isMulti) { setIdx(0); return; }
-    setIdx(0);
+    if (!isMulti) return;
     const dwell = Math.max(2600, speed * 130);
     const t = setInterval(() => setIdx(i => (i + 1) % lines.length), dwell);
     return () => clearInterval(t);
@@ -117,7 +117,7 @@ export function Marquee({ data, onUpdate }: Props) {
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 8px)', paddingBottom: '4px' }}
       >
         <button onClick={() => setEditing(true)} className="w-full">
-          <MarqueeText lines={lines} speed={data.speed} hex={colorHexOf(data.color)} />
+          <MarqueeText key={lines.join('\n')} lines={lines} speed={data.speed} hex={colorHexOf(data.color)} />
         </button>
       </div>
 
@@ -146,6 +146,8 @@ function MarqueeEditor({
     setSaving(true);
     try {
       await onSave({ text, speed, color });
+    } catch {
+      // 儲存失敗（useMarquee 已跳 toast 並還原）：留在編輯器讓使用者重試
     } finally {
       setSaving(false);
     }
@@ -177,7 +179,7 @@ function MarqueeEditor({
           <div>
             <div className="text-[11px] tracking-[0.4em] text-[#c9a961]/60 mb-2">PREVIEW</div>
             <div className="relative bg-[#0a0a0a] border border-[#c9a961]/15 rounded-[8px] overflow-hidden h-11 flex items-center">
-              <MarqueeText lines={lines} speed={speed} hex={colorHexOf(color)} />
+              <MarqueeText key={lines.join('\n')} lines={lines} speed={speed} hex={colorHexOf(color)} />
             </div>
           </div>
         )}

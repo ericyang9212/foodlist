@@ -83,7 +83,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
       setUploading(true);
       try {
         finalImage = await onUploadImage(pendingFile);
-      } catch (e) {
+      } catch {
         alert('圖片上傳失敗');
         setUploading(false);
         setSaving(false);
@@ -92,9 +92,16 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
       setUploading(false);
     }
 
-    // 主店家：編輯時沿用既有那筆（保留原店名，不動舊資料），新增則以「店家」名稱建立
+    // 主店家：編輯時沿用既有那筆，新增則以「店家」名稱建立。
+    // 新制項目（店名＝食物名）改名時店名跟著改；舊制（兩者不同）保留原店名不動。
     const store: Restaurant = primary
-      ? { ...primary, city: city || undefined, area: area.trim() || undefined, googleMapsUrl: url.trim() || undefined }
+      ? {
+          ...primary,
+          name: primary.name === item?.name ? name.trim() : primary.name,
+          city: city || undefined,
+          area: area.trim() || undefined,
+          googleMapsUrl: url.trim() || undefined,
+        }
       : { id: makeId(), name: name.trim(), city: city || undefined, area: area.trim() || undefined, googleMapsUrl: url.trim() || undefined };
 
     // 地點有變（或還沒定位過）才重新地理編碼，避免每次儲存都打 API
@@ -285,7 +292,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
             </button>
             {showBranches && (
               <div className="mt-4">
-                <RestaurantsEditor restaurants={otherBranches} onChange={setOtherBranches} />
+                <RestaurantsEditor title="其他分店" restaurants={otherBranches} onChange={setOtherBranches} />
               </div>
             )}
           </div>

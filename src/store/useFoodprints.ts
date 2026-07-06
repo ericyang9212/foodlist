@@ -76,7 +76,9 @@ export function useFoodprints() {
     setLoading(false);
   }, []);
 
+  // 首載抓資料（setState 發生在 await 之後，非同步、不會同步串聯 render）
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchAll();
   }, [fetchAll]);
 

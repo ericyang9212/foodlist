@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { List, Footprints, Plus } from 'lucide-react';
 import { useStore } from './store/useStore';
 import { useInspirations } from './store/useInspirations';
@@ -55,7 +55,7 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
   const foodprints = useFoodprints();
 
   const [tab, setTab] = useState<Tab>('list');
-  const [detail, setDetail] = useState<FoodItem | null>(null);
+  const [detailId, setDetailId] = useState<string | null>(null);
   const [editing, setEditing] = useState<FoodItem | undefined>(undefined);
   const [showAdd, setShowAdd] = useState(false);
   const [showInbox, setShowInbox] = useState(false);
@@ -90,15 +90,13 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
     return map;
   }, [foodprints.items]);
 
-  // realtime：清單被（對方）更新時，開著的詳情頁要跟著最新資料；被刪掉就自動關閉
-  useEffect(() => {
-    setDetail(prev => (prev ? foodById[prev.id] ?? null : prev));
-  }, [foodById]);
+  // 詳情頁只存 id、內容從清單推導：對方 realtime 更新會自動反映，被刪掉就自動關閉
+  const detail = detailId ? foodById[detailId] ?? null : null;
 
-  const handleOpen = (item: FoodItem) => setDetail(item);
+  const handleOpen = (item: FoodItem) => setDetailId(item.id);
 
   const handleEdit = (item: FoodItem) => {
-    setDetail(null);
+    setDetailId(null);
     setEditing(item);
     setShowAdd(true);
   };
@@ -135,9 +133,9 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
     setFromInspiration(null);
   };
 
+  // updateItem 是樂觀更新，items 立即變 → 推導的 detail 自動跟上，不用手動同步
   const handleUpdateFromDetail = (updated: FoodItem) => {
     updateItem(updated);
-    setDetail(updated);
   };
 
   // 刪除食物時順手釋放指向它的靈感（讓截圖回到未整理、可重新利用）
@@ -232,8 +230,7 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
           onConvertToFood={handleConvertInspiration}
           foodById={foodById}
           onOpenFood={(id) => {
-            const f = foodById[id];
-            if (f) { setShowInbox(false); setDetail(f); }
+            if (foodById[id]) { setShowInbox(false); setDetailId(id); }
           }}
           onClose={() => setShowInbox(false)}
         />
@@ -243,9 +240,9 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
         <DetailPage
           item={detail}
           thumbnailUrl={imageByFoodId[detail.id]}
-          onClose={() => setDetail(null)}
+          onClose={() => setDetailId(null)}
           onEdit={handleEdit}
-          onDelete={id => { handleDeleteFood(id); setDetail(null); }}
+          onDelete={id => { handleDeleteFood(id); setDetailId(null); }}
           onUpdate={handleUpdateFromDetail}
           onLogFoodprint={(it) => setLoggingFood(it)}
         />
@@ -256,15 +253,16 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
           food={loggingFood}
           uploadPhoto={foodprints.uploadPhoto}
           onSave={async (p) => {
-            await foodprints.addFoodprint(p);
-            // 同步把食物狀態改成 tried；詳情頁若開著也要跟著更新
+            // 足跡寫入失敗（store 已 toast 並回滾）就中止：狀態不動、sheet 留著讓使用者重試
+            const inserted = await foodprints.addFoodprint(p);
+            if (!inserted) throw new Error('foodprint insert failed');
+            // 同步把食物狀態改成 tried；詳情頁內容是推導的，會自動跟上
             const updated: FoodItem = {
               ...loggingFood,
               status: loggingFood.status === 'want' ? 'tried' : loggingFood.status,
               updatedAt: new Date().toISOString(),
             };
             updateItem(updated);
-            setDetail(prev => (prev && prev.id === updated.id ? updated : prev));
           }}
           onClose={() => setLoggingFood(null)}
         />

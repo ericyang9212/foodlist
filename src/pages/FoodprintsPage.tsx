@@ -10,20 +10,11 @@ interface Props {
   onDelete: (id: string) => void;
 }
 
-// 想吃新的：當下抓 GPS 把 Google Maps 定位到你附近；拒絕授權就退回一般「餐廳」搜尋
+// 想吃新的：同步開 Google Maps 搜「餐廳」。
+// 不先抓 GPS —— async 回呼裡的 window.open 會被行動瀏覽器當非手勢動作擋掉，
+// 而行動版 Google Maps 本來就會以目前位置為中心搜尋，先定位是多餘的。
 function exploreNearby() {
-  const openMaps = (center?: string) => {
-    const url = center
-      ? `https://www.google.com/maps/search/餐廳/@${center},15z`
-      : 'https://www.google.com/maps/search/餐廳';
-    window.open(url, '_blank', 'noopener,noreferrer');
-  };
-  if (!navigator.geolocation) return openMaps();
-  navigator.geolocation.getCurrentPosition(
-    pos => openMaps(`${pos.coords.latitude},${pos.coords.longitude}`),
-    () => openMaps(),
-    { timeout: 10000 }
-  );
+  window.open('https://www.google.com/maps/search/餐廳', '_blank', 'noopener,noreferrer');
 }
 
 function monthLabel(iso: string) {

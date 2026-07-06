@@ -145,7 +145,11 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
         {/* 其他分店 / 候選（主店家已在上方顯示） */}
         {(branches.length > 0 || !store) && (
           <div className="mt-10 pt-7 border-t border-[#1f1f1f]">
-            <RestaurantsEditor restaurants={store ? branches : item.restaurants} onChange={handleBranchesChange} />
+            <RestaurantsEditor
+              title={store ? '其他分店' : '候選店家'}
+              restaurants={store ? branches : item.restaurants}
+              onChange={handleBranchesChange}
+            />
           </div>
         )}
 

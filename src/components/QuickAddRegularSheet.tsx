@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { X, Loader2 } from 'lucide-react';
 import { makeId } from '../lib/id';
+import { parseLatLngFromMapsUrl } from '../lib/geocode';
 import { CITIES } from '../types';
 import type { FoodItem } from '../types';
 
@@ -24,20 +25,23 @@ export function QuickAddRegularSheet({ onSave, onClose }: Props) {
     if (!trimmed) return;
     setSaving(true);
     const now = new Date().toISOString();
-    const hasStore = !!(city || mapsUrl.trim());
+    const url = mapsUrl.trim();
+    // 店家永遠建立（店家視角 / 縣市篩選 / 記足跡都靠 restaurants[0]）；
+    // 連結裡帶座標就順手解析（純字串處理，不打網路）
+    const geo = parseLatLngFromMapsUrl(url);
     const item: FoodItem = {
       id: makeId(),
       name: trimmed,
       status: 'tried',
       occasions: [],
-      restaurants: hasStore
-        ? [{
-            id: makeId(),
-            name: trimmed,
-            city: city || undefined,
-            googleMapsUrl: mapsUrl.trim() || undefined,
-          }]
-        : [],
+      restaurants: [{
+        id: makeId(),
+        name: trimmed,
+        city: city || undefined,
+        googleMapsUrl: url || undefined,
+        lat: geo?.lat,
+        lng: geo?.lng,
+      }],
       mustOrder: [],
       createdAt: now,
       updatedAt: now,

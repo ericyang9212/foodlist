@@ -81,8 +81,9 @@ export function useStore() {
     setLoading(false);
   }, []);
 
-  // 背景同步
+  // 背景同步（setState 發生在 await 之後，非同步、不會同步串聯 render）
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchAll();
   }, [fetchAll]);
 

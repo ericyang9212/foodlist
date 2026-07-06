@@ -60,8 +60,8 @@ export function LogFoodprintSheet({ food, uploadPhoto, onSave, onClose }: Props)
       });
       onClose();
     } catch (e) {
+      // 照片上傳 / 足跡寫入失敗都已在 store 層跳過 toast，這裡只要留在 sheet 讓使用者重試
       console.error(e);
-      alert('儲存失敗，請再試一次');
     } finally {
       setSaving(false);
     }

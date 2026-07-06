@@ -15,7 +15,7 @@ interface Props {
   onOpen: (item: FoodItem) => void;
   onOpenInbox: () => void;
   onOpenAnnouncements: () => void;
-  onAddRegular: (item: FoodItem) => Promise<unknown> | void;
+  onAddRegular: (item: FoodItem) => Promise<boolean>;
 }
 
 type FilterTab = 'want' | 'tried' | 'all';
@@ -305,7 +305,9 @@ export function ListView({
       {showQuickAdd && (
         <QuickAddRegularSheet
           onSave={async (item) => {
-            await onAddRegular(item);
+            // 新增失敗（store 已跳 toast 並回滾）就留在表單，不假裝成功
+            const ok = await onAddRegular(item);
+            if (!ok) return;
             setShowQuickAdd(false);
             // 加完切到「嘗過」且清掉縣市篩選，確保剛加的一定看得到
             setActiveTab('tried');
