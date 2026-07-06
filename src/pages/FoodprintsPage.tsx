@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { MapPin, Trash2, Compass, X } from 'lucide-react';
+import { MapPin, Trash2, Compass, X, ChevronDown } from 'lucide-react';
 import { Thumb } from '../components/Thumb';
 import { TaiwanMap } from '../components/TaiwanMap';
 import type { Foodprint } from '../types';
@@ -31,6 +31,13 @@ function monthLabel(iso: string) {
   return `${d.getFullYear()} 年 ${d.getMonth() + 1} 月`;
 }
 
+function monthKey(iso: string) {
+  const d = new Date(iso);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+const DEFAULT_EXPANDED_MONTHS = 2;
+
 function dateLabel(iso: string) {
   const d = new Date(iso);
   return `${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
@@ -42,6 +49,7 @@ const MAP_HEIGHT = 280;
 export function FoodprintsPage({ items, onDelete }: Props) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
+  const [collapsedMonths, setCollapsedMonths] = useState<Record<string, boolean>>({});
 
   const visibleItems = useMemo(() => items.slice(0, visibleCount), [items, visibleCount]);
 
@@ -62,14 +70,22 @@ export function FoodprintsPage({ items, onDelete }: Props) {
   }, [items]);
 
   const grouped = useMemo(() => {
-    const m = new Map<string, Foodprint[]>();
+    const m = new Map<string, { label: string; prints: Foodprint[] }>();
     visibleItems.forEach(p => {
-      const key = monthLabel(p.ateAt);
-      if (!m.has(key)) m.set(key, []);
-      m.get(key)!.push(p);
+      const key = monthKey(p.ateAt);
+      if (!m.has(key)) m.set(key, { label: monthLabel(p.ateAt), prints: [] });
+      m.get(key)!.prints.push(p);
     });
-    return [...m.entries()];
+    return [...m.entries()].map(([key, v]) => ({ key, ...v }));
   }, [visibleItems]);
+
+  function isMonthCollapsed(key: string, index: number) {
+    return collapsedMonths[key] ?? index >= DEFAULT_EXPANDED_MONTHS;
+  }
+
+  function toggleMonth(key: string, index: number) {
+    setCollapsedMonths(prev => ({ ...prev, [key]: !isMonthCollapsed(key, index) }));
+  }
 
   const storeCount = useMemo(
     () => new Set(items.map(p => p.restaurantName || p.foodName)).size,
@@ -162,26 +178,47 @@ export function FoodprintsPage({ items, onDelete }: Props) {
               <div className="relative pl-1">
                 <div className="absolute left-[6px] top-1 bottom-1 w-[1px] bg-gradient-to-b from-[#c9a961]/50 via-[#c9a961]/20 to-transparent" />
                 <div className="space-y-7">
-                  {grouped.map(([month, prints]) => (
-                    <div key={month} className="relative pl-6">
-                      <div className="absolute left-0 top-1 w-[11px] h-[11px] rounded-full bg-[#0f0d0a] border-2 border-[#c9a961]" />
-                      <div className="flex items-center gap-3 mb-3">
-                        <span className="text-[12px] tracking-[0.3em] text-[#c9a961]/80">{month}</span>
-                        <div className="h-[1px] flex-1 bg-[#1a1a1a]" />
-                        <span className="text-[10px] text-[#666] tracking-widest">{prints.length}</span>
-                      </div>
-                      <div className="space-y-2.5">
-                        {prints.map(p => (
-                          <FoodprintCard
-                            key={p.id}
-                            item={p}
-                            onDelete={() => onDelete(p.id)}
-                            onClick={() => handleCardClick(p)}
+                  {grouped.map((group, index) => {
+                    const collapsed = isMonthCollapsed(group.key, index);
+                    return (
+                      <div key={group.key} className="relative pl-6">
+                        <div className="absolute left-0 top-1 w-[11px] h-[11px] rounded-full bg-[#0f0d0a] border-2 border-[#c9a961]" />
+                        <button
+                          onClick={() => toggleMonth(group.key, index)}
+                          className="flex items-center gap-3 mb-3 w-full text-left"
+                        >
+                          <span className="text-[12px] tracking-[0.3em] text-[#c9a961]/80">{group.label}</span>
+                          <div className="h-[1px] flex-1 bg-[#1a1a1a]" />
+                          <span className="text-[10px] text-[#c9a961] bg-[#c9a961]/10 px-1.5 py-0.5 rounded-full tracking-widest">
+                            {group.prints.length}
+                          </span>
+                          <ChevronDown
+                            size={14}
+                            className={`text-[#c9a961]/60 transition-transform duration-300 flex-shrink-0 ${
+                              collapsed ? '-rotate-90' : ''
+                            }`}
                           />
-                        ))}
+                        </button>
+                        <div
+                          className="grid transition-[grid-template-rows] duration-300 ease-in-out"
+                          style={{ gridTemplateRows: collapsed ? '0fr' : '1fr' }}
+                        >
+                          <div className="overflow-hidden">
+                            <div className="space-y-2.5">
+                              {group.prints.map(p => (
+                                <FoodprintCard
+                                  key={p.id}
+                                  item={p}
+                                  onDelete={() => onDelete(p.id)}
+                                  onClick={() => handleCardClick(p)}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </div>
