@@ -9,8 +9,8 @@ interface Props {
   onClose: () => void;
 }
 
-// 快速加「常去的店」：只要名字就能加，直接進「嘗過」，之後抽籤選「回訪」就會出現。
-// 不用像待吃清單填一堆細節 —— 補足那些常去、卻從沒放進清單的老地方。
+// 快速加「吃過的店」：只要名字就能加，直接進「嘗過」，之後抽籤選「回訪」就會出現。
+// 不用像待吃清單填一堆細節 —— 補足那些吃過、卻從沒放進清單的店。
 export function QuickAddRegularSheet({ onSave, onClose }: Props) {
   const [name, setName] = useState('');
   const [city, setCity] = useState('');
@@ -60,7 +60,7 @@ export function QuickAddRegularSheet({ onSave, onClose }: Props) {
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-1">
-          <h2 className="text-[17px] text-[#f2ecdd] tracking-wide font-medium">加常去的店</h2>
+          <h2 className="text-[17px] text-[#f2ecdd] tracking-wide font-medium">加吃過的店</h2>
           <button onClick={onClose} className="icon-btn">
             <X size={20} />
           </button>

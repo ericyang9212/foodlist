@@ -257,14 +257,14 @@ export function ListView({
 
       {/* List */}
       <div className="px-6 pt-4 pb-28">
-        {/* 嘗過分頁：快速加常去的店（直接進嘗過，餵給抽籤的「回訪」） */}
+        {/* 嘗過分頁：快速加吃過的店（直接進嘗過，餵給抽籤的「回訪」） */}
         {activeTab === 'tried' && !search && (
           <button
             onClick={() => setShowQuickAdd(true)}
             className="w-full mb-3 border border-dashed border-[#c9a961]/30 text-[#c9a961]/80 hover:border-[#c9a961]/60 hover:text-[#ead8aa] rounded-[14px] py-3.5 flex items-center justify-center gap-2 text-[13px] tracking-[0.2em] transition-colors"
           >
             <Plus size={15} />
-            快速加常去的店
+            快速加吃過的店
           </button>
         )}
         {filtered.length === 0 ? (

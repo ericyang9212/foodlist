@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { X, Shuffle, ChevronRight, SlidersHorizontal, MapPin, Plus } from 'lucide-react';
+import { X, Shuffle, SlidersHorizontal, MapPin, Plus } from 'lucide-react';
 import { mapsUrlForFood } from '../lib/maps';
 import { isStale } from '../lib/stale';
 import type { FoodItem } from '../types';
@@ -32,8 +32,10 @@ function pickRandom<T>(arr: T[], avoid?: T): T | null {
 }
 
 export function TonightModal({ wantItems, triedItems, lastEatenByFoodId, onOpen, onClose, onQuickAdd }: Props) {
-  // 抽籤來源：想吃（探索）／回訪（吃過還想再吃）。預設抽有東西的那邊。
-  const [source, setSource] = useState<'want' | 'tried'>(wantItems.length > 0 ? 'want' : 'tried');
+  // 抽籤來源：想吃（探索）／回訪（吃過還想再吃）／全部（兩邊一起抽）。預設抽有東西的那邊。
+  const [source, setSource] = useState<'want' | 'tried' | 'all'>(
+    wantItems.length > 0 ? 'want' : triedItems.length > 0 ? 'tried' : 'all'
+  );
   const [current, setCurrent] = useState<FoodItem | null>(null);
   const [shuffling, setShuffling] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
@@ -43,12 +45,12 @@ export function TonightModal({ wantItems, triedItems, lastEatenByFoodId, onOpen,
   const [excludeRecent, setExcludeRecent] = useState(false);
 
   const candidates = useMemo(
-    () => (source === 'want' ? wantItems : triedItems),
+    () => (source === 'want' ? wantItems : source === 'tried' ? triedItems : [...wantItems, ...triedItems]),
     [source, wantItems, triedItems]
   );
 
   // 換來源時把篩選歸零，避免帶著上一個來源的條件把新池子篩成空的
-  const switchSource = (s: 'want' | 'tried') => {
+  const switchSource = (s: 'want' | 'tried' | 'all') => {
     if (s === source) return;
     setSource(s);
     setCityFilter(null);
@@ -161,21 +163,22 @@ export function TonightModal({ wantItems, triedItems, lastEatenByFoodId, onOpen,
           <div className="h-[1px] w-12 bg-[#c9a961]/40 mx-auto" />
         </div>
 
-        {/* 抽籤來源：想吃（試新的）／回訪（吃過的安心牌） */}
+        {/* 抽籤來源：想吃（試新的）／回訪（吃過的安心牌）／全部（兩邊一起抽） */}
         <div className="flex justify-center mb-6">
-          <div className="inline-flex items-center rounded-full border border-[#2a2a2a] p-[3px] text-[13px] tracking-[0.15em]">
-            <button
-              onClick={() => switchSource('want')}
-              className={`px-5 py-1.5 rounded-full transition-colors ${source === 'want' ? 'bg-[#d6b974] text-[#100d07] font-medium' : 'text-[#8d877a]'}`}
-            >
-              想吃{wantItems.length > 0 && <span className="ml-1 opacity-70">{wantItems.length}</span>}
-            </button>
-            <button
-              onClick={() => switchSource('tried')}
-              className={`px-5 py-1.5 rounded-full transition-colors ${source === 'tried' ? 'bg-[#d6b974] text-[#100d07] font-medium' : 'text-[#8d877a]'}`}
-            >
-              回訪{triedItems.length > 0 && <span className="ml-1 opacity-70">{triedItems.length}</span>}
-            </button>
+          <div className="inline-flex items-center rounded-full border border-[#2a2a2a] p-[3px] text-[13px] tracking-[0.1em]">
+            {([
+              ['want', '想吃', wantItems.length],
+              ['tried', '回訪', triedItems.length],
+              ['all', '全部', wantItems.length + triedItems.length],
+            ] as const).map(([key, label, n]) => (
+              <button
+                key={key}
+                onClick={() => switchSource(key)}
+                className={`px-3.5 py-1.5 rounded-full transition-colors ${source === key ? 'bg-[#d6b974] text-[#100d07] font-medium' : 'text-[#8d877a]'}`}
+              >
+                {label}<span className="ml-1 opacity-70 text-[11px]">{n}</span>
+              </button>
+            ))}
           </div>
         </div>
 
@@ -282,7 +285,11 @@ export function TonightModal({ wantItems, triedItems, lastEatenByFoodId, onOpen,
 
         {current ? (
           <>
-            <div className={`text-center mb-10 transition-opacity ${shuffling ? 'opacity-60' : 'opacity-100'}`}>
+            {/* 點名字看詳情；主要動作只留「帶我去 / 再抽」 */}
+            <button
+              onClick={() => { onOpen(current); onClose(); }}
+              className={`block w-full text-center mb-9 transition-opacity active:opacity-70 ${shuffling ? 'opacity-60' : 'opacity-100'}`}
+            >
               <h2 className="text-[36px] text-gold-gradient font-medium tracking-[0.1em] leading-tight mb-4">
                 {current.name}
               </h2>
@@ -295,33 +302,25 @@ export function TonightModal({ wantItems, triedItems, lastEatenByFoodId, onOpen,
                   </>
                 )}
               </div>
-            </div>
+              <div className="mt-2.5 text-[11px] tracking-[0.3em] text-[#5d574c]">點名字看詳情</div>
+            </button>
 
-            <div className="space-y-2.5">
+            <div className="flex gap-2.5">
               <button
-                onClick={() => { onOpen(current); onClose(); }}
-                className="btn-primary w-full flex items-center justify-center gap-2 py-4 text-[15px] tracking-[0.3em]"
+                onClick={() => window.open(mapsUrlForFood(current), '_blank', 'noopener,noreferrer')}
+                className="btn-secondary flex-1 flex items-center justify-center gap-2 py-4 text-[15px] tracking-[0.3em]"
               >
-                就決定它了
-                <ChevronRight size={18} strokeWidth={2.5} />
+                <MapPin size={15} />
+                帶我去
               </button>
-              <div className="flex gap-2.5">
-                <button
-                  onClick={() => window.open(mapsUrlForFood(current), '_blank', 'noopener,noreferrer')}
-                  className="btn-secondary flex-1 flex items-center justify-center gap-2 py-4 text-[14px] tracking-[0.3em]"
-                >
-                  <MapPin size={14} />
-                  帶我去
-                </button>
-                <button
-                  onClick={shuffle}
-                  disabled={pool.length <= 1 || shuffling}
-                  className="btn-secondary flex-1 flex items-center justify-center gap-2 py-4 text-[14px] tracking-[0.3em] disabled:opacity-40"
-                >
-                  <Shuffle size={14} />
-                  再抽一個
-                </button>
-              </div>
+              <button
+                onClick={shuffle}
+                disabled={pool.length <= 1 || shuffling}
+                className="btn-secondary flex-1 flex items-center justify-center gap-2 py-4 text-[15px] tracking-[0.3em] disabled:opacity-40"
+              >
+                <Shuffle size={15} />
+                再抽一個
+              </button>
             </div>
           </>
         ) : (
@@ -336,19 +335,24 @@ export function TonightModal({ wantItems, triedItems, lastEatenByFoodId, onOpen,
                 <p className="text-[#777] text-[15px] tracking-wider mb-2">還沒有想吃的食物</p>
                 <p className="text-[#555] text-[13px] tracking-widest">先去清單新增幾個吧</p>
               </>
-            ) : (
+            ) : source === 'tried' ? (
               <>
                 <p className="text-[#777] text-[15px] tracking-wider mb-2">還沒有吃過的紀錄</p>
-                <p className="text-[#555] text-[13px] tracking-widest mb-5">加幾間常去的店，之後就能從這裡抽</p>
+                <p className="text-[#555] text-[13px] tracking-widest mb-5">加幾間吃過的店，之後就能從這裡抽</p>
                 {onQuickAdd && (
                   <button
                     onClick={onQuickAdd}
                     className="btn-secondary inline-flex items-center gap-2 px-5 py-2.5 text-[13px] tracking-[0.2em]"
                   >
                     <Plus size={14} />
-                    快速加常去的店
+                    快速加吃過的店
                   </button>
                 )}
+              </>
+            ) : (
+              <>
+                <p className="text-[#777] text-[15px] tracking-wider mb-2">還沒有可以抽的</p>
+                <p className="text-[#555] text-[13px] tracking-widest">先去清單新增，或加幾間吃過的</p>
               </>
             )}
           </div>

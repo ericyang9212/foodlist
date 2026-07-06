@@ -1,7 +1,8 @@
-import { ArrowLeft, Edit3, Trash2, Check } from 'lucide-react';
+import { ArrowLeft, Edit3, Trash2, Check, MapPin, ExternalLink } from 'lucide-react';
 import { StatusBadge } from '../components/StatusBadge';
 import { Thumb } from '../components/Thumb';
 import { RestaurantsEditor } from '../components/RestaurantsEditor';
+import { safeHttpUrl } from '../lib/url';
 import { OCCASION_LABELS } from '../types';
 import type { FoodItem, Restaurant } from '../types';
 
@@ -23,8 +24,14 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
     }
   };
 
-  const handleRestaurantsChange = (next: Restaurant[]) => {
-    onUpdate({ ...item, restaurants: next, updatedAt: new Date().toISOString() });
+  // 店家優先：restaurants[0] 是這家店本身（地點顯示在標題下方），其餘才是其他分店/候選
+  const store = item.restaurants[0];
+  const branches = item.restaurants.slice(1);
+  const region = store ? [store.city, store.area].filter(Boolean).join(' ') : '';
+  const storeMap = store ? safeHttpUrl(store.googleMapsUrl) : undefined;
+
+  const handleBranchesChange = (next: Restaurant[]) => {
+    onUpdate({ ...item, restaurants: store ? [store, ...next] : next, updatedAt: new Date().toISOString() });
   };
 
   return (
@@ -66,6 +73,28 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
               <span className="text-[13px] text-[#777] tracking-widest">{item.cuisineType}</span>
             )}
           </div>
+
+          {/* 這家店的地點（restaurants[0]），不重複店名 */}
+          {(region || storeMap) && (
+            <div className="flex items-center gap-3 mt-4">
+              {region && (
+                <span className="flex items-center gap-1.5 text-[14px] text-[#8a8478] tracking-wide">
+                  <MapPin size={14} />{region}
+                </span>
+              )}
+              {storeMap && (
+                <a
+                  href={storeMap}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-secondary flex items-center gap-1.5 text-[12px] tracking-wider px-3 py-1.5"
+                >
+                  <ExternalLink size={12} />
+                  地圖
+                </a>
+              )}
+            </div>
+          )}
         </div>
 
         {item.rating && (
@@ -113,10 +142,12 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
           </div>
         )}
 
-        {/* 候選店家 */}
-        <div className="mt-10 pt-7 border-t border-[#1f1f1f]">
-          <RestaurantsEditor restaurants={item.restaurants} onChange={handleRestaurantsChange} />
-        </div>
+        {/* 其他分店 / 候選（主店家已在上方顯示） */}
+        {(branches.length > 0 || !store) && (
+          <div className="mt-10 pt-7 border-t border-[#1f1f1f]">
+            <RestaurantsEditor restaurants={store ? branches : item.restaurants} onChange={handleBranchesChange} />
+          </div>
+        )}
 
         <div className="text-[12px] tracking-widest text-[#555] border-t border-[#1f1f1f] pt-5 mt-10">
           {new Date(item.createdAt).toLocaleDateString('zh-TW')}
