@@ -2,8 +2,20 @@ import { useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, useMap } from 'react-leaflet';
 import * as L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import 'leaflet.heat';
 import type { Foodprint } from '../types';
+
+// leaflet.heat 是舊式的「全域腳本」寫法：直接讀取全域變數 L 來掛上 L.heatLayer，
+// 不是 ESM/CJS 模組。用靜態 import 在正式建置（Rollup）會被當成獨立作用域執行，
+// 抓不到我們 `import * as L` 進來的物件，會丟出 "L is not defined" 讓整個地圖元件連帶
+// 讓外層的 lazy() 崩潰。改成先把 L 塞進 window，再動態載入這個 plugin 才能穩定運作。
+let heatPluginLoaded: Promise<void> | null = null;
+function loadHeatPlugin(): Promise<void> {
+  if (!heatPluginLoaded) {
+    (window as unknown as { L: typeof L }).L = L;
+    heatPluginLoaded = import('leaflet.heat').then(() => undefined);
+  }
+  return heatPluginLoaded;
+}
 
 const BBOX = { minLng: 119.9, maxLng: 122.05, minLat: 21.85, maxLat: 25.35 };
 const TAIWAN_CENTER: L.LatLngTuple = [23.7, 121.0];
@@ -107,24 +119,30 @@ function HeatLayer({ points }: { points: L.HeatLatLngTuple[] }) {
 
   useEffect(() => {
     if (points.length === 0) return;
-    const layer = L.heatLayer(points, {
-      radius: 22,
-      blur: 15,
-      max: 6, // 同一處累積約 6 次造訪就到最深紅；次數少則偏淡金
-      // maxZoom 刻意設得很低：leaflet.heat 預設會依「目前縮放 vs maxZoom」的差距去衰減強度
-      // （假設使用者要放大才看得到熱點），但這裡地圖一開始就 fitBounds 到全部資料，
-      // 縮放程度本來就偏低，若用預設會被壓到幾乎看不見，所以固定用未衰減的滿強度。
-      maxZoom: 1,
-      minOpacity: 0.12,
-      gradient: {
-        0.0: 'rgba(201,169,97,0)',
-        0.25: 'rgba(214,185,116,0.6)',
-        0.55: '#e08a3c',
-        1.0: '#9c2b1f',
-      },
-    }).addTo(map);
+    let layer: L.HeatLayer | undefined;
+    let cancelled = false;
+    loadHeatPlugin().then(() => {
+      if (cancelled) return;
+      layer = L.heatLayer(points, {
+        radius: 22,
+        blur: 15,
+        max: 6, // 同一處累積約 6 次造訪就到最深紅；次數少則偏淡金
+        // maxZoom 刻意設得很低：leaflet.heat 預設會依「目前縮放 vs maxZoom」的差距去衰減強度
+        // （假設使用者要放大才看得到熱點），但這裡地圖一開始就 fitBounds 到全部資料，
+        // 縮放程度本來就偏低，若用預設會被壓到幾乎看不見，所以固定用未衰減的滿強度。
+        maxZoom: 1,
+        minOpacity: 0.12,
+        gradient: {
+          0.0: 'rgba(201,169,97,0)',
+          0.25: 'rgba(214,185,116,0.6)',
+          0.55: '#e08a3c',
+          1.0: '#9c2b1f',
+        },
+      }).addTo(map);
+    });
     return () => {
-      map.removeLayer(layer);
+      cancelled = true;
+      if (layer) map.removeLayer(layer);
     };
   }, [map, points]);
 
