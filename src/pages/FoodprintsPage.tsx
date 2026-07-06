@@ -140,7 +140,11 @@ export function FoodprintsPage({ items, onDelete }: Props) {
   return (
     // 地圖全屏鋪滿，時間軸改成右側/下方可拉開的抽屜蓋在上面
     <div ref={containerRef} className="relative h-full w-full overflow-hidden bg-[#0a0a0a]">
-      <div className="absolute inset-0">
+      {/* 地圖底部要停在 tab bar 上緣，不能整片蓋過去：
+          leaflet 內部控制項/圖層的 z-index 高達 200~1000，若地圖容器的框跟 tab bar
+          的螢幕範圍重疊，這些正 z-index 元素會蓋掉 tab bar（fixed nav 只有 z-40）。
+          讓地圖容器本身在幾何上就不延伸到 tab bar 範圍，從根本避免這個問題。 */}
+      <div className="absolute top-0 left-0 right-0" style={{ bottom: NAV_RESERVE }}>
         <Suspense
           fallback={
             <div className="w-full h-full flex items-center justify-center">
