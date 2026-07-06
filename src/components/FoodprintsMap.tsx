@@ -76,9 +76,29 @@ interface Dot {
   key: string;
   x: number;
   y: number;
-  rep: Foodprint;
-  count: number;
+  items: Foodprint[];
+  locations: number; // 合併了幾個不同店家/座標
   approx: boolean; // 依縣市概略定位（非精確座標）
+}
+
+// 聚合半徑（viewBox 座標單位）：距離小於這個值的點會自動合併成一個群集，避免資料多時擠成一團
+const CLUSTER_CELL = 26;
+
+function clusterDots(raw: { x: number; y: number; list: Foodprint[]; approx: boolean }[]): Dot[] {
+  const cells = new Map<string, typeof raw>();
+  raw.forEach(d => {
+    const cellKey = `${Math.floor(d.x / CLUSTER_CELL)},${Math.floor(d.y / CLUSTER_CELL)}`;
+    const group = cells.get(cellKey);
+    if (group) group.push(d);
+    else cells.set(cellKey, [d]);
+  });
+  return [...cells.entries()].map(([key, group]) => {
+    const items = group.flatMap(d => d.list).sort((a, b) => (a.ateAt >= b.ateAt ? -1 : 1));
+    const totalWeight = group.reduce((s, d) => s + d.list.length, 0);
+    const x = group.reduce((s, d) => s + d.x * d.list.length, 0) / totalWeight;
+    const y = group.reduce((s, d) => s + d.y * d.list.length, 0) / totalWeight;
+    return { key, x, y, items, locations: group.length, approx: group.some(d => d.approx) };
+  });
 }
 
 export function FoodprintsMap({ items }: { items: Foodprint[] }) {
@@ -118,11 +138,11 @@ export function FoodprintsMap({ items }: { items: Foodprint[] }) {
       }
       noCoord++;
     });
-    const dots: Dot[] = [...m.entries()].map(([key, e]) => {
-      const rep = e.list.reduce((a, b) => (a.ateAt >= b.ateAt ? a : b));
+    const raw = [...m.entries()].map(([, e]) => {
       const [x, y] = project(e.lng, e.lat);
-      return { key, x, y, rep, count: e.list.length, approx: e.approx };
+      return { x, y, list: e.list, approx: e.approx };
     });
+    const dots = clusterDots(raw);
     return { dots, noCoord, overseas };
   }, [items]);
 
@@ -137,11 +157,13 @@ export function FoodprintsMap({ items }: { items: Foodprint[] }) {
         {selDot ? (
           <div className="min-w-0">
             <div className="text-[15px] text-[#f2ecdd] truncate">
-              {selDot.rep.foodName}
-              {selDot.count > 1 && <span className="text-[12px] text-[#8d877a]"> · 共 {selDot.count} 次</span>}
+              {selDot.locations > 1 ? `附近 ${selDot.locations} 個地點` : selDot.items[0].foodName}
+              {selDot.items.length > 1 && <span className="text-[12px] text-[#8d877a]"> · 共 {selDot.items.length} 次</span>}
             </div>
             <div className="text-[12px] text-[#8d877a] truncate">
-              {[selDot.rep.restaurantName, regionOf(selDot.rep)].filter(Boolean).join(' · ') || '—'}
+              {selDot.locations > 1
+                ? ([...new Set(selDot.items.map(i => i.restaurantName).filter(Boolean))].slice(0, 3).join('、') || '—')
+                : ([selDot.items[0].restaurantName, regionOf(selDot.items[0])].filter(Boolean).join(' · ') || '—')}
               {selDot.approx && <span className="text-[#6f6a5c]"> · 約略位置</span>}
             </div>
           </div>
@@ -152,7 +174,7 @@ export function FoodprintsMap({ items }: { items: Foodprint[] }) {
 
       <div
         className="relative rounded-[14px] overflow-hidden border border-[#1f1f1f]"
-        style={{ height: '58vh', background: 'radial-gradient(120% 80% at 50% 18%, #14120d 0%, #0b0a08 72%)' }}
+        style={{ height: 'clamp(340px, 52vh, 480px)', background: 'radial-gradient(120% 80% at 50% 18%, #14120d 0%, #0b0a08 72%)' }}
       >
         <svg viewBox={`0 0 ${VW} ${VH}`} preserveAspectRatio="xMidYMid meet" style={{ width: '100%', height: '100%' }}>
           <polygon
@@ -177,8 +199,8 @@ export function FoodprintsMap({ items }: { items: Foodprint[] }) {
                   stroke="#0b0a08"
                   strokeWidth={4}
                 />
-                {d.count > 1 && (
-                  <text x={d.x} y={d.y + 5} textAnchor="middle" fontSize="15" fontWeight="600" fill="#100d07">{d.count}</text>
+                {d.items.length > 1 && (
+                  <text x={d.x} y={d.y + 5} textAnchor="middle" fontSize="15" fontWeight="600" fill="#100d07">{d.items.length}</text>
                 )}
               </g>
             );

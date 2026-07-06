@@ -39,40 +39,22 @@ function dateLabel(iso: string) {
   return `${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
 }
 
+const PAGE_SIZE = 30;
+
 export function FoodprintsPage({ items, onDelete }: Props) {
-  const [view, setView] = useState<'timeline' | 'map'>('timeline');
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
-  const stats = useMemo(() => {
-    const foods = new Set(items.map(i => i.foodId));
-    const restaurants = new Set(items.map(i => `${i.restaurantName ?? ''}|${i.restaurantCity ?? ''}`).filter(s => s !== '|'));
-    const regions = new Set(items.map(i => i.restaurantCity).filter(Boolean));
-    return {
-      total: items.length,
-      foods: foods.size,
-      restaurants: restaurants.size,
-      regions: regions.size,
-    };
-  }, [items]);
-
-  const cuisineCounts = useMemo(() => {
-    const m = new Map<string, number>();
-    items.forEach(i => {
-      if (i.cuisineType) m.set(i.cuisineType, (m.get(i.cuisineType) ?? 0) + 1);
-    });
-    return [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
-  }, [items]);
+  const visibleItems = useMemo(() => items.slice(0, visibleCount), [items, visibleCount]);
 
   const grouped = useMemo(() => {
     const m = new Map<string, Foodprint[]>();
-    items.forEach(p => {
+    visibleItems.forEach(p => {
       const key = monthLabel(p.ateAt);
       if (!m.has(key)) m.set(key, []);
       m.get(key)!.push(p);
     });
     return [...m.entries()];
-  }, [items]);
-
-  const maxCuisine = cuisineCounts[0]?.[1] ?? 1;
+  }, [visibleItems]);
 
   return (
     // 底部主分頁：單一捲動，頂部留出跑馬燈/瀏海空間
@@ -91,87 +73,51 @@ export function FoodprintsPage({ items, onDelete }: Props) {
           <div className="mt-3 h-[1px] bg-gradient-to-r from-[#c9a961]/30 to-transparent" />
         </div>
 
-        {/* 統計 */}
         {items.length > 0 ? (
           <>
-            <div className="grid grid-cols-2 gap-2.5 mb-8">
-              <StatCard label="紀錄" value={stats.total} />
-              <StatCard label="食物" value={stats.foods} />
-              <StatCard label="店家" value={stats.restaurants} />
-              <StatCard label="城市" value={stats.regions} />
-            </div>
-
-            {/* 料理類型分布 */}
-            {cuisineCounts.length > 0 && (
-              <div className="mb-9">
-                <div className="text-[10px] tracking-[0.4em] text-[#c9a961]/60 mb-3">TASTE</div>
-                <div className="space-y-2">
-                  {cuisineCounts.map(([type, count]) => (
-                    <div key={type} className="flex items-center gap-3">
-                      <span className="text-[13px] text-[#d6d0c0] w-14 tracking-wider">{type}</span>
-                      <div className="flex-1 h-[3px] bg-[#1a1a1a] rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-to-r from-[#c9a961] to-[#e6c87a] rounded-full transition-all"
-                          style={{ width: `${(count / maxCuisine) * 100}%` }}
-                        />
+            {/* 時間軸列表：固定高度自捲動，分頁載入避免資料一多就卡 */}
+            <div className="mb-9">
+              <div className="text-[10px] tracking-[0.4em] text-[#c9a961]/60 mb-4">TIMELINE</div>
+              <div className="max-h-[46vh] overflow-y-auto pr-1 -mr-1">
+                <div className="space-y-7">
+                  {grouped.map(([month, prints]) => (
+                    <div key={month}>
+                      <div className="flex items-center gap-3 mb-3">
+                        <span className="text-[12px] tracking-[0.3em] text-[#c9a961]/80">{month}</span>
+                        <div className="h-[1px] flex-1 bg-[#1a1a1a]" />
+                        <span className="text-[10px] text-[#666] tracking-widest">{prints.length}</span>
                       </div>
-                      <span className="text-[12px] text-[#8a8478] tracking-wider w-8 text-right">{count}</span>
+                      <div className="space-y-2.5">
+                        {prints.map(p => (
+                          <FoodprintCard key={p.id} item={p} onDelete={() => onDelete(p.id)} />
+                        ))}
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
-            )}
-
-            {/* 時間軸 / 地圖 切換 */}
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <div className="text-[10px] tracking-[0.4em] text-[#c9a961]/60">
-                  {view === 'timeline' ? 'TIMELINE' : 'MAP'}
-                </div>
-                <div className="flex items-center gap-2 text-[12px] tracking-[0.2em]">
-                  <button
-                    onClick={() => setView('timeline')}
-                    className={`transition-colors ${view === 'timeline' ? 'text-[#c9a961]' : 'text-[#555] hover:text-[#888]'}`}
-                  >
-                    時間軸
-                  </button>
-                  <span className="text-[#2a2a2a]">·</span>
-                  <button
-                    onClick={() => setView('map')}
-                    className={`transition-colors ${view === 'map' ? 'text-[#c9a961]' : 'text-[#555] hover:text-[#888]'}`}
-                  >
-                    地圖
-                  </button>
-                </div>
-              </div>
-              {view === 'map' ? (
-                <Suspense
-                  fallback={
-                    <div className="flex items-center justify-center" style={{ height: '60vh' }}>
-                      <Loader2 size={22} className="animate-spin text-[#c9a961]/70" />
-                    </div>
-                  }
+              {visibleCount < items.length && (
+                <button
+                  onClick={() => setVisibleCount(c => c + PAGE_SIZE)}
+                  className="w-full mt-4 py-2.5 text-[12px] tracking-[0.2em] text-[#c9a961]/80 border border-[#1f1f1f] rounded-[6px] hover:border-[#c9a961]/40 hover:text-[#c9a961] transition-colors"
                 >
-                  <FoodprintsMap items={items} />
-                </Suspense>
-              ) : (
-              <div className="space-y-7">
-                {grouped.map(([month, prints]) => (
-                  <div key={month}>
-                    <div className="flex items-center gap-3 mb-3">
-                      <span className="text-[12px] tracking-[0.3em] text-[#c9a961]/80">{month}</span>
-                      <div className="h-[1px] flex-1 bg-[#1a1a1a]" />
-                      <span className="text-[10px] text-[#666] tracking-widest">{prints.length}</span>
-                    </div>
-                    <div className="space-y-2.5">
-                      {prints.map(p => (
-                        <FoodprintCard key={p.id} item={p} onDelete={() => onDelete(p.id)} />
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  載入更多（剩 {items.length - visibleCount} 筆）
+                </button>
               )}
+            </div>
+
+            {/* 地圖：固定高度，資料多時自動聚合成群集，不會跑版 */}
+            <div>
+              <div className="text-[10px] tracking-[0.4em] text-[#c9a961]/60 mb-4">MAP</div>
+              <Suspense
+                fallback={
+                  <div className="flex items-center justify-center" style={{ height: 'clamp(340px, 52vh, 480px)' }}>
+                    <Loader2 size={22} className="animate-spin text-[#c9a961]/70" />
+                  </div>
+                }
+              >
+                <FoodprintsMap items={items} />
+              </Suspense>
             </div>
           </>
         ) : (
@@ -199,17 +145,6 @@ export function FoodprintsPage({ items, onDelete }: Props) {
             <ExternalLink size={16} className="text-[#666]" />
           </button>
         </div>
-    </div>
-  );
-}
-
-function StatCard({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="card-surface rounded-[8px] py-4 px-3 text-center">
-      <div className="text-[28px] text-gold-gradient font-medium tracking-wide leading-none mb-1">
-        {value}
-      </div>
-      <div className="text-[10px] tracking-[0.4em] text-[#777]">{label}</div>
     </div>
   );
 }
