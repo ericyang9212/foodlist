@@ -108,10 +108,10 @@ export function FoodprintsPage({ items, onDelete }: Props) {
 
         {selectedCity && (
           <div
-            className="absolute left-3 right-3 bottom-3 card-surface rounded-[8px] p-3.5 bg-[#141210]/95 border border-[#2a2a2a] max-h-[55%] overflow-y-auto"
+            className="absolute left-3 right-3 bottom-3 card-surface rounded-[8px] p-3.5 bg-[#141210]/95 border border-[#2a2a2a] max-h-[55%] flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-baseline gap-2 mb-2">
+            <div className="flex items-baseline gap-2 mb-2 flex-shrink-0">
               <h3 className="text-[14px] text-[#f5f1e8] font-medium tracking-wide">{selectedCity}</h3>
               <span className="text-[11px] text-[#c9a961]/80 tracking-wider">
                 {(storesByCity.get(selectedCity) ?? []).length} 家店
@@ -125,20 +125,13 @@ export function FoodprintsPage({ items, onDelete }: Props) {
               </button>
             </div>
             {(storesByCity.get(selectedCity)?.length ?? 0) > 0 ? (
-              <>
-                <ul className="space-y-1">
-                  {(storesByCity.get(selectedCity) ?? []).slice(0, 5).map(name => (
-                    <li key={name} className="text-[12px] text-[#a89a7d] tracking-wide truncate">
-                      {name}
-                    </li>
-                  ))}
-                </ul>
-                {(storesByCity.get(selectedCity)!.length > 5) && (
-                  <p className="text-[11px] text-[#666] tracking-wider mt-1.5">
-                    還有 {storesByCity.get(selectedCity)!.length - 5} 家
-                  </p>
-                )}
-              </>
+              <ul className="space-y-1 max-h-[200px] overflow-y-auto pr-1">
+                {(storesByCity.get(selectedCity) ?? []).map(name => (
+                  <li key={name} className="text-[12px] text-[#a89a7d] tracking-wide truncate">
+                    {name}
+                  </li>
+                ))}
+              </ul>
             ) : (
               <p className="text-[12px] text-[#666] tracking-wide">還沒有這個縣市的足跡</p>
             )}
