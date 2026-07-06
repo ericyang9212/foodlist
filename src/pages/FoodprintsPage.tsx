@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useRef, useState, lazy, Suspense } from 'react';
-import type { PointerEvent as ReactPointerEvent } from 'react';
+import { useMemo, useState, lazy, Suspense } from 'react';
 import { MapPin, Trash2, Compass, Loader2 } from 'lucide-react';
 import { Thumb } from '../components/Thumb';
 import type { Foodprint } from '../types';
@@ -43,75 +42,11 @@ function dateLabel(iso: string) {
 }
 
 const PAGE_SIZE = 30;
-
-type SnapPoint = 'collapsed' | 'half' | 'full';
-
-const COLLAPSED_HEIGHT = 64;
-const HALF_RATIO = 0.38;
-const FULL_RATIO = 0.82;
-// 留給底部 nav bar 的高度，讓抽屜（連同收起時的把手）不會被蓋住
-const NAV_RESERVE = 'calc(env(safe-area-inset-bottom) + 80px)';
+const MAP_HEIGHT = 220;
 
 export function FoodprintsPage({ items, onDelete }: Props) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [flyTarget, setFlyTarget] = useState<FlyTarget | null>(null);
-  const [snap, setSnap] = useState<SnapPoint>('half');
-  const [dragHeight, setDragHeight] = useState<number | null>(null);
-
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [containerHeight, setContainerHeight] = useState(0);
-  const dragRef = useRef<{ startY: number; startHeight: number } | null>(null);
-
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    const update = () => setContainerHeight(el.clientHeight);
-    update();
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-
-  const snapHeights = useMemo(() => ({
-    collapsed: COLLAPSED_HEIGHT,
-    half: Math.round(containerHeight * HALF_RATIO),
-    full: Math.round(containerHeight * FULL_RATIO),
-  }), [containerHeight]);
-
-  const drawerHeight = dragHeight ?? snapHeights[snap];
-
-  function handlePointerDown(e: ReactPointerEvent<HTMLDivElement>) {
-    e.currentTarget.setPointerCapture(e.pointerId);
-    dragRef.current = { startY: e.clientY, startHeight: snapHeights[snap] };
-    setDragHeight(snapHeights[snap]);
-  }
-
-  function handlePointerMove(e: ReactPointerEvent<HTMLDivElement>) {
-    if (!dragRef.current) return;
-    const dy = e.clientY - dragRef.current.startY;
-    const next = Math.min(snapHeights.full, Math.max(COLLAPSED_HEIGHT, dragRef.current.startHeight - dy));
-    setDragHeight(next);
-  }
-
-  function endDrag() {
-    if (dragHeight == null) { dragRef.current = null; return; }
-    const candidates: [SnapPoint, number][] = [
-      ['collapsed', snapHeights.collapsed],
-      ['half', snapHeights.half],
-      ['full', snapHeights.full],
-    ];
-    let nearest = candidates[0];
-    for (const c of candidates) {
-      if (Math.abs(c[1] - dragHeight) < Math.abs(nearest[1] - dragHeight)) nearest = c;
-    }
-    setSnap(nearest[0]);
-    setDragHeight(null);
-    dragRef.current = null;
-  }
-
-  function cycleSnap() {
-    setSnap(s => (s === 'collapsed' ? 'half' : s === 'half' ? 'full' : 'collapsed'));
-  }
 
   const visibleItems = useMemo(() => items.slice(0, visibleCount), [items, visibleCount]);
 
@@ -134,17 +69,18 @@ export function FoodprintsPage({ items, onDelete }: Props) {
     const loc = resolveFoodprintLocation(item);
     if (!loc) return;
     setFlyTarget({ ...loc, label: item.restaurantName || item.foodName });
-    if (snap === 'full') setSnap('half');
   }
 
   return (
-    // 地圖全屏鋪滿，時間軸改成右側/下方可拉開的抽屜蓋在上面
-    <div ref={containerRef} className="relative h-full w-full overflow-hidden bg-[#0a0a0a]">
-      {/* 地圖底部要停在 tab bar 上緣，不能整片蓋過去：
-          leaflet 內部控制項/圖層的 z-index 高達 200~1000，若地圖容器的框跟 tab bar
-          的螢幕範圍重疊，這些正 z-index 元素會蓋掉 tab bar（fixed nav 只有 z-40）。
-          讓地圖容器本身在幾何上就不延伸到 tab bar 範圍，從根本避免這個問題。 */}
-      <div className="absolute top-0 left-0 right-0" style={{ bottom: NAV_RESERVE }}>
+    // 整頁單一捲動容器：地圖固定高度、正常排版在上方，時間軸接在下面一起捲動
+    <div className="h-full overflow-y-auto bg-[#0a0a0a]">
+      <div className="px-6 pb-4" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 64px)' }}>
+        <h1 className="text-[22px] font-medium text-gold-gradient tracking-[0.15em] leading-tight">
+          食 物 足 跡
+        </h1>
+      </div>
+
+      <div className="relative w-full" style={{ height: MAP_HEIGHT }}>
         <Suspense
           fallback={
             <div className="w-full h-full flex items-center justify-center">
@@ -156,35 +92,8 @@ export function FoodprintsPage({ items, onDelete }: Props) {
         </Suspense>
       </div>
 
-      <div
-        className="absolute top-0 left-0 right-0 z-10 px-6 pointer-events-none"
-        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 64px)' }}
-      >
-        <h1 className="text-[22px] font-medium text-gold-gradient tracking-[0.15em] leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]">
-          食 物 足 跡
-        </h1>
-      </div>
-
-      <div
-        className="absolute left-0 right-0 z-20 bg-[#0f0d0a]/97 backdrop-blur-sm border-t border-[#c9a961]/25 rounded-t-[18px] shadow-[0_-8px_30px_rgba(0,0,0,0.55)] flex flex-col"
-        style={{
-          bottom: NAV_RESERVE,
-          height: drawerHeight,
-          transition: dragHeight == null ? 'height 280ms cubic-bezier(0.32,0.72,0,1)' : 'none',
-        }}
-      >
-        <div
-          className="pt-2.5 pb-2 flex justify-center cursor-grab active:cursor-grabbing touch-none flex-shrink-0"
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={endDrag}
-          onPointerCancel={endDrag}
-          onClick={cycleSnap}
-        >
-          <div className="w-10 h-1.5 rounded-full bg-[#c9a961]/40" />
-        </div>
-
-        <div className="flex items-center justify-between px-5 pb-3 border-b border-[#1a1a1a] flex-shrink-0">
+      <div className="px-5 pt-5 pb-28">
+        <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#1a1a1a]">
           <div className="flex items-baseline gap-2">
             <h2 className="text-[15px] text-[#f5f1e8] tracking-[0.2em] font-medium">足跡時間軸</h2>
             {storeCount > 0 && (
@@ -200,53 +109,51 @@ export function FoodprintsPage({ items, onDelete }: Props) {
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-5 pt-4 pb-8">
-          {items.length > 0 ? (
-            <>
-              <div className="relative pl-1">
-                <div className="absolute left-[6px] top-1 bottom-1 w-[1px] bg-gradient-to-b from-[#c9a961]/50 via-[#c9a961]/20 to-transparent" />
-                <div className="space-y-7">
-                  {grouped.map(([month, prints]) => (
-                    <div key={month} className="relative pl-6">
-                      <div className="absolute left-0 top-1 w-[11px] h-[11px] rounded-full bg-[#0f0d0a] border-2 border-[#c9a961]" />
-                      <div className="flex items-center gap-3 mb-3">
-                        <span className="text-[12px] tracking-[0.3em] text-[#c9a961]/80">{month}</span>
-                        <div className="h-[1px] flex-1 bg-[#1a1a1a]" />
-                        <span className="text-[10px] text-[#666] tracking-widest">{prints.length}</span>
-                      </div>
-                      <div className="space-y-2.5">
-                        {prints.map(p => (
-                          <FoodprintCard
-                            key={p.id}
-                            item={p}
-                            onDelete={() => onDelete(p.id)}
-                            onClick={() => handleCardClick(p)}
-                          />
-                        ))}
-                      </div>
+        {items.length > 0 ? (
+          <>
+            <div className="relative pl-1">
+              <div className="absolute left-[6px] top-1 bottom-1 w-[1px] bg-gradient-to-b from-[#c9a961]/50 via-[#c9a961]/20 to-transparent" />
+              <div className="space-y-7">
+                {grouped.map(([month, prints]) => (
+                  <div key={month} className="relative pl-6">
+                    <div className="absolute left-0 top-1 w-[11px] h-[11px] rounded-full bg-[#0f0d0a] border-2 border-[#c9a961]" />
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-[12px] tracking-[0.3em] text-[#c9a961]/80">{month}</span>
+                      <div className="h-[1px] flex-1 bg-[#1a1a1a]" />
+                      <span className="text-[10px] text-[#666] tracking-widest">{prints.length}</span>
                     </div>
-                  ))}
-                </div>
+                    <div className="space-y-2.5">
+                      {prints.map(p => (
+                        <FoodprintCard
+                          key={p.id}
+                          item={p}
+                          onDelete={() => onDelete(p.id)}
+                          onClick={() => handleCardClick(p)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
-              {visibleCount < items.length && (
-                <button
-                  onClick={() => setVisibleCount(c => c + PAGE_SIZE)}
-                  className="w-full mt-4 py-2.5 text-[12px] tracking-[0.2em] text-[#c9a961]/80 border border-[#1f1f1f] rounded-[6px] hover:border-[#c9a961]/40 hover:text-[#c9a961] transition-colors"
-                >
-                  載入更多（剩 {items.length - visibleCount} 筆）
-                </button>
-              )}
-            </>
-          ) : (
-            <div className="flex flex-col items-center justify-center py-10 text-center">
-              <div className="text-[#c9a961]/40 text-3xl tracking-[0.5em] mb-3">— —</div>
-              <p className="text-[#777] text-[14px] tracking-wider mb-2">還沒有任何足跡</p>
-              <p className="text-[#555] text-[12px] tracking-widest">
-                在食物詳情頁按「今天吃了」就會出現
-              </p>
             </div>
-          )}
-        </div>
+            {visibleCount < items.length && (
+              <button
+                onClick={() => setVisibleCount(c => c + PAGE_SIZE)}
+                className="w-full mt-4 py-2.5 text-[12px] tracking-[0.2em] text-[#c9a961]/80 border border-[#1f1f1f] rounded-[6px] hover:border-[#c9a961]/40 hover:text-[#c9a961] transition-colors"
+              >
+                載入更多（剩 {items.length - visibleCount} 筆）
+              </button>
+            )}
+          </>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-10 text-center">
+            <div className="text-[#c9a961]/40 text-3xl tracking-[0.5em] mb-3">— —</div>
+            <p className="text-[#777] text-[14px] tracking-wider mb-2">還沒有任何足跡</p>
+            <p className="text-[#555] text-[12px] tracking-widest">
+              在食物詳情頁按「今天吃了」就會出現
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
