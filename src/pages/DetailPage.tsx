@@ -24,14 +24,16 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
     }
   };
 
-  // 店家優先：restaurants[0] 是這家店本身（地點顯示在標題下方），其餘才是其他分店/候選
+  // 店家型項目（restaurants[0] 名字＝標題）：地點顯示在標題下方、其餘是其他分店。
+  // 想吃型／舊制項目：restaurants 全部是候選店家，用清單呈現。
   const store = item.restaurants[0];
-  const branches = item.restaurants.slice(1);
-  const region = store ? [store.city, store.area].filter(Boolean).join(' ') : '';
-  const storeMap = store ? safeHttpUrl(store.googleMapsUrl) : undefined;
+  const isOwnStore = !!store && store.name === item.name;
+  const branches = isOwnStore ? item.restaurants.slice(1) : [];
+  const region = isOwnStore ? [store.city, store.area].filter(Boolean).join(' ') : '';
+  const storeMap = isOwnStore ? safeHttpUrl(store.googleMapsUrl) : undefined;
 
   const handleBranchesChange = (next: Restaurant[]) => {
-    onUpdate({ ...item, restaurants: store ? [store, ...next] : next, updatedAt: new Date().toISOString() });
+    onUpdate({ ...item, restaurants: isOwnStore ? [store, ...next] : next, updatedAt: new Date().toISOString() });
   };
 
   return (
@@ -142,12 +144,12 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
           </div>
         )}
 
-        {/* 其他分店 / 候選（主店家已在上方顯示） */}
-        {(branches.length > 0 || !store) && (
+        {/* 店家型：主店家已在上方，只列其他分店；想吃型／舊制：整份候選清單（可隨時補店） */}
+        {(isOwnStore ? branches.length > 0 : true) && (
           <div className="mt-10 pt-7 border-t border-[#1f1f1f]">
             <RestaurantsEditor
-              title={store ? '其他分店' : '候選店家'}
-              restaurants={store ? branches : item.restaurants}
+              title={isOwnStore ? '其他分店' : '候選店家'}
+              restaurants={isOwnStore ? branches : item.restaurants}
               onChange={handleBranchesChange}
             />
           </div>

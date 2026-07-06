@@ -21,30 +21,38 @@ interface Props {
 const STATUSES: Status[] = ['want', 'tried', 'skip'];
 const OCCASIONS = Object.keys(OCCASION_LABELS) as Occasion[];
 
-// 店家優先：主欄位就是「店家」（存進 name），吃什麼＝類別，地點內建在同一筆。
-// 底層仍存成 restaurants[0]（這家店本身），所以店家頁 / 足跡 / 地圖照常運作；
-// 多家分店收在「其他分店」進階，且不改動既有店家名稱（不動舊資料）。
+// 主欄位可以是「店家」或「想吃的東西」（頂端小切換，預設店家）。
+// 店家：底層存成 restaurants[0]（這家店本身），店家頁 / 足跡 / 地圖照常運作。
+// 想吃的東西：不建立假店家（避免「壽司」被當成一間店），想到去哪吃再補候選店家。
+// 舊資料自動歸類：restaurants[0] 名字＝標題 → 店家型；其餘（含空、多候選）→ 想吃型。
 export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage, onSave, onClose }: Props) {
   const isEdit = !!item;
-  const primary = item?.restaurants?.[0]; // 既有的主店家（編輯時沿用、不改名）
+  const primary = item?.restaurants?.[0];
+  // 店家型項目：restaurants[0] 就是標題那家店
+  const ownStore = !!(item && primary && primary.name === item.name);
 
+  const [kind, setKind] = useState<'store' | 'craving'>(!item || ownStore ? 'store' : 'craving');
   const [name, setName] = useState(item?.name ?? '');
   const [status, setStatus] = useState<Status>(item?.status ?? 'want');
   const [cuisineType, setCuisineType] = useState(item?.cuisineType ?? '');
 
-  // 這家店的地點（掛在主店家上）
-  const [city, setCity] = useState(primary?.city ?? '');
-  const [area, setArea] = useState(primary?.area ?? '');
-  const [url, setUrl] = useState(primary?.googleMapsUrl ?? '');
+  // 這家店的地點（掛在主店家上；只在店家型使用）
+  const [city, setCity] = useState(ownStore ? primary?.city ?? '' : '');
+  const [area, setArea] = useState(ownStore ? primary?.area ?? '' : '');
+  const [url, setUrl] = useState(ownStore ? primary?.googleMapsUrl ?? '' : '');
 
-  // 其他分店（restaurants[1..]），少數比價才用
-  const [otherBranches, setOtherBranches] = useState<Restaurant[]>(item?.restaurants?.slice(1) ?? []);
+  // 店家型＝其他分店（restaurants[1..]）；想吃型＝候選店家（整個 restaurants）
+  const [extraStores, setExtraStores] = useState<Restaurant[]>(
+    ownStore ? item?.restaurants?.slice(1) ?? [] : item?.restaurants ?? []
+  );
 
   const [occasions, setOccasions] = useState<Occasion[]>(item?.occasions ?? []);
   const [notes, setNotes] = useState(item?.notes ?? inspiration?.note ?? '');
   const [rating, setRating] = useState<number | undefined>(item?.rating);
 
-  const [showBranches, setShowBranches] = useState((item?.restaurants?.length ?? 0) > 1);
+  const [showStores, setShowStores] = useState(
+    ownStore ? (item?.restaurants?.length ?? 0) > 1 : (item?.restaurants?.length ?? 0) > 0
+  );
   const [showMore, setShowMore] = useState(isEdit);
   const [saving, setSaving] = useState(false);
 
@@ -92,38 +100,36 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
       setUploading(false);
     }
 
-    // 主店家：編輯時沿用既有那筆，新增則以「店家」名稱建立。
-    // 新制項目（店名＝食物名）改名時店名跟著改；舊制（兩者不同）保留原店名不動。
-    const store: Restaurant = primary
-      ? {
-          ...primary,
-          name: primary.name === item?.name ? name.trim() : primary.name,
-          city: city || undefined,
-          area: area.trim() || undefined,
-          googleMapsUrl: url.trim() || undefined,
-        }
-      : { id: makeId(), name: name.trim(), city: city || undefined, area: area.trim() || undefined, googleMapsUrl: url.trim() || undefined };
+    // 店家型：主店家沿用既有那筆（改名跟著標題），否則以「店家」名稱建立並定位；
+    // 想吃型：不建假店家，restaurants 就是候選清單（候選在自己的表單裡各自定位過）。
+    let restaurants: Restaurant[] = extraStores;
+    if (kind === 'store') {
+      const store: Restaurant = ownStore
+        ? { ...primary!, name: name.trim(), city: city || undefined, area: area.trim() || undefined, googleMapsUrl: url.trim() || undefined }
+        : { id: makeId(), name: name.trim(), city: city || undefined, area: area.trim() || undefined, googleMapsUrl: url.trim() || undefined };
 
-    // 地點有變（或還沒定位過）才重新地理編碼，避免每次儲存都打 API
-    const locChanged =
-      !primary ||
-      (city || '') !== (primary.city || '') ||
-      (area.trim() || '') !== (primary.area || '') ||
-      (url.trim() || '') !== (primary.googleMapsUrl || '') ||
-      primary.lat == null;
-    if (locChanged) {
-      try {
-        const geo = await resolveRestaurantLocation({
-          name: store.name,
-          city: store.city,
-          area: store.area,
-          googleMapsUrl: store.googleMapsUrl,
-        });
-        if (geo) { store.lat = geo.lat; store.lng = geo.lng; }
-        else { store.lat = undefined; store.lng = undefined; }
-      } catch {
-        // 定位失敗不擋儲存
+      // 地點有變（或還沒定位過）才重新地理編碼，避免每次儲存都打 API
+      const locChanged =
+        !ownStore ||
+        (city || '') !== (primary?.city || '') ||
+        (area.trim() || '') !== (primary?.area || '') ||
+        (url.trim() || '') !== (primary?.googleMapsUrl || '') ||
+        primary?.lat == null;
+      if (locChanged) {
+        try {
+          const geo = await resolveRestaurantLocation({
+            name: store.name,
+            city: store.city,
+            area: store.area,
+            googleMapsUrl: store.googleMapsUrl,
+          });
+          if (geo) { store.lat = geo.lat; store.lng = geo.lng; }
+          else { store.lat = undefined; store.lng = undefined; }
+        } catch {
+          // 定位失敗不擋儲存
+        }
       }
+      restaurants = [store, ...extraStores];
     }
 
     onSave({
@@ -134,7 +140,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
       status,
       cuisineType: cuisineType || undefined,
       occasions,
-      restaurants: [store, ...otherBranches],
+      restaurants,
       mustOrder: item?.mustOrder ?? [],
       notes: notes.trim() || undefined,
       waitTime: item?.waitTime,
@@ -175,16 +181,28 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
       <div className="flex-1 overflow-y-auto">
         <div className="px-6 py-8 space-y-7">
 
-          {/* 店家（主角）+ 縮圖（右上角） */}
+          {/* 主欄位（店家或想吃的東西）+ 縮圖（右上角） */}
           <div className="flex items-start gap-4">
             <div className="flex-1 min-w-0">
-              <div className="text-[13px] tracking-[0.4em] text-[#c9a961]/60 mb-4">
-                店家 / 想去哪
+              {/* 這筆是店家還是想吃的東西？打「壽司」這種就切右邊，不會被當成一間店 */}
+              <div className="flex items-center gap-2 mb-4">
+                <button
+                  onClick={() => setKind('store')}
+                  className={`text-[12px] tracking-[0.2em] px-3.5 py-1.5 ${kind === 'store' ? 'chip chip-active' : 'chip'}`}
+                >
+                  店家
+                </button>
+                <button
+                  onClick={() => setKind('craving')}
+                  className={`text-[12px] tracking-[0.2em] px-3.5 py-1.5 ${kind === 'craving' ? 'chip chip-active' : 'chip'}`}
+                >
+                  想吃的東西
+                </button>
               </div>
               <input
                 type="text"
                 autoFocus={!isEdit}
-                placeholder="例如：海底撈"
+                placeholder={kind === 'store' ? '例如：藏壽司、海底撈' : '例如：壽司、麻辣鍋'}
                 value={name}
                 onChange={e => setName(e.target.value)}
                 onKeyDown={e => {
@@ -248,7 +266,8 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
             </div>
           </div>
 
-          {/* 地點（選填）：掛在這家店，餵地圖 / 帶我去 */}
+          {/* 地點（選填）：掛在這家店，餵地圖 / 帶我去。想吃型沒有店，收起。 */}
+          {kind === 'store' && (
           <div>
             <div className="text-[13px] tracking-[0.4em] text-[#c9a961]/60 mb-3">地點（選填）</div>
             <div className="space-y-3">
@@ -280,19 +299,26 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
               選縣市或貼地圖連結 → 抽到能「帶我去」，也會出現在足跡地圖。
             </p>
           </div>
+          )}
 
-          {/* 其他分店（選填）：少數比價才用 */}
+          {/* 店家型＝其他分店；想吃型＝候選店家（想到要去哪吃再補） */}
           <div className="pt-1">
             <button
-              onClick={() => setShowBranches(!showBranches)}
+              onClick={() => setShowStores(!showStores)}
               className="flex items-center gap-2 text-[13px] tracking-[0.3em] text-[#777]"
             >
-              <ChevronDown size={15} className={`transition-transform ${showBranches ? 'rotate-180' : ''}`} />
-              {showBranches ? '收起其他分店' : '加其他分店（選填）'}
+              <ChevronDown size={15} className={`transition-transform ${showStores ? 'rotate-180' : ''}`} />
+              {kind === 'store'
+                ? (showStores ? '收起其他分店' : '加其他分店（選填）')
+                : (showStores ? '收起候選店家' : '加候選店家（選填）')}
             </button>
-            {showBranches && (
+            {showStores && (
               <div className="mt-4">
-                <RestaurantsEditor title="其他分店" restaurants={otherBranches} onChange={setOtherBranches} />
+                <RestaurantsEditor
+                  title={kind === 'store' ? '其他分店' : '候選店家'}
+                  restaurants={extraStores}
+                  onChange={setExtraStores}
+                />
               </div>
             )}
           </div>
