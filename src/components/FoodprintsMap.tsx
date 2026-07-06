@@ -1,16 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
+import { MapContainer, TileLayer, useMap } from 'react-leaflet';
+import * as L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import 'leaflet.heat';
 import type { Foodprint } from '../types';
 
-// 用同一套等距投影畫台灣輪廓與金點，點才會落在正確位置。
 const BBOX = { minLng: 119.9, maxLng: 122.05, minLat: 21.85, maxLat: 25.35 };
-const VW = 563;
-const VH = 1000;
-
-function project(lng: number, lat: number): [number, number] {
-  const x = ((lng - BBOX.minLng) / (BBOX.maxLng - BBOX.minLng)) * VW;
-  const y = ((BBOX.maxLat - lat) / (BBOX.maxLat - BBOX.minLat)) * VH;
-  return [x, y];
-}
+const TAIWAN_CENTER: L.LatLngTuple = [23.7, 121.0];
 
 function inTaiwan(lng: number, lat: number): boolean {
   return lng >= BBOX.minLng && lng <= BBOX.maxLng && lat >= BBOX.minLat && lat <= BBOX.maxLat;
@@ -57,159 +53,130 @@ function jitter(seed: string): { dlng: number; dlat: number } {
   return { dlng: (a - 0.5) * 0.07, dlat: (b - 0.5) * 0.07 };
 }
 
-// 台灣本島簡化海岸線（lng, lat），順時針，僅供視覺輪廓
-const OUTLINE: [number, number][] = [
-  [121.54, 25.30], [121.74, 25.16], [121.93, 25.01], [121.83, 24.85], [121.86, 24.60],
-  [121.65, 24.20], [121.62, 23.98], [121.50, 23.30], [121.38, 22.95], [121.18, 22.78],
-  [120.92, 22.30], [120.86, 21.92], [120.74, 22.02], [120.45, 22.37], [120.30, 22.55],
-  [120.27, 22.62], [120.10, 22.93], [120.10, 23.10], [120.13, 23.40], [120.16, 23.70],
-  [120.43, 24.10], [120.57, 24.30], [120.70, 24.48], [120.93, 24.85], [121.05, 25.03],
-  [121.41, 25.18],
-];
-const OUTLINE_PTS = OUTLINE.map(([lng, lat]) => project(lng, lat).map(n => n.toFixed(1)).join(',')).join(' ');
-
-function regionOf(p: Foodprint): string {
-  return [p.restaurantCity, p.restaurantArea].filter(Boolean).join(' ');
+interface HeatData {
+  points: L.HeatLatLngTuple[];
+  noCoord: number;
+  overseas: number;
+  locationCount: number;
+  anyApprox: boolean;
 }
 
-interface Dot {
-  key: string;
-  x: number;
-  y: number;
-  items: Foodprint[];
-  locations: number; // 合併了幾個不同店家/座標
-  approx: boolean; // 依縣市概略定位（非精確座標）
+function buildHeatData(items: Foodprint[]): HeatData {
+  const locations = new Set<string>();
+  const points: L.HeatLatLngTuple[] = [];
+  let noCoord = 0;
+  let overseas = 0;
+  let approxCount = 0;
+
+  items.forEach(p => {
+    // 1) 有精確座標且落在本島 → 用真實位置
+    if (typeof p.restaurantLat === 'number' && typeof p.restaurantLng === 'number') {
+      if (inTaiwan(p.restaurantLng, p.restaurantLat)) {
+        locations.add(`p:${p.restaurantLat.toFixed(4)},${p.restaurantLng.toFixed(4)}`);
+        points.push([p.restaurantLat, p.restaurantLng, 1]);
+      } else {
+        overseas++;
+      }
+      return;
+    }
+    // 2) 沒座標但有縣市 → 落在縣市概略位置（同縣市不同店會稍微散開）
+    const c = p.restaurantCity ? CITY_CENTROIDS[p.restaurantCity] : undefined;
+    if (c) {
+      const label = p.restaurantName || p.foodName;
+      const j = jitter(`${p.restaurantCity}|${label}`);
+      const lat = c.lat + j.dlat;
+      const lng = c.lng + j.dlng;
+      if (inTaiwan(lng, lat)) {
+        locations.add(`c:${p.restaurantCity}|${label}`);
+        points.push([lat, lng, 1]);
+        approxCount++;
+      } else {
+        overseas++; // 離島縣市（金門/馬祖/澎湖）落在本島範圍外
+      }
+      return;
+    }
+    noCoord++;
+  });
+
+  return { points, noCoord, overseas, locationCount: locations.size, anyApprox: approxCount > 0 };
 }
 
-// 聚合半徑（viewBox 座標單位）：距離小於這個值的點會自動合併成一個群集，避免資料多時擠成一團
-const CLUSTER_CELL = 26;
+// 熱區圖層：去過越多次／越密集的地方顏色越深（金 → 橘 → 深紅），稀疏處淡到透明
+function HeatLayer({ points }: { points: L.HeatLatLngTuple[] }) {
+  const map = useMap();
 
-function clusterDots(raw: { x: number; y: number; list: Foodprint[]; approx: boolean }[]): Dot[] {
-  const cells = new Map<string, typeof raw>();
-  raw.forEach(d => {
-    const cellKey = `${Math.floor(d.x / CLUSTER_CELL)},${Math.floor(d.y / CLUSTER_CELL)}`;
-    const group = cells.get(cellKey);
-    if (group) group.push(d);
-    else cells.set(cellKey, [d]);
-  });
-  return [...cells.entries()].map(([key, group]) => {
-    const items = group.flatMap(d => d.list).sort((a, b) => (a.ateAt >= b.ateAt ? -1 : 1));
-    const totalWeight = group.reduce((s, d) => s + d.list.length, 0);
-    const x = group.reduce((s, d) => s + d.x * d.list.length, 0) / totalWeight;
-    const y = group.reduce((s, d) => s + d.y * d.list.length, 0) / totalWeight;
-    return { key, x, y, items, locations: group.length, approx: group.some(d => d.approx) };
-  });
+  useEffect(() => {
+    if (points.length === 0) return;
+    const layer = L.heatLayer(points, {
+      radius: 22,
+      blur: 15,
+      max: 6, // 同一處累積約 6 次造訪就到最深紅；次數少則偏淡金
+      // maxZoom 刻意設得很低：leaflet.heat 預設會依「目前縮放 vs maxZoom」的差距去衰減強度
+      // （假設使用者要放大才看得到熱點），但這裡地圖一開始就 fitBounds 到全部資料，
+      // 縮放程度本來就偏低，若用預設會被壓到幾乎看不見，所以固定用未衰減的滿強度。
+      maxZoom: 1,
+      minOpacity: 0.12,
+      gradient: {
+        0.0: 'rgba(201,169,97,0)',
+        0.25: 'rgba(214,185,116,0.6)',
+        0.55: '#e08a3c',
+        1.0: '#9c2b1f',
+      },
+    }).addTo(map);
+    return () => {
+      map.removeLayer(layer);
+    };
+  }, [map, points]);
+
+  return null;
+}
+
+// 自動把視野收攏到所有資料點的範圍內，沒資料時退回台灣整體視角
+function FitToData({ bounds }: { bounds: L.LatLngBoundsExpression | null }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (bounds) {
+      map.fitBounds(bounds, { padding: [28, 28], maxZoom: 13 });
+    } else {
+      map.setView(TAIWAN_CENTER, 7);
+    }
+  }, [map, bounds]);
+
+  return null;
 }
 
 export function FoodprintsMap({ items }: { items: Foodprint[] }) {
-  const { dots, noCoord, overseas } = useMemo(() => {
-    const m = new Map<string, { list: Foodprint[]; lng: number; lat: number; approx: boolean }>();
-    let noCoord = 0;
-    let overseas = 0;
-    items.forEach(p => {
-      // 1) 有精確座標且落在本島 → 用真實位置
-      if (typeof p.restaurantLat === 'number' && typeof p.restaurantLng === 'number') {
-        if (inTaiwan(p.restaurantLng, p.restaurantLat)) {
-          const key = `p:${p.restaurantLat.toFixed(4)},${p.restaurantLng.toFixed(4)}`;
-          const e = m.get(key);
-          if (e) e.list.push(p);
-          else m.set(key, { list: [p], lng: p.restaurantLng, lat: p.restaurantLat, approx: false });
-        } else {
-          overseas++;
-        }
-        return;
-      }
-      // 2) 沒座標但有縣市 → 落在縣市概略位置（同縣市不同店會稍微散開）
-      const c = p.restaurantCity ? CITY_CENTROIDS[p.restaurantCity] : undefined;
-      if (c) {
-        const label = p.restaurantName || p.foodName;
-        const j = jitter(`${p.restaurantCity}|${label}`);
-        const lng = c.lng + j.dlng;
-        const lat = c.lat + j.dlat;
-        if (inTaiwan(lng, lat)) {
-          const key = `c:${p.restaurantCity}|${label}`;
-          const e = m.get(key);
-          if (e) e.list.push(p);
-          else m.set(key, { list: [p], lng, lat, approx: true });
-        } else {
-          overseas++; // 離島縣市（金門/馬祖/澎湖）落在本島範圍外
-        }
-        return;
-      }
-      noCoord++;
-    });
-    const raw = [...m.entries()].map(([, e]) => {
-      const [x, y] = project(e.lng, e.lat);
-      return { x, y, list: e.list, approx: e.approx };
-    });
-    const dots = clusterDots(raw);
-    return { dots, noCoord, overseas };
-  }, [items]);
+  const { points, noCoord, overseas, locationCount, anyApprox } = useMemo(() => buildHeatData(items), [items]);
 
-  const [sel, setSel] = useState<string | null>(null);
-  const selDot = dots.find(d => d.key === sel) ?? null;
-  const anyApprox = dots.some(d => d.approx);
+  const bounds = useMemo<L.LatLngBoundsExpression | null>(() => {
+    if (points.length === 0) return null;
+    return L.latLngBounds(points.map(([lat, lng]) => [lat, lng]));
+  }, [points]);
 
   return (
     <div>
-      {/* 資訊列：點金點後顯示那裡吃了什麼 */}
-      <div className="mb-3 min-h-[46px] rounded-[10px] border border-[#1f1f1f] bg-[#0f0e0b] px-4 py-2.5 flex items-center">
-        {selDot ? (
-          <div className="min-w-0">
-            <div className="text-[15px] text-[#f2ecdd] truncate">
-              {selDot.locations > 1 ? `附近 ${selDot.locations} 個地點` : selDot.items[0].foodName}
-              {selDot.items.length > 1 && <span className="text-[12px] text-[#8d877a]"> · 共 {selDot.items.length} 次</span>}
-            </div>
-            <div className="text-[12px] text-[#8d877a] truncate">
-              {selDot.locations > 1
-                ? ([...new Set(selDot.items.map(i => i.restaurantName).filter(Boolean))].slice(0, 3).join('、') || '—')
-                : ([selDot.items[0].restaurantName, regionOf(selDot.items[0])].filter(Boolean).join(' · ') || '—')}
-              {selDot.approx && <span className="text-[#6f6a5c]"> · 約略位置</span>}
-            </div>
-          </div>
-        ) : (
-          <div className="text-[12px] text-[#76705f] tracking-wider">點地圖上的金點，看那裡吃了什麼</div>
-        )}
-      </div>
-
       <div
         className="relative rounded-[14px] overflow-hidden border border-[#1f1f1f]"
-        style={{ height: 'clamp(340px, 52vh, 480px)', background: 'radial-gradient(120% 80% at 50% 18%, #14120d 0%, #0b0a08 72%)' }}
+        style={{ height: 'clamp(340px, 52vh, 480px)' }}
       >
-        <svg viewBox={`0 0 ${VW} ${VH}`} preserveAspectRatio="xMidYMid meet" style={{ width: '100%', height: '100%' }}>
-          <polygon
-            points={OUTLINE_PTS}
-            fill="rgba(201,169,97,0.06)"
-            stroke="rgba(201,169,97,0.5)"
-            strokeWidth={2.5}
-            strokeLinejoin="round"
+        <MapContainer
+          center={TAIWAN_CENTER}
+          zoom={7}
+          scrollWheelZoom={false}
+          style={{ width: '100%', height: '100%', background: '#0b0a08' }}
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
           />
-          {dots.map(d => {
-            const active = d.key === sel;
-            return (
-              <g key={d.key} onClick={() => setSel(d.key)} style={{ cursor: 'pointer' }}>
-                <circle cx={d.x} cy={d.y} r={30} fill="transparent" />
-                {active && <circle cx={d.x} cy={d.y} r={26} fill="rgba(201,169,97,0.18)" />}
-                <circle
-                  cx={d.x}
-                  cy={d.y}
-                  r={active ? 20 : 15}
-                  fill={d.approx ? '#b9995a' : '#d6b974'}
-                  fillOpacity={d.approx ? 0.85 : 1}
-                  stroke="#0b0a08"
-                  strokeWidth={4}
-                />
-                {d.items.length > 1 && (
-                  <text x={d.x} y={d.y + 5} textAnchor="middle" fontSize="15" fontWeight="600" fill="#100d07">{d.items.length}</text>
-                )}
-              </g>
-            );
-          })}
-        </svg>
+          <HeatLayer points={points} />
+          <FitToData bounds={bounds} />
+        </MapContainer>
 
-        {dots.length === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <p className="text-[13px] text-[#76705f] tracking-wider text-center px-8">
+        {points.length === 0 && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[500]">
+            <p className="text-[13px] text-[#76705f] tracking-wider text-center px-8 bg-[#0b0a08]/80 py-3 rounded-[10px]">
               還沒有標上地圖的足跡<br />記錄時填了縣市就會出現在這裡
             </p>
           </div>
@@ -226,7 +193,7 @@ export function FoodprintsMap({ items }: { items: Foodprint[] }) {
         </span>
         <span className="inline-flex items-center gap-1.5 text-[11px] text-[#8d877a]">
           <span className="w-2 h-2 rounded-full bg-[#d6b974]" />
-          吃過的地方 · {dots.length}
+          吃過的地方 · {locationCount}
         </span>
       </div>
     </div>
