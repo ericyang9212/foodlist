@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, lazy, Suspense } from 'react';
 import { List, Footprints, Plus } from 'lucide-react';
 import { useStore } from './store/useStore';
 import { useInspirations } from './store/useInspirations';
@@ -8,16 +8,31 @@ import { useFoodprints } from './store/useFoodprints';
 import { useAuth } from './store/useAuth';
 import { useAppConfig } from './store/useAppConfig';
 import { MaintenanceScreen } from './pages/MaintenanceScreen';
-import { AnnouncementsModal } from './components/AnnouncementsModal';
 import { Marquee } from './components/Marquee';
-import { LogFoodprintSheet } from './components/LogFoodprintSheet';
 import { ListView } from './pages/ListView';
-import { InboxPage } from './pages/InboxPage';
-import { AddEditPage } from './pages/AddEditPage';
-import { DetailPage } from './pages/DetailPage';
-import { FoodprintsPage } from './pages/FoodprintsPage';
 import { LoginScreen } from './pages/LoginScreen';
 import type { FoodItem, Inspiration, Tab } from './types';
+
+// 非首屏的頁面 / 彈窗改成動態載入：進到對應畫面才下載該 chunk，
+// 縮小首包體積（尤其 FoodprintsPage 內含台灣地圖 SVG，是最重的一塊）
+const FoodprintsPage = lazy(() =>
+  import('./pages/FoodprintsPage').then(m => ({ default: m.FoodprintsPage }))
+);
+const AddEditPage = lazy(() =>
+  import('./pages/AddEditPage').then(m => ({ default: m.AddEditPage }))
+);
+const DetailPage = lazy(() =>
+  import('./pages/DetailPage').then(m => ({ default: m.DetailPage }))
+);
+const InboxPage = lazy(() =>
+  import('./pages/InboxPage').then(m => ({ default: m.InboxPage }))
+);
+const LogFoodprintSheet = lazy(() =>
+  import('./components/LogFoodprintSheet').then(m => ({ default: m.LogFoodprintSheet }))
+);
+const AnnouncementsModal = lazy(() =>
+  import('./components/AnnouncementsModal').then(m => ({ default: m.AnnouncementsModal }))
+);
 
 function FullScreenLoader() {
   return (
@@ -181,10 +196,12 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
           />
         )}
         {tab === 'foodprints' && (
-          <FoodprintsPage
-            items={foodprints.items}
-            onDelete={foodprints.deleteFoodprint}
-          />
+          <Suspense fallback={<FullScreenLoader />}>
+            <FoodprintsPage
+              items={foodprints.items}
+              onDelete={foodprints.deleteFoodprint}
+            />
+          </Suspense>
         )}
       </div>
 
@@ -207,79 +224,89 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
 
       {/* 公告 */}
       {showAnnouncements && (
-        <AnnouncementsModal
-          items={announcements.items}
-          readIds={announcements.readIds}
-          onMarkAllRead={announcements.markAllRead}
-          onSignOut={onSignOut}
-          onClose={() => setShowAnnouncements(false)}
-        />
+        <Suspense fallback={null}>
+          <AnnouncementsModal
+            items={announcements.items}
+            readIds={announcements.readIds}
+            onMarkAllRead={announcements.markAllRead}
+            onSignOut={onSignOut}
+            onClose={() => setShowAnnouncements(false)}
+          />
+        </Suspense>
       )}
 
       {/* 靈感匣 */}
       {showInbox && (
-        <InboxPage
-          items={inspirations.items}
-          loading={inspirations.loading}
-          onUpload={async (file, note) => {
-            const url = await inspirations.uploadImage(file);
-            await inspirations.addInspiration({ imageUrl: url, note: note || undefined });
-          }}
-          onDelete={inspirations.deleteInspiration}
-          onUpdate={inspirations.updateInspiration}
-          onConvertToFood={handleConvertInspiration}
-          foodById={foodById}
-          onOpenFood={(id) => {
-            if (foodById[id]) { setShowInbox(false); setDetailId(id); }
-          }}
-          onClose={() => setShowInbox(false)}
-        />
+        <Suspense fallback={null}>
+          <InboxPage
+            items={inspirations.items}
+            loading={inspirations.loading}
+            onUpload={async (file, note) => {
+              const url = await inspirations.uploadImage(file);
+              await inspirations.addInspiration({ imageUrl: url, note: note || undefined });
+            }}
+            onDelete={inspirations.deleteInspiration}
+            onUpdate={inspirations.updateInspiration}
+            onConvertToFood={handleConvertInspiration}
+            foodById={foodById}
+            onOpenFood={(id) => {
+              if (foodById[id]) { setShowInbox(false); setDetailId(id); }
+            }}
+            onClose={() => setShowInbox(false)}
+          />
+        </Suspense>
       )}
 
       {detail && (
-        <DetailPage
-          item={detail}
-          thumbnailUrl={imageByFoodId[detail.id]}
-          onClose={() => setDetailId(null)}
-          onEdit={handleEdit}
-          onDelete={id => { handleDeleteFood(id); setDetailId(null); }}
-          onUpdate={handleUpdateFromDetail}
-          onLogFoodprint={(it) => setLoggingFood(it)}
-        />
+        <Suspense fallback={null}>
+          <DetailPage
+            item={detail}
+            thumbnailUrl={imageByFoodId[detail.id]}
+            onClose={() => setDetailId(null)}
+            onEdit={handleEdit}
+            onDelete={id => { handleDeleteFood(id); setDetailId(null); }}
+            onUpdate={handleUpdateFromDetail}
+            onLogFoodprint={(it) => setLoggingFood(it)}
+          />
+        </Suspense>
       )}
 
       {loggingFood && (
-        <LogFoodprintSheet
-          food={loggingFood}
-          uploadPhoto={foodprints.uploadPhoto}
-          onSave={async (p) => {
-            // 足跡寫入失敗（store 已 toast 並回滾）就中止：狀態不動、sheet 留著讓使用者重試
-            const inserted = await foodprints.addFoodprint(p);
-            if (!inserted) throw new Error('foodprint insert failed');
-            // 同步把食物狀態改成 tried；詳情頁內容是推導的，會自動跟上
-            const updated: FoodItem = {
-              ...loggingFood,
-              status: loggingFood.status === 'want' ? 'tried' : loggingFood.status,
-              updatedAt: new Date().toISOString(),
-            };
-            updateItem(updated);
-          }}
-          onClose={() => setLoggingFood(null)}
-        />
+        <Suspense fallback={null}>
+          <LogFoodprintSheet
+            food={loggingFood}
+            uploadPhoto={foodprints.uploadPhoto}
+            onSave={async (p) => {
+              // 足跡寫入失敗（store 已 toast 並回滾）就中止：狀態不動、sheet 留著讓使用者重試
+              const inserted = await foodprints.addFoodprint(p);
+              if (!inserted) throw new Error('foodprint insert failed');
+              // 同步把食物狀態改成 tried；詳情頁內容是推導的，會自動跟上
+              const updated: FoodItem = {
+                ...loggingFood,
+                status: loggingFood.status === 'want' ? 'tried' : loggingFood.status,
+                updatedAt: new Date().toISOString(),
+              };
+              updateItem(updated);
+            }}
+            onClose={() => setLoggingFood(null)}
+          />
+        </Suspense>
       )}
 
       {showAdd && (
-        <AddEditPage
-          item={editing}
-          inspiration={fromInspiration ?? undefined}
-          initialImageUrl={editing ? imageByFoodId[editing.id] : undefined}
-          onUploadImage={async (file) => {
-            const url = await inspirations.uploadImage(file);
-            return url;
-          }}
-          onSave={handleSave}
-          onClose={() => { setEditing(undefined); setShowAdd(false); setFromInspiration(null); }}
-        />
+        <Suspense fallback={null}>
+          <AddEditPage
+            item={editing}
+            inspiration={fromInspiration ?? undefined}
+            initialImageUrl={editing ? imageByFoodId[editing.id] : undefined}
+            onUploadImage={async (file) => {
+              const url = await inspirations.uploadImage(file);
+              return url;
+            }}
+            onSave={handleSave}
+            onClose={() => { setEditing(undefined); setShowAdd(false); setFromInspiration(null); }}
+          />
+        </Suspense>
       )}
     </div>
   );
