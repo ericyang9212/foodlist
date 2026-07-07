@@ -121,7 +121,8 @@ export function useFoodprints() {
       createdAt: new Date().toISOString(),
       ...input,
     };
-    setItems(prev => [newOne, ...prev]); // optimistic
+    // 依 ate_at 排序插入（不能單純 prepend：補記較早日期的足跡會插錯位置，讓時間軸分組亂序）
+    setItems(prev => [newOne, ...prev].sort(byAteAtDesc)); // optimistic
     const { data, error } = await supabase
       .from('foodprints')
       .insert(toRow(newOne))
@@ -138,7 +139,7 @@ export function useFoodprints() {
     // 樂觀列可能已被並發的 realtime 重抓洗掉 → 不在就補回
     setItems(prev => prev.some(i => i.id === newOne.id)
       ? prev.map(i => i.id === newOne.id ? inserted : i)
-      : [inserted, ...prev]);
+      : [inserted, ...prev].sort(byAteAtDesc));
     return inserted;
   }, [setItems]);
 
