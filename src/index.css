@@ -16,6 +16,11 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* 保底：避免 iOS Safari 在 input font-size < 16px 時自動放大畫面 */
+input, textarea, select {
+  font-size: 16px;
+}
+
 body {
   margin: 0;
   font-family: 'Noto Serif TC', 'Songti TC', 'Source Han Serif TC', 'PingFang TC', -apple-system, serif;

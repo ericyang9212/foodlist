@@ -93,7 +93,7 @@ export function InboxPage({ items, loading, onUpload, onDelete, onUpdate, onConv
                 value={pendingNote}
                 onChange={e => setPendingNote(e.target.value)}
                 rows={2}
-                className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[6px] px-3 py-2.5 text-[14px] text-[#f5f1e8] placeholder-[#555] focus:outline-none resize-none leading-relaxed transition-colors"
+                className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[6px] px-3 py-2.5 text-base text-[#f5f1e8] placeholder-[#555] focus:outline-none resize-none leading-relaxed transition-colors"
               />
               <button
                 onClick={handleUpload}
@@ -352,7 +352,7 @@ function InspirationDetail({
               onChange={e => setNote(e.target.value)}
               rows={2}
               placeholder="加一句備註（哪看到的、想吃什麼）"
-              className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 px-3 py-2.5 text-[15px] text-[#f5f1e8] placeholder-[#555] focus:outline-none resize-none leading-relaxed"
+              className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 px-3 py-2.5 text-base text-[#f5f1e8] placeholder-[#555] focus:outline-none resize-none leading-relaxed"
             />
             {noteChanged && (
               <button

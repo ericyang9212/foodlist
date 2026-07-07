@@ -209,12 +209,12 @@ function RestaurantForm({ initial, submitLabel, onSubmit, onCancel }: {
         placeholder="店名"
         value={name}
         onChange={e => setName(e.target.value)}
-        className="w-full bg-transparent border-b border-[#2a2a2a] focus:border-[#c9a961]/50 pb-2.5 text-[16px] text-[#f5f1e8] placeholder-[#555] focus:outline-none"
+        className="w-full bg-transparent border-b border-[#2a2a2a] focus:border-[#c9a961]/50 pb-2.5 text-base text-[#f5f1e8] placeholder-[#555] focus:outline-none"
       />
       <select
         value={city}
         onChange={e => setCity(e.target.value)}
-        className="w-full bg-transparent border-b border-[#2a2a2a] focus:border-[#c9a961]/50 pb-2.5 text-[15px] text-[#f5f1e8] focus:outline-none appearance-none"
+        className="w-full bg-transparent border-b border-[#2a2a2a] focus:border-[#c9a961]/50 pb-2.5 text-base text-[#f5f1e8] focus:outline-none appearance-none"
       >
         <option value="" className="bg-[#0f0f0f]">縣市</option>
         {CITIES.map(c => <option key={c} value={c} className="bg-[#0f0f0f]">{c}</option>)}
@@ -224,21 +224,21 @@ function RestaurantForm({ initial, submitLabel, onSubmit, onCancel }: {
         placeholder="區域（例如：大安區）"
         value={area}
         onChange={e => setArea(e.target.value)}
-        className="w-full bg-transparent border-b border-[#2a2a2a] focus:border-[#c9a961]/50 pb-2.5 text-[15px] text-[#f5f1e8] placeholder-[#555] focus:outline-none"
+        className="w-full bg-transparent border-b border-[#2a2a2a] focus:border-[#c9a961]/50 pb-2.5 text-base text-[#f5f1e8] placeholder-[#555] focus:outline-none"
       />
       <input
         type="url"
         placeholder="Google Maps 連結"
         value={url}
         onChange={e => setUrl(e.target.value)}
-        className="w-full bg-transparent border-b border-[#2a2a2a] focus:border-[#c9a961]/50 pb-2.5 text-[15px] text-[#f5f1e8] placeholder-[#555] focus:outline-none"
+        className="w-full bg-transparent border-b border-[#2a2a2a] focus:border-[#c9a961]/50 pb-2.5 text-base text-[#f5f1e8] placeholder-[#555] focus:outline-none"
       />
       <input
         type="text"
         placeholder="一句話評價（例如：最便宜、最近）"
         value={note}
         onChange={e => setNote(e.target.value)}
-        className="w-full bg-transparent border-b border-[#2a2a2a] focus:border-[#c9a961]/50 pb-2.5 text-[15px] text-[#f5f1e8] placeholder-[#555] focus:outline-none"
+        className="w-full bg-transparent border-b border-[#2a2a2a] focus:border-[#c9a961]/50 pb-2.5 text-base text-[#f5f1e8] placeholder-[#555] focus:outline-none"
       />
       <div className="flex gap-2 pt-2">
         <button

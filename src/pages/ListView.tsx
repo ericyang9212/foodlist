@@ -182,7 +182,7 @@ export function ListView({
               placeholder="搜尋"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-10 pr-10 py-3 bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-full text-[15px] text-[#f5f1e8] placeholder-[#555] tracking-wider focus:outline-none transition-colors"
+              className="w-full pl-10 pr-10 py-3 bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-full text-base text-[#f5f1e8] placeholder-[#555] tracking-wider focus:outline-none transition-colors"
             />
             {search && (
               <button onClick={() => setSearch('')} className="absolute right-3.5 top-1/2 -translate-y-1/2">

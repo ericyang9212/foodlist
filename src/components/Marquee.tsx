@@ -193,7 +193,7 @@ function MarqueeEditor({
             value={text}
             onChange={e => setText(e.target.value)}
             rows={6}
-            className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[8px] px-4 py-3 text-[15px] text-[#f5f1e8] placeholder-[#555] focus:outline-none resize-none leading-relaxed"
+            className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[8px] px-4 py-3 text-base text-[#f5f1e8] placeholder-[#555] focus:outline-none resize-none leading-relaxed"
           />
           <p className="text-[11px] text-[#666] tracking-wider mt-2 leading-relaxed">
             清空可關閉跑馬燈。多行＝多則，會一則一則淡入淡出輪播；單行太長才會橫向捲動。

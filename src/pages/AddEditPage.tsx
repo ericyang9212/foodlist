@@ -274,7 +274,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
               <select
                 value={city}
                 onChange={e => setCity(e.target.value)}
-                className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-3 text-[15px] text-[#f5f1e8] focus:outline-none transition-colors"
+                className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-3 text-base text-[#f5f1e8] focus:outline-none transition-colors"
               >
                 <option value="">縣市</option>
                 {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -284,7 +284,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
                 placeholder="區域（例如：大安區）"
                 value={area}
                 onChange={e => setArea(e.target.value)}
-                className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-3 text-[15px] text-[#f5f1e8] placeholder-[#555] focus:outline-none transition-colors"
+                className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-3 text-base text-[#f5f1e8] placeholder-[#555] focus:outline-none transition-colors"
               />
               <input
                 type="url"
@@ -292,7 +292,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
                 placeholder="Google 地圖連結"
                 value={url}
                 onChange={e => setUrl(e.target.value)}
-                className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-3 text-[15px] text-[#f5f1e8] placeholder-[#555] focus:outline-none transition-colors"
+                className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-3 text-base text-[#f5f1e8] placeholder-[#555] focus:outline-none transition-colors"
               />
             </div>
             <p className="text-[11px] text-[#666] tracking-wider mt-2 leading-relaxed">
@@ -394,7 +394,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
                   value={notes}
                   onChange={e => setNotes(e.target.value)}
                   rows={3}
-                  className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-3 text-[15px] text-[#f5f1e8] placeholder-[#555] focus:outline-none resize-none leading-relaxed transition-colors"
+                  className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-3 text-base text-[#f5f1e8] placeholder-[#555] focus:outline-none resize-none leading-relaxed transition-colors"
                 />
               </div>
 

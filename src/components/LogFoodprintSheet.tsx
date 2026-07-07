@@ -150,7 +150,7 @@ export function LogFoodprintSheet({ food, uploadPhoto, onSave, onClose }: Props)
               type="date"
               value={dateStr}
               onChange={e => setDateStr(e.target.value)}
-              className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-2.5 text-[15px] text-[#f5f1e8] focus:outline-none"
+              className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-2.5 text-base text-[#f5f1e8] focus:outline-none"
             />
           </div>
 
@@ -201,7 +201,7 @@ export function LogFoodprintSheet({ food, uploadPhoto, onSave, onClose }: Props)
               value={note}
               onChange={e => setNote(e.target.value)}
               rows={2}
-              className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-2.5 text-[14px] text-[#f5f1e8] placeholder-[#555] focus:outline-none resize-none leading-relaxed"
+              className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-2.5 text-base text-[#f5f1e8] placeholder-[#555] focus:outline-none resize-none leading-relaxed"
             />
           </div>
         </div>

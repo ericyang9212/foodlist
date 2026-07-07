@@ -82,7 +82,7 @@ export function QuickAddRegularSheet({ onSave, onClose }: Props) {
               onChange={e => setName(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter' && !e.nativeEvent.isComposing && canSave) handleSave(); }}
               placeholder="店名或想吃的（例：巷口牛肉麵）"
-              className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[10px] px-4 py-3 text-[15px] text-[#f5f1e8] placeholder-[#555] focus:outline-none"
+              className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[10px] px-4 py-3 text-base text-[#f5f1e8] placeholder-[#555] focus:outline-none"
             />
           </div>
 
@@ -91,7 +91,7 @@ export function QuickAddRegularSheet({ onSave, onClose }: Props) {
             <select
               value={city}
               onChange={e => setCity(e.target.value)}
-              className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[10px] px-4 py-3 text-[15px] text-[#f5f1e8] focus:outline-none"
+              className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[10px] px-4 py-3 text-base text-[#f5f1e8] focus:outline-none"
             >
               <option value="">不指定</option>
               {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -105,7 +105,7 @@ export function QuickAddRegularSheet({ onSave, onClose }: Props) {
               onChange={e => setMapsUrl(e.target.value)}
               inputMode="url"
               placeholder="貼上地圖連結，抽到就能「帶我去」"
-              className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[10px] px-4 py-3 text-[14px] text-[#f5f1e8] placeholder-[#555] focus:outline-none"
+              className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[10px] px-4 py-3 text-base text-[#f5f1e8] placeholder-[#555] focus:outline-none"
             />
           </div>
         </div>
