@@ -142,6 +142,15 @@ export function TonightModal({ wantItems, triedItems, lastEatenByFoodId, onOpen,
     }, 60);
   };
 
+  // 一打開就跟按「再抽一個」一樣跑抽籤動畫，只在剛掛載時跑一次
+  const didAutoShuffleRef = useRef(false);
+  useEffect(() => {
+    if (didAutoShuffleRef.current) return;
+    didAutoShuffleRef.current = true;
+    shuffle();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [poolKey]);
+
   // 縣市挑選提到最上面（想去哪先選，一鍵就抽那一帶）；其餘條件收在「更多條件」
   const hasCityChoices = cityCounts.length > 0;
   const hasAdvanced = staleCount > 0 || recentCount > 0 || cuisineCounts.length > 0;
