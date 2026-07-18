@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { MapPin, ChevronDown } from 'lucide-react';
 import { mapsUrlForRestaurant } from '../lib/maps';
 import { Thumb } from './Thumb';
+import { EmptyMark } from './EmptyMark';
 import { StatusBadge } from './StatusBadge';
 import type { FoodItem } from '../types';
 
@@ -56,7 +57,7 @@ export function PlacesView({ foods, imageByFoodId = {}, onOpen }: Props) {
   if (groups.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
-        <div className="text-[#c9a961]/40 text-3xl tracking-[0.5em] mb-4">— —</div>
+        <EmptyMark className="mb-4" />
         <p className="text-[#9a9384] text-[15px] tracking-wider">這裡的食物還沒指定店家</p>
         <p className="text-[#5d574c] text-[12px] tracking-widest mt-1.5">幫食物加上店家，就會以店家彙整</p>
       </div>
@@ -102,14 +103,14 @@ export function PlacesView({ foods, imageByFoodId = {}, onOpen }: Props) {
 
             {isOpen && (
               <div className="px-4 pb-4">
-                <div className="border-t border-[#1f1f1f] pt-3 flex flex-col gap-1">
+                <div className="border-t border-[#211c15] pt-3 flex flex-col gap-1">
                   {g.foods.map(f => (
                     <button
                       key={f.id}
                       onClick={() => onOpen(f)}
                       className="flex items-center gap-3 px-2 py-2 rounded-[10px] hover:bg-[#c9a961]/5 active:bg-[#c9a961]/10 transition-colors text-left"
                     >
-                      <div className="w-9 h-9 rounded-[8px] overflow-hidden bg-[#1c1813] border border-[#2a2a2a] flex-shrink-0 flex items-center justify-center">
+                      <div className="w-9 h-9 rounded-[8px] overflow-hidden bg-[#1c1813] border border-[#2c261d] flex-shrink-0 flex items-center justify-center">
                         {imageByFoodId[f.id]
                           ? <Thumb src={imageByFoodId[f.id]} className="w-full h-full object-cover" />
                           : <span className="text-[#3f3a30] text-[12px]">—</span>}

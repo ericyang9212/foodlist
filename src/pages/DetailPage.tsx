@@ -37,9 +37,9 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-[#0a0a0a] animate-fadein" style={{ maxWidth: 430, margin: '0 auto' }}>
+    <div className="fixed inset-0 z-50 flex flex-col bg-[#0b0a08] animate-fadein" style={{ maxWidth: 430, margin: '0 auto' }}>
       <div
-        className="flex items-center justify-between px-6 pb-4 border-b border-[#1f1f1f]"
+        className="flex items-center justify-between px-6 pb-4 border-b border-[#211c15]"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}
       >
         <button onClick={onClose} className="icon-btn">
@@ -72,7 +72,7 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
           <div className="flex items-center gap-3">
             <StatusBadge status={item.status} />
             {item.cuisineType && (
-              <span className="text-[13px] text-[#777] tracking-widest">{item.cuisineType}</span>
+              <span className="text-[13px] text-[#7d7566] tracking-widest">{item.cuisineType}</span>
             )}
           </div>
 
@@ -101,7 +101,7 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
 
         {item.rating && (
           <div className="text-[#c9a961] tracking-[0.4em] text-xl mb-7">
-            {'★'.repeat(item.rating)}<span className="text-[#2a2a2a]">{'★'.repeat(5 - item.rating)}</span>
+            {'★'.repeat(item.rating)}<span className="text-[#2c261d]">{'★'.repeat(5 - item.rating)}</span>
           </div>
         )}
 
@@ -146,7 +146,7 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
 
         {/* 店家型：主店家已在上方，只列其他分店；想吃型／舊制：整份候選清單（可隨時補店） */}
         {(isOwnStore ? branches.length > 0 : true) && (
-          <div className="mt-10 pt-7 border-t border-[#1f1f1f]">
+          <div className="mt-10 pt-7 border-t border-[#211c15]">
             <RestaurantsEditor
               title={isOwnStore ? '其他分店' : '候選店家'}
               restaurants={isOwnStore ? branches : item.restaurants}
@@ -155,7 +155,7 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
           </div>
         )}
 
-        <div className="text-[12px] tracking-widest text-[#555] border-t border-[#1f1f1f] pt-5 mt-10">
+        <div className="text-[12px] tracking-widest text-[#5d574c] border-t border-[#211c15] pt-5 mt-10">
           {new Date(item.createdAt).toLocaleDateString('zh-TW')}
         </div>
       </div>

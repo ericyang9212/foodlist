@@ -1,7 +1,7 @@
 // 維護中整頁畫面。由資料庫的 app_config.maintenance 旗標控制（用 SQL 開關）。
 export function MaintenanceScreen({ message }: { message?: string }) {
   return (
-    <div className="flex flex-col items-center justify-center h-svh bg-[#0a0a0a] px-8 text-center">
+    <div className="flex flex-col items-center justify-center h-svh bg-[#0b0a08] px-8 text-center">
       <img
         src="/logo.png"
         alt="PSJ dice list"

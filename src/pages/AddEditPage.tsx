@@ -156,10 +156,10 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
   const busy = uploading || saving;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-[#0a0a0a] animate-fadein" style={{ maxWidth: 430, margin: '0 auto' }}>
+    <div className="fixed inset-0 z-50 flex flex-col bg-[#0b0a08] animate-fadein" style={{ maxWidth: 430, margin: '0 auto' }}>
       {/* Header */}
       <div
-        className="flex items-center justify-between px-6 pb-4 border-b border-[#1f1f1f]"
+        className="flex items-center justify-between px-6 pb-4 border-b border-[#211c15]"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}
       >
         <button onClick={onClose} className="icon-btn">
@@ -209,19 +209,19 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
                   // 注音/拼音選字的 Enter 不算送出
                   if (e.key === 'Enter' && !e.nativeEvent.isComposing) handleSave();
                 }}
-                className="w-full bg-transparent border-b border-[#2a2a2a] focus:border-[#c9a961]/60 pb-3 text-[26px] text-[#f5f1e8] placeholder-[#3a3a3a] tracking-wide focus:outline-none transition-colors"
+                className="w-full bg-transparent border-b border-[#2c261d] focus:border-[#c9a961]/60 pb-3 text-[26px] text-[#f5f1e8] placeholder-[#3c352a] tracking-wide focus:outline-none transition-colors"
               />
             </div>
 
             {/* 縮圖區塊 */}
             {previewSrc ? (
               <div className="relative flex-shrink-0">
-                <div className="w-20 h-20 rounded-[6px] bg-[#0a0a0a] border border-[#c9a961]/40 overflow-hidden shadow-[0_4px_12px_rgba(201,169,97,0.15)]">
+                <div className="w-20 h-20 rounded-[6px] bg-[#0b0a08] border border-[#c9a961]/40 overflow-hidden shadow-[0_4px_12px_rgba(201,169,97,0.15)]">
                   <img src={previewSrc} alt="" className="w-full h-full object-cover" />
                 </div>
                 <button
                   onClick={removeImage}
-                  className="absolute -top-1.5 -right-1.5 bg-[#0a0a0a] border border-[#c9a961]/60 w-6 h-6 rounded-full flex items-center justify-center hover:bg-[#c9a961]/20 transition-colors"
+                  className="absolute -top-1.5 -right-1.5 bg-[#0b0a08] border border-[#c9a961]/60 w-6 h-6 rounded-full flex items-center justify-center hover:bg-[#c9a961]/20 transition-colors"
                 >
                   <X size={12} className="text-[#c9a961]" />
                 </button>
@@ -274,7 +274,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
               <select
                 value={city}
                 onChange={e => setCity(e.target.value)}
-                className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-3 text-base text-[#f5f1e8] focus:outline-none transition-colors"
+                className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-3 text-base text-[#f5f1e8] focus:outline-none transition-colors"
               >
                 <option value="">縣市</option>
                 {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -284,7 +284,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
                 placeholder="區域（例如：大安區）"
                 value={area}
                 onChange={e => setArea(e.target.value)}
-                className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-3 text-base text-[#f5f1e8] placeholder-[#555] focus:outline-none transition-colors"
+                className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-3 text-base text-[#f5f1e8] placeholder-[#5d574c] focus:outline-none transition-colors"
               />
               <input
                 type="url"
@@ -292,10 +292,10 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
                 placeholder="Google 地圖連結"
                 value={url}
                 onChange={e => setUrl(e.target.value)}
-                className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-3 text-base text-[#f5f1e8] placeholder-[#555] focus:outline-none transition-colors"
+                className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-3 text-base text-[#f5f1e8] placeholder-[#5d574c] focus:outline-none transition-colors"
               />
             </div>
-            <p className="text-[11px] text-[#666] tracking-wider mt-2 leading-relaxed">
+            <p className="text-[11px] text-[#6d6557] tracking-wider mt-2 leading-relaxed">
               選縣市或貼地圖連結 → 抽到能「帶我去」，也會出現在足跡地圖。
             </p>
           </div>
@@ -305,7 +305,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
           <div className="pt-1">
             <button
               onClick={() => setShowStores(!showStores)}
-              className="flex items-center gap-2 text-[13px] tracking-[0.3em] text-[#777]"
+              className="flex items-center gap-2 text-[13px] tracking-[0.3em] text-[#7d7566]"
             >
               <ChevronDown size={15} className={`transition-transform ${showStores ? 'rotate-180' : ''}`} />
               {kind === 'store'
@@ -326,14 +326,14 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
           {/* 更多細節 */}
           <button
             onClick={() => setShowMore(!showMore)}
-            className="flex items-center gap-2 text-[13px] tracking-[0.3em] text-[#777]"
+            className="flex items-center gap-2 text-[13px] tracking-[0.3em] text-[#7d7566]"
           >
             <ChevronDown size={15} className={`transition-transform ${showMore ? 'rotate-180' : ''}`} />
             {showMore ? '收起' : '加更多細節（選填）'}
           </button>
 
           {showMore && (
-            <div className="space-y-7 pt-2 border-t border-[#1f1f1f]">
+            <div className="space-y-7 pt-2 border-t border-[#211c15]">
               {/* 狀態 */}
               <div className="pt-5">
                 <label className="block text-[13px] tracking-[0.4em] text-[#c9a961]/60 mb-4">心情</label>
@@ -376,7 +376,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
                         key={n}
                         onClick={() => setRating(rating === n ? undefined : n)}
                         className={`text-3xl transition-colors ${
-                          n <= (rating ?? 0) ? 'text-[#c9a961]' : 'text-[#2a2a2a]'
+                          n <= (rating ?? 0) ? 'text-[#c9a961]' : 'text-[#2c261d]'
                         }`}
                       >
                         ★
@@ -394,7 +394,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
                   value={notes}
                   onChange={e => setNotes(e.target.value)}
                   rows={3}
-                  className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-3 text-base text-[#f5f1e8] placeholder-[#555] focus:outline-none resize-none leading-relaxed transition-colors"
+                  className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-3 text-base text-[#f5f1e8] placeholder-[#5d574c] focus:outline-none resize-none leading-relaxed transition-colors"
                 />
               </div>
 

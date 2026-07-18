@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { MapPin, Trash2, Compass, X, ChevronDown, Plus } from 'lucide-react';
 import { Thumb } from '../components/Thumb';
 import { TaiwanMap } from '../components/TaiwanMap';
+import { EmptyMark } from '../components/EmptyMark';
 import type { Foodprint } from '../types';
 import { resolveCityName } from '../lib/foodprintGeo';
 
@@ -98,7 +99,7 @@ export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: P
 
   return (
     // 整頁單一捲動容器：地圖固定高度、正常排版在上方，時間軸接在下面一起捲動
-    <div className="h-full overflow-y-auto bg-[#0a0a0a]">
+    <div className="h-full overflow-y-auto bg-[#0b0a08]">
       <div
         className="px-6 pb-4 flex items-end justify-between gap-3"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 64px)' }}
@@ -129,7 +130,7 @@ export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: P
 
         {selectedCity && (
           <div
-            className="absolute left-3 right-3 bottom-3 card-surface rounded-[8px] p-3.5 bg-[#141210]/95 border border-[#2a2a2a] max-h-[55%] flex flex-col"
+            className="absolute left-3 right-3 bottom-3 card-surface rounded-[8px] p-3.5 bg-[#141210]/95 border border-[#2c261d] max-h-[55%] flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-baseline gap-2 mb-2 flex-shrink-0">
@@ -154,14 +155,14 @@ export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: P
                 ))}
               </ul>
             ) : (
-              <p className="text-[12px] text-[#666] tracking-wide">還沒有這個縣市的足跡</p>
+              <p className="text-[12px] text-[#6d6557] tracking-wide">還沒有這個縣市的足跡</p>
             )}
           </div>
         )}
       </div>
 
       <div className="px-5 pt-5 pb-28">
-        <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#1a1a1a]">
+        <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#1c1812]">
           <div className="flex items-baseline gap-2">
             <h2 className="text-[15px] text-[#f5f1e8] tracking-[0.2em] font-medium">足跡時間軸</h2>
             {storeCount > 0 && (
@@ -193,7 +194,7 @@ export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: P
                           className="flex items-center gap-3 mb-3 w-full text-left"
                         >
                           <span className="text-[12px] tracking-[0.3em] text-[#c9a961]/80">{group.label}</span>
-                          <div className="h-[1px] flex-1 bg-[#1a1a1a]" />
+                          <div className="h-[1px] flex-1 bg-[#1c1812]" />
                           <span className="text-[10px] text-[#c9a961] bg-[#c9a961]/10 px-1.5 py-0.5 rounded-full tracking-widest">
                             {group.prints.length}
                           </span>
@@ -231,7 +232,7 @@ export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: P
             {visibleCount < items.length && (
               <button
                 onClick={() => setVisibleCount(c => c + PAGE_SIZE)}
-                className="w-full mt-4 py-2.5 text-[12px] tracking-[0.2em] text-[#c9a961]/80 border border-[#1f1f1f] rounded-[6px] hover:border-[#c9a961]/40 hover:text-[#c9a961] transition-colors"
+                className="w-full mt-4 py-2.5 text-[12px] tracking-[0.2em] text-[#c9a961]/80 border border-[#211c15] rounded-[6px] hover:border-[#c9a961]/40 hover:text-[#c9a961] transition-colors"
               >
                 載入更多（剩 {items.length - visibleCount} 筆）
               </button>
@@ -239,9 +240,9 @@ export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: P
           </>
         ) : (
           <div className="flex flex-col items-center justify-center py-10 text-center">
-            <div className="text-[#c9a961]/40 text-3xl tracking-[0.5em] mb-3">— —</div>
-            <p className="text-[#777] text-[14px] tracking-wider mb-2">還沒有任何足跡</p>
-            <p className="text-[#555] text-[12px] tracking-widest">
+            <EmptyMark className="mb-3" />
+            <p className="text-[#7d7566] text-[14px] tracking-wider mb-2">還沒有任何足跡</p>
+            <p className="text-[#5d574c] text-[12px] tracking-widest">
               在食物詳情頁按「今天吃了」就會出現
             </p>
           </div>
@@ -283,7 +284,7 @@ function FoodprintCard({ item, photoSrc, onDelete, onClick }: {
           )}
         </div>
         {photoSrc && (
-          <div className="w-14 h-14 rounded-[4px] border border-[#2a2a2a] overflow-hidden flex-shrink-0">
+          <div className="w-14 h-14 rounded-[4px] border border-[#2c261d] overflow-hidden flex-shrink-0">
             <Thumb src={photoSrc} className="w-full h-full object-cover" />
           </div>
         )}

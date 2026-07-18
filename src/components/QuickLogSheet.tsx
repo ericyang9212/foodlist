@@ -104,7 +104,7 @@ export function QuickLogSheet({ uploadPhoto, onSave, onClose }: Props) {
               onChange={e => setName(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter' && !e.nativeEvent.isComposing && canSave) handleSave(); }}
               placeholder="例：後院早午餐、精誠夜市"
-              className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[10px] px-4 py-3 text-[15px] text-[#f5f1e8] placeholder-[#555] focus:outline-none"
+              className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[10px] px-4 py-3 text-[15px] text-[#f5f1e8] placeholder-[#5d574c] focus:outline-none"
             />
           </div>
 
@@ -114,7 +114,7 @@ export function QuickLogSheet({ uploadPhoto, onSave, onClose }: Props) {
               <select
                 value={city}
                 onChange={e => setCity(e.target.value)}
-                className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[10px] px-3 py-3 text-[15px] text-[#f5f1e8] focus:outline-none"
+                className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[10px] px-3 py-3 text-[15px] text-[#f5f1e8] focus:outline-none"
               >
                 <option value="">不指定</option>
                 {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -126,7 +126,7 @@ export function QuickLogSheet({ uploadPhoto, onSave, onClose }: Props) {
                 type="date"
                 value={dateStr}
                 onChange={e => setDateStr(e.target.value)}
-                className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[10px] px-3 py-3 text-[15px] text-[#f5f1e8] focus:outline-none"
+                className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[10px] px-3 py-3 text-[15px] text-[#f5f1e8] focus:outline-none"
               />
             </div>
           </div>
@@ -138,7 +138,7 @@ export function QuickLogSheet({ uploadPhoto, onSave, onClose }: Props) {
               onChange={e => setMapsUrl(e.target.value)}
               inputMode="url"
               placeholder="貼上連結，之後回訪能「帶我去」"
-              className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[10px] px-4 py-3 text-[14px] text-[#f5f1e8] placeholder-[#555] focus:outline-none"
+              className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[10px] px-4 py-3 text-[14px] text-[#f5f1e8] placeholder-[#5d574c] focus:outline-none"
             />
           </div>
 
@@ -149,7 +149,7 @@ export function QuickLogSheet({ uploadPhoto, onSave, onClose }: Props) {
                 <img src={localPreview} alt="" className="max-w-full max-h-40 rounded-[8px] border border-[#c9a961]/30" />
                 <button
                   onClick={() => { setPendingFile(null); setLocalPreview(null); }}
-                  className="absolute -top-2 -right-2 bg-[#0a0a0a] border border-[#c9a961]/60 w-6 h-6 rounded-full flex items-center justify-center"
+                  className="absolute -top-2 -right-2 bg-[#0b0a08] border border-[#c9a961]/60 w-6 h-6 rounded-full flex items-center justify-center"
                 >
                   <X size={12} className="text-[#c9a961]" />
                 </button>
@@ -183,7 +183,7 @@ export function QuickLogSheet({ uploadPhoto, onSave, onClose }: Props) {
               value={note}
               onChange={e => setNote(e.target.value)}
               rows={2}
-              className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-2.5 text-[14px] text-[#f5f1e8] placeholder-[#555] focus:outline-none resize-none leading-relaxed"
+              className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-2.5 text-[14px] text-[#f5f1e8] placeholder-[#5d574c] focus:outline-none resize-none leading-relaxed"
             />
           </div>
         </div>

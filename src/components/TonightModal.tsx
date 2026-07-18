@@ -161,7 +161,7 @@ export function TonightModal({ wantItems, triedItems, lastEatenByFoodId, onOpen,
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center px-6"
          onClick={onClose}>
       <div
-        className="relative w-full max-w-sm bg-gradient-to-b from-[#131313] to-[#0d0c0a] border border-[#c9a961]/30 rounded-[14px] shadow-[0_20px_60px_rgba(0,0,0,0.5),0_0_40px_rgba(201,169,97,0.15)] px-8 py-10 animate-fadein"
+        className="relative w-full max-w-sm bg-gradient-to-b from-[#151210] to-[#0d0c0a] border border-[#c9a961]/30 rounded-[14px] shadow-[0_20px_60px_rgba(0,0,0,0.5),0_0_40px_rgba(201,169,97,0.15)] px-8 py-10 animate-fadein"
         onClick={e => e.stopPropagation()}
       >
         <button onClick={onClose} className="absolute top-3 right-3 icon-btn">
@@ -175,7 +175,7 @@ export function TonightModal({ wantItems, triedItems, lastEatenByFoodId, onOpen,
 
         {/* 抽籤來源：想吃（試新的）／回訪（吃過的安心牌）／全部（兩邊一起抽） */}
         <div className="flex justify-center mb-6">
-          <div className="inline-flex items-center rounded-full border border-[#2a2a2a] p-[3px] text-[13px] tracking-[0.1em]">
+          <div className="inline-flex items-center rounded-full border border-[#2c261d] p-[3px] text-[13px] tracking-[0.1em]">
             {([
               ['want', '想吃', wantItems.length],
               ['tried', '回訪', triedItems.length],
@@ -222,7 +222,7 @@ export function TonightModal({ wantItems, triedItems, lastEatenByFoodId, onOpen,
             <button
               onClick={() => setShowFilters(!showFilters)}
               className={`w-full flex items-center justify-center gap-2 py-2 text-[12px] tracking-[0.3em] transition-colors ${
-                advancedActive ? 'text-[#c9a961]' : 'text-[#666] hover:text-[#c9a961]/80'
+                advancedActive ? 'text-[#c9a961]' : 'text-[#6d6557] hover:text-[#c9a961]/80'
               }`}
             >
               <SlidersHorizontal size={13} />
@@ -232,10 +232,10 @@ export function TonightModal({ wantItems, triedItems, lastEatenByFoodId, onOpen,
             </button>
 
             {showFilters && (
-              <div className="mt-3 space-y-3 pt-3 border-t border-[#1f1f1f]">
+              <div className="mt-3 space-y-3 pt-3 border-t border-[#211c15]">
                 {staleCount > 0 && (
                   <div>
-                    <div className="text-[10px] tracking-[0.4em] text-[#666] mb-2">塵封</div>
+                    <div className="text-[10px] tracking-[0.4em] text-[#6d6557] mb-2">塵封</div>
                     <button
                       onClick={() => setStaleOnly(!staleOnly)}
                       className={`text-[11px] tracking-[0.2em] px-2.5 py-1 ${staleOnly ? 'chip chip-active' : 'chip'}`}
@@ -247,7 +247,7 @@ export function TonightModal({ wantItems, triedItems, lastEatenByFoodId, onOpen,
 
                 {recentCount > 0 && (
                   <div>
-                    <div className="text-[10px] tracking-[0.4em] text-[#666] mb-2">最近吃過</div>
+                    <div className="text-[10px] tracking-[0.4em] text-[#6d6557] mb-2">最近吃過</div>
                     <button
                       onClick={() => setExcludeRecent(!excludeRecent)}
                       className={`text-[11px] tracking-[0.2em] px-2.5 py-1 ${excludeRecent ? 'chip chip-active' : 'chip'}`}
@@ -259,7 +259,7 @@ export function TonightModal({ wantItems, triedItems, lastEatenByFoodId, onOpen,
 
                 {cuisineCounts.length > 0 && (
                   <div>
-                    <div className="text-[10px] tracking-[0.4em] text-[#666] mb-2">類型</div>
+                    <div className="text-[10px] tracking-[0.4em] text-[#6d6557] mb-2">類型</div>
                     <div className="flex flex-wrap gap-1.5">
                       <button
                         onClick={() => setCuisineFilter(null)}
@@ -283,7 +283,7 @@ export function TonightModal({ wantItems, triedItems, lastEatenByFoodId, onOpen,
                 {advancedActive && (
                   <button
                     onClick={() => { setCuisineFilter(null); setStaleOnly(false); setExcludeRecent(false); }}
-                    className="w-full text-[11px] tracking-[0.3em] text-[#666] hover:text-[#c9a961] py-1.5 transition-colors"
+                    className="w-full text-[11px] tracking-[0.3em] text-[#6d6557] hover:text-[#c9a961] py-1.5 transition-colors"
                   >
                     清除條件
                   </button>
@@ -307,7 +307,7 @@ export function TonightModal({ wantItems, triedItems, lastEatenByFoodId, onOpen,
                 {current.cuisineType && <span>{current.cuisineType}</span>}
                 {current.restaurants.length > 0 && (
                   <>
-                    {current.cuisineType && <span className="text-[#3a3a3a]">·</span>}
+                    {current.cuisineType && <span className="text-[#3c352a]">·</span>}
                     <span>{current.restaurants.length} 家候選</span>
                   </>
                 )}
@@ -337,18 +337,18 @@ export function TonightModal({ wantItems, triedItems, lastEatenByFoodId, onOpen,
           <div className="text-center py-10">
             {hasFilter ? (
               <>
-                <p className="text-[#777] text-[15px] tracking-wider mb-2">這個範圍沒有可抽的</p>
-                <p className="text-[#555] text-[13px] tracking-widest">試試清除或換條件</p>
+                <p className="text-[#7d7566] text-[15px] tracking-wider mb-2">這個範圍沒有可抽的</p>
+                <p className="text-[#5d574c] text-[13px] tracking-widest">試試清除或換條件</p>
               </>
             ) : source === 'want' ? (
               <>
-                <p className="text-[#777] text-[15px] tracking-wider mb-2">還沒有想吃的食物</p>
-                <p className="text-[#555] text-[13px] tracking-widest">先去清單新增幾個吧</p>
+                <p className="text-[#7d7566] text-[15px] tracking-wider mb-2">還沒有想吃的食物</p>
+                <p className="text-[#5d574c] text-[13px] tracking-widest">先去清單新增幾個吧</p>
               </>
             ) : source === 'tried' ? (
               <>
-                <p className="text-[#777] text-[15px] tracking-wider mb-2">還沒有吃過的紀錄</p>
-                <p className="text-[#555] text-[13px] tracking-widest mb-5">加幾間吃過的店，之後就能從這裡抽</p>
+                <p className="text-[#7d7566] text-[15px] tracking-wider mb-2">還沒有吃過的紀錄</p>
+                <p className="text-[#5d574c] text-[13px] tracking-widest mb-5">加幾間吃過的店，之後就能從這裡抽</p>
                 {onQuickAdd && (
                   <button
                     onClick={onQuickAdd}
@@ -361,8 +361,8 @@ export function TonightModal({ wantItems, triedItems, lastEatenByFoodId, onOpen,
               </>
             ) : (
               <>
-                <p className="text-[#777] text-[15px] tracking-wider mb-2">還沒有可以抽的</p>
-                <p className="text-[#555] text-[13px] tracking-widest">先去清單新增，或加幾間吃過的</p>
+                <p className="text-[#7d7566] text-[15px] tracking-wider mb-2">還沒有可以抽的</p>
+                <p className="text-[#5d574c] text-[13px] tracking-widest">先去清單新增，或加幾間吃過的</p>
               </>
             )}
           </div>

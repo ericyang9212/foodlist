@@ -1,10 +1,10 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg: #0a0a0a;
-  --color-surface: #161616;
-  --color-surface-2: #1f1f1f;
-  --color-border: #2a2a2a;
+  --color-bg: #0b0a08;
+  --color-surface: #171410;
+  --color-surface-2: #211c15;
+  --color-border: #2c261d;
   --color-gold: #c9a961;
   --color-gold-dim: #8a7544;
   --color-text: #f5f1e8;
@@ -14,6 +14,12 @@
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* 原生控件（日期選擇器、下拉選單）走暗色系，並以香檳金作為系統控件主色 */
+:root {
+  color-scheme: dark;
+  accent-color: #d6b974;
 }
 
 /* 保底：避免 iOS Safari 在 input font-size < 16px 時自動放大畫面 */
@@ -35,10 +41,13 @@ body {
   max-width: 430px;
   margin: 0 auto;
   position: relative;
-  /* 暖黑底 + 頂部一層淡香檳金暈，避免死黑、增加縱深 */
-  background:
+  /* 暖黑底 + 頂部香檳金暈 + 底部微弱餘燼光 + 極細顆粒，暗部不死平、有紙感 */
+  background-color: #0b0a08;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.04'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"),
     radial-gradient(130% 55% at 50% -5%, rgba(214, 185, 124, 0.08) 0%, rgba(214, 185, 124, 0) 58%),
-    #0b0a08;
+    radial-gradient(120% 50% at 50% 108%, rgba(177, 147, 79, 0.05) 0%, rgba(177, 147, 79, 0) 62%);
+  background-repeat: repeat, no-repeat, no-repeat;
 }
 
 ::-webkit-scrollbar {
@@ -49,6 +58,26 @@ body {
 ::selection {
   background: rgba(214, 185, 124, 0.32);
   color: #f6efe0;
+}
+
+/* 輸入游標香檳金；日期選擇器的系統圖示調暖、收斂 */
+input, textarea {
+  caret-color: #d6b974;
+}
+input[type='date']::-webkit-calendar-picker-indicator {
+  opacity: 0.55;
+  filter: invert(0.78) sepia(0.35);
+}
+
+/* 鍵盤操作時的焦點：香檳細環（滑鼠 / 觸控點擊不顯示） */
+:where(button, a, [role='button']):focus-visible {
+  outline: 2px solid rgba(214, 185, 124, 0.55);
+  outline-offset: 2px;
+}
+
+/* 大標題斷行更勻稱 */
+h1, h2, h3 {
+  text-wrap: balance;
 }
 
 /* 數字等寬，列表數量對齊更穩 */
@@ -162,14 +191,14 @@ body {
 
 /* 中性：低調，提供取消/輔助動作 */
 .btn-neutral {
-  border: 1px solid #2a2a2a;
+  border: 1px solid #2c261d;
   color: #8a8478;
   background: transparent;
   border-radius: 8px;
   transition: all 0.15s ease;
 }
 .btn-neutral:hover {
-  border-color: #3a3a3a;
+  border-color: #3c352a;
   color: #c9a961;
   background: rgba(201, 169, 97, 0.04);
 }
@@ -180,7 +209,7 @@ body {
 /* 圓潤膠囊：篩選 chip 用 */
 .chip {
   border-radius: 999px;
-  border: 1px solid #2a2a2a;
+  border: 1px solid #2c261d;
   color: #8a8478;
   background: transparent;
   transition: all 0.15s ease;

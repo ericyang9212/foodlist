@@ -8,7 +8,7 @@ interface Props {
 const DOT: Record<Status, string> = {
   want: 'bg-[#d6b974]',
   tried: 'bg-[#6b6553]',
-  skip: 'bg-[#444]',
+  skip: 'bg-[#4a4438]',
 };
 
 export function StatusBadge({ status }: Props) {

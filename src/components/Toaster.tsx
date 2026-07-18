@@ -11,7 +11,7 @@ const ICONS = {
 const BORDERS = {
   success: 'border-[#c9a961]/40',
   error: 'border-[#a85959]/50',
-  info: 'border-[#2a2a2a]',
+  info: 'border-[#2c261d]',
 };
 
 export function Toaster() {
@@ -29,11 +29,11 @@ export function Toaster() {
       {toasts.map(t => (
         <div
           key={t.id}
-          className={`pointer-events-auto flex items-center gap-3 bg-[#161616] border ${BORDERS[t.kind]} rounded-[6px] px-4 py-3 shadow-[0_8px_24px_rgba(0,0,0,0.5)] animate-slideup`}
+          className={`pointer-events-auto flex items-center gap-3 bg-[#171410] border ${BORDERS[t.kind]} rounded-[6px] px-4 py-3 shadow-[0_8px_24px_rgba(0,0,0,0.5)] animate-slideup`}
         >
           {ICONS[t.kind]}
           <span className="flex-1 text-[13px] text-[#e5e0d5] tracking-wide leading-snug">{t.message}</span>
-          <button onClick={() => dismissToast(t.id)} className="text-[#666] hover:text-[#c9a961] transition-colors">
+          <button onClick={() => dismissToast(t.id)} className="text-[#6d6557] hover:text-[#c9a961] transition-colors">
             <X size={14} />
           </button>
         </div>

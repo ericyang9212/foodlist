@@ -1,4 +1,5 @@
 import { Component, type ReactNode } from 'react';
+import { EmptyMark } from './EmptyMark';
 
 interface Props {
   children: ReactNode;
@@ -22,10 +23,10 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.error) {
       return (
-        <div className="flex flex-col items-center justify-center h-svh bg-[#0a0a0a] px-8 text-center">
-          <div className="text-[#c9a961]/40 text-3xl tracking-[0.5em] mb-5">— —</div>
+        <div className="flex flex-col items-center justify-center h-svh bg-[#0b0a08] px-8 text-center">
+          <EmptyMark className="mb-5" />
           <h1 className="text-[20px] text-gold-gradient tracking-[0.15em] font-medium mb-3">出了一點狀況</h1>
-          <p className="text-[#777] text-[13px] tracking-wider mb-8 leading-relaxed max-w-xs">
+          <p className="text-[#7d7566] text-[13px] tracking-wider mb-8 leading-relaxed max-w-xs">
             畫面遇到非預期的錯誤。你的資料是安全的，重新整理通常就會恢復。
           </p>
           <button

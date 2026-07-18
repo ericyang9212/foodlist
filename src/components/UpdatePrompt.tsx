@@ -26,7 +26,7 @@ export function UpdatePrompt() {
       <RefreshCw size={20} className="text-[#c9a961] flex-shrink-0" />
       <div className="flex-1 min-w-0">
         <div className="text-[14px] text-[#f5f1e8] tracking-wider">有新版本</div>
-        <div className="text-[11px] text-[#888] tracking-wider mt-0.5">點更新載入最新功能</div>
+        <div className="text-[11px] text-[#8a8478] tracking-wider mt-0.5">點更新載入最新功能</div>
       </div>
       <button
         onClick={() => void updateServiceWorker(true)}
@@ -36,7 +36,7 @@ export function UpdatePrompt() {
       </button>
       <button
         onClick={() => setNeedRefresh(false)}
-        className="text-[#666] text-[12px] tracking-wider flex-shrink-0 px-1"
+        className="text-[#6d6557] text-[12px] tracking-wider flex-shrink-0 px-1"
       >
         稍後
       </button>

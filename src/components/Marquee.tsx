@@ -43,7 +43,7 @@ function textStyle(hex: string): CSSProperties {
 }
 
 // 共用的跑馬燈內容：單句連續橫向捲動、多則淡入淡出輪播；尊重「減少動態」
-function MarqueeText({ lines, speed, hex, maskColor = '#0a0a0a' }: {
+function MarqueeText({ lines, speed, hex, maskColor = '#0b0a08' }: {
   lines: string[]; speed: number; hex: string; maskColor?: string;
 }) {
   const isMulti = lines.length >= 2;
@@ -95,7 +95,7 @@ export function Marquee({ data, onUpdate }: Props) {
     return (
       <button
         onClick={() => setEditing(true)}
-        className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-30 bg-[#0a0a0a] border-b border-[#1a1a1a] flex items-center justify-center gap-1.5 text-[12px] tracking-[0.4em] text-[#3a3a3a] hover:text-[#c9a961]/60 transition-colors"
+        className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-30 bg-[#0b0a08] border-b border-[#1c1812] flex items-center justify-center gap-1.5 text-[12px] tracking-[0.4em] text-[#3c352a] hover:text-[#c9a961]/60 transition-colors"
         style={{
           paddingTop: 'calc(env(safe-area-inset-top) + 12px)',
           paddingBottom: '12px',
@@ -113,7 +113,7 @@ export function Marquee({ data, onUpdate }: Props) {
   return (
     <>
       <div
-        className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-30 bg-[#0a0a0a] border-b border-[#c9a961]/15 overflow-hidden"
+        className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-30 bg-[#0b0a08] border-b border-[#c9a961]/15 overflow-hidden"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 8px)', paddingBottom: '4px' }}
       >
         <button onClick={() => setEditing(true)} className="w-full">
@@ -154,9 +154,9 @@ function MarqueeEditor({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-[#0a0a0a] animate-fadein" style={{ maxWidth: 430, margin: '0 auto' }}>
+    <div className="fixed inset-0 z-50 flex flex-col bg-[#0b0a08] animate-fadein" style={{ maxWidth: 430, margin: '0 auto' }}>
       <div
-        className="flex items-center justify-between px-6 pb-4 border-b border-[#1f1f1f]"
+        className="flex items-center justify-between px-6 pb-4 border-b border-[#211c15]"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}
       >
         <button onClick={onClose} className="icon-btn">
@@ -178,7 +178,7 @@ function MarqueeEditor({
         {lines.length > 0 && (
           <div>
             <div className="text-[11px] tracking-[0.4em] text-[#c9a961]/60 mb-2">PREVIEW</div>
-            <div className="relative bg-[#0a0a0a] border border-[#c9a961]/15 rounded-[8px] overflow-hidden h-11 flex items-center">
+            <div className="relative bg-[#0b0a08] border border-[#c9a961]/15 rounded-[8px] overflow-hidden h-11 flex items-center">
               <MarqueeText key={lines.join('\n')} lines={lines} speed={speed} hex={colorHexOf(color)} />
             </div>
           </div>
@@ -193,9 +193,9 @@ function MarqueeEditor({
             value={text}
             onChange={e => setText(e.target.value)}
             rows={6}
-            className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[8px] px-4 py-3 text-base text-[#f5f1e8] placeholder-[#555] focus:outline-none resize-none leading-relaxed"
+            className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-4 py-3 text-base text-[#f5f1e8] placeholder-[#5d574c] focus:outline-none resize-none leading-relaxed"
           />
-          <p className="text-[11px] text-[#666] tracking-wider mt-2 leading-relaxed">
+          <p className="text-[11px] text-[#6d6557] tracking-wider mt-2 leading-relaxed">
             清空可關閉跑馬燈。多行＝多則，會一則一則淡入淡出輪播；單行太長才會橫向捲動。
           </p>
         </div>
@@ -210,7 +210,7 @@ function MarqueeEditor({
                 onClick={() => setColor(c.key)}
                 aria-label={c.label}
                 className="w-10 h-10 rounded-full flex items-center justify-center transition-transform active:scale-95"
-                style={{ background: c.hex, boxShadow: color === c.key ? `0 0 0 2px #0a0a0a, 0 0 0 4px ${c.hex}` : 'none' }}
+                style={{ background: c.hex, boxShadow: color === c.key ? `0 0 0 2px #0b0a08, 0 0 0 4px ${c.hex}` : 'none' }}
               >
                 {color === c.key && <Check size={16} className="text-[#100d07]" strokeWidth={3} />}
               </button>
@@ -233,7 +233,7 @@ function MarqueeEditor({
             onChange={e => setSpeed(Number(e.target.value))}
             className="w-full accent-[#c9a961]"
           />
-          <div className="flex justify-between text-[10px] text-[#555] tracking-widest mt-1">
+          <div className="flex justify-between text-[10px] text-[#5d574c] tracking-widest mt-1">
             <span>快</span>
             <span>慢</span>
           </div>

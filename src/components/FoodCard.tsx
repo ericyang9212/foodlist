@@ -77,7 +77,7 @@ export function FoodCard({ item, thumbnailUrl, lastEatenAt, onOpen }: Props) {
 
         {/* 縮圖（從靈感來的） */}
         {thumbnailUrl && (
-          <div className="relative flex-shrink-0 w-[84px] h-[84px] rounded-[12px] bg-[#0a0a0a] border border-[#c9a961]/20 overflow-hidden">
+          <div className="relative flex-shrink-0 w-[84px] h-[84px] rounded-[12px] bg-[#0b0a08] border border-[#c9a961]/20 overflow-hidden">
             <Thumb src={thumbnailUrl} className="w-full h-full object-cover" />
             <div className="pointer-events-none absolute inset-0 rounded-[12px] ring-1 ring-inset ring-white/5" />
           </div>

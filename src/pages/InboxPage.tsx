@@ -4,6 +4,7 @@ import type { Inspiration, FoodItem } from '../types';
 import { PLATFORM_LABELS } from '../types';
 import { safeHttpUrl } from '../lib/url';
 import { Thumb } from '../components/Thumb';
+import { EmptyMark } from '../components/EmptyMark';
 
 interface Props {
   items: Inspiration[];
@@ -52,10 +53,10 @@ export function InboxPage({ items, loading, onUpload, onDelete, onUpdate, onConv
   };
 
   return (
-    <div className="fixed inset-0 z-40 flex flex-col bg-[#0a0a0a] animate-fadein" style={{ maxWidth: 430, margin: '0 auto' }}>
+    <div className="fixed inset-0 z-40 flex flex-col bg-[#0b0a08] animate-fadein" style={{ maxWidth: 430, margin: '0 auto' }}>
       {/* Top bar */}
       <div
-        className="flex items-center justify-between px-6 pb-3 border-b border-[#1f1f1f]"
+        className="flex items-center justify-between px-6 pb-3 border-b border-[#211c15]"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}
       >
         <button onClick={onClose} className="icon-btn">
@@ -93,7 +94,7 @@ export function InboxPage({ items, loading, onUpload, onDelete, onUpdate, onConv
                 value={pendingNote}
                 onChange={e => setPendingNote(e.target.value)}
                 rows={2}
-                className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[6px] px-3 py-2.5 text-base text-[#f5f1e8] placeholder-[#555] focus:outline-none resize-none leading-relaxed transition-colors"
+                className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[6px] px-3 py-2.5 text-base text-[#f5f1e8] placeholder-[#5d574c] focus:outline-none resize-none leading-relaxed transition-colors"
               />
               <button
                 onClick={handleUpload}
@@ -113,7 +114,7 @@ export function InboxPage({ items, loading, onUpload, onDelete, onUpdate, onConv
                 <ImagePlus size={24} className="text-[#c9a961]" />
               </div>
               <div className="text-[14px] text-[#e6c87a] tracking-[0.3em]">上傳截圖</div>
-              <div className="text-[11px] text-[#666] tracking-[0.2em]">IG · Threads · 朋友傳的</div>
+              <div className="text-[11px] text-[#6d6557] tracking-[0.2em]">IG · Threads · 朋友傳的</div>
             </button>
           )}
           <input
@@ -164,9 +165,9 @@ export function InboxPage({ items, loading, onUpload, onDelete, onUpdate, onConv
 
         {items.length === 0 && !loading && (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="text-[#c9a961]/40 text-3xl tracking-[0.5em] mb-3">— —</div>
-            <p className="text-[#777] text-[14px] tracking-wider">尚未收任何靈感</p>
-            <p className="text-[#555] text-[12px] tracking-widest mt-1.5">用上面的按鈕收第一張截圖</p>
+            <EmptyMark className="mb-3" />
+            <p className="text-[#7d7566] text-[14px] tracking-wider">尚未收任何靈感</p>
+            <p className="text-[#5d574c] text-[12px] tracking-widest mt-1.5">用上面的按鈕收第一張截圖</p>
           </div>
         )}
       </div>
@@ -204,7 +205,7 @@ function SectionHeader({
       <div className="flex items-center gap-2.5">
         <span className="text-[10px] tracking-[0.45em] text-[#c9a961]/55">{overline}</span>
         <div className="h-[1px] flex-1 bg-gradient-to-r from-[#c9a961]/25 to-transparent" />
-        <span className="text-[11px] text-[#777] tracking-widest tabular-nums">{count}</span>
+        <span className="text-[11px] text-[#7d7566] tracking-widest tabular-nums">{count}</span>
       </div>
       <h2
         className="text-[19px] text-[#f5f1e8] tracking-[0.18em] font-medium mt-2"
@@ -212,7 +213,7 @@ function SectionHeader({
       >
         {title}
       </h2>
-      {subtitle && <p className="text-[11px] text-[#666] tracking-wider mt-1">{subtitle}</p>}
+      {subtitle && <p className="text-[11px] text-[#6d6557] tracking-wider mt-1">{subtitle}</p>}
     </div>
   );
 }
@@ -223,7 +224,7 @@ function InspirationThumbnail({
   return (
     <button
       onClick={onClick}
-      className={`group relative bg-[#161616] border border-[#262626] rounded-[8px] overflow-hidden active:scale-[0.97] hover:border-[#c9a961]/40 transition-all ${
+      className={`group relative bg-[#171410] border border-[#272217] rounded-[8px] overflow-hidden active:scale-[0.97] hover:border-[#c9a961]/40 transition-all ${
         small ? 'aspect-square' : 'aspect-[3/4]'
       }`}
     >
@@ -233,7 +234,7 @@ function InspirationThumbnail({
           className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.06]"
         />
       ) : (
-        <div className="w-full h-full flex items-center justify-center text-[#555] text-[11px] tracking-wider">無圖</div>
+        <div className="w-full h-full flex items-center justify-center text-[#5d574c] text-[11px] tracking-wider">無圖</div>
       )}
       {/* 邊框內陰影，增加層次 */}
       <div className="pointer-events-none absolute inset-0 rounded-[8px] ring-1 ring-inset ring-white/5" />
@@ -243,7 +244,7 @@ function InspirationThumbnail({
         </div>
       )}
       {insp.convertedFoodId && !hideCheck && (
-        <div className="absolute top-2 right-2 bg-[#c9a961] text-[#0a0a0a] p-0.5 rounded-full shadow-[0_2px_6px_rgba(0,0,0,0.4)]">
+        <div className="absolute top-2 right-2 bg-[#c9a961] text-[#0b0a08] p-0.5 rounded-full shadow-[0_2px_6px_rgba(0,0,0,0.4)]">
           <Check size={10} strokeWidth={3} />
         </div>
       )}
@@ -289,9 +290,9 @@ function InspirationDetail({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-[#0a0a0a] animate-fadein" style={{ maxWidth: 430, margin: '0 auto' }}>
+    <div className="fixed inset-0 z-50 flex flex-col bg-[#0b0a08] animate-fadein" style={{ maxWidth: 430, margin: '0 auto' }}>
       <div
-        className="flex items-center justify-between px-6 pb-4 border-b border-[#1f1f1f]"
+        className="flex items-center justify-between px-6 pb-4 border-b border-[#211c15]"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}
       >
         <button onClick={onClose} className="icon-btn">
@@ -307,7 +308,7 @@ function InspirationDetail({
         {insp.imageUrl && (
           <div className="px-5 pt-5">
             <div
-              className="relative rounded-[10px] overflow-hidden border border-[#1f1f1f] bg-black shadow-[0_6px_24px_rgba(0,0,0,0.45)]"
+              className="relative rounded-[10px] overflow-hidden border border-[#211c15] bg-black shadow-[0_6px_24px_rgba(0,0,0,0.45)]"
               onTouchStart={handleTouchStart}
               onTouchEnd={handleTouchEnd}
             >
@@ -352,7 +353,7 @@ function InspirationDetail({
               onChange={e => setNote(e.target.value)}
               rows={2}
               placeholder="加一句備註（哪看到的、想吃什麼）"
-              className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 px-3 py-2.5 text-base text-[#f5f1e8] placeholder-[#555] focus:outline-none resize-none leading-relaxed"
+              className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 px-3 py-2.5 text-base text-[#f5f1e8] placeholder-[#5d574c] focus:outline-none resize-none leading-relaxed"
             />
             {noteChanged && (
               <button
@@ -380,7 +381,7 @@ function InspirationDetail({
             </a>
           )}
 
-          <div className="text-[12px] tracking-widest text-[#555] border-t border-[#1f1f1f] pt-4">
+          <div className="text-[12px] tracking-widest text-[#5d574c] border-t border-[#211c15] pt-4">
             {new Date(insp.createdAt).toLocaleDateString('zh-TW')}
           </div>
         </div>
@@ -389,7 +390,7 @@ function InspirationDetail({
       {/* 底部主要動作：整理成想吃，強化視覺權重 */}
       {!insp.convertedFoodId && (
         <div
-          className="px-6 pt-5 pb-5 border-t border-[#c9a961]/30 bg-gradient-to-t from-[#1a1612] to-[#0a0a0a]"
+          className="px-6 pt-5 pb-5 border-t border-[#c9a961]/30 bg-gradient-to-t from-[#1a1612] to-[#0b0a08]"
           style={{ paddingBottom: 'max(20px, env(safe-area-inset-bottom))' }}
         >
           <div className="text-[10px] tracking-[0.5em] text-[#c9a961]/70 mb-3 text-center">
@@ -406,13 +407,13 @@ function InspirationDetail({
       )}
       {insp.convertedFoodId && (
         <div
-          className="px-6 pt-4 border-t border-[#1f1f1f] space-y-3"
+          className="px-6 pt-4 border-t border-[#211c15] space-y-3"
           style={{ paddingBottom: 'max(20px, env(safe-area-inset-bottom))' }}
         >
           {linkedFood ? (
             <button
               onClick={() => onOpenFood(insp.convertedFoodId!)}
-              className="w-full flex items-center gap-4 bg-[#0f0f0f] border border-[#c9a961]/30 hover:border-[#c9a961]/60 hover:bg-[#c9a961]/5 rounded-[6px] active:scale-[0.99] transition-all px-5 py-4 text-left"
+              className="w-full flex items-center gap-4 bg-[#100e0b] border border-[#c9a961]/30 hover:border-[#c9a961]/60 hover:bg-[#c9a961]/5 rounded-[6px] active:scale-[0.99] transition-all px-5 py-4 text-left"
             >
               <div className="flex-1 min-w-0">
                 <div className="text-[10px] tracking-[0.4em] text-[#c9a961]/70 mb-1">已整理成</div>
@@ -421,7 +422,7 @@ function InspirationDetail({
               <ArrowRight size={20} className="text-[#c9a961] flex-shrink-0" strokeWidth={2.5} />
             </button>
           ) : (
-            <div className="text-[13px] tracking-widest text-[#666] text-center py-1">已加入想吃清單 ✓</div>
+            <div className="text-[13px] tracking-widest text-[#6d6557] text-center py-1">已加入想吃清單 ✓</div>
           )}
           <button
             onClick={() => { if (confirm('刪除這張截圖？')) onDelete(); }}

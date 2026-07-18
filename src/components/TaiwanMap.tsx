@@ -32,7 +32,7 @@ const COUNTIES: CountyDatum[] = [
   { id: 'yunlin-county', name: '雲林縣', d: 'M642 760.2l1.9 7.2-2 4.7-1 7.2 1 7.7-1.9 5.2-0.9 5.7 4 4.7 5.8 2.5 6.8-2 8.2-0.9 2.6 3.5-0.5 0-0.3 5 0 3.4-4 1.3-11.7 2.4-6.3 0.6-2.4-3.9-4.7-3.4-8.3 2.4-3.7 0.5-12.6-4.6-5-5.9-5.3-4.6-6.9 0.4-12.6 2.3-7.2 2-16.3 9.4-3.8 3.8-4.4 2.4-7 5.7-5.3 0.8-2.1 3-1.7 4.9-3.9 3.2-6.1-0.1-8.3-4.7-11.6 1.4 4.6-5.2-0.2-16.4 0.7-12.3 2.8-9.8 4.3-7.7 1.3-10 2.3-8.8 1.3-3 6.1-8.1 1.1-2.8 0.7-1.5 5.6-4.3 0.8-1.6 7.6 4.4 22-2.6 7.6 0.4 6.6 1.8 11.6 4.4 19.7 2.3 12.2 6 5.8-0.1 12 2.4 1-0.7z' },
 ];
 
-const NOT_VISITED_COLOR = '#1a1a1a';
+const NOT_VISITED_COLOR = '#1c1812';
 const LOW_RGB: [number, number, number] = [0x8b, 0x69, 0x14];
 const HIGH_RGB: [number, number, number] = [0xf5, 0xc8, 0x42];
 
@@ -72,7 +72,7 @@ export function TaiwanMap({ counts, onSelect }: Props) {
             key={county.id}
             d={county.d}
             fill={fill}
-            stroke="#333"
+            stroke="#3a3328"
             strokeWidth={0.5}
             vectorEffect="non-scaling-stroke"
             style={{

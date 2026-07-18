@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Search, X, Sparkles, Bell, Images, Plus } from 'lucide-react';
 import { FoodCard } from '../components/FoodCard';
+import { EmptyMark } from '../components/EmptyMark';
 import { PlacesView } from '../components/PlacesView';
 import { TonightModal } from '../components/TonightModal';
 import { QuickAddRegularSheet } from '../components/QuickAddRegularSheet';
@@ -96,7 +97,7 @@ export function ListView({
 
   return (
     // 整頁單一捲動容器：頂部資訊會隨內容往上滑走，把空間讓給清單
-    <div className="h-full overflow-y-auto bg-[#0a0a0a]">
+    <div className="h-full overflow-y-auto bg-[#0b0a08]">
       {/* Header（隨頁面捲動） */}
       <div
         className="px-6 pb-5"
@@ -170,23 +171,23 @@ export function ListView({
 
       {/* ── Sticky 篩選列：往下滑時固定在跑馬燈下方，隨時可搜尋/切換 ── */}
       <div
-        className="sticky z-20 bg-[#0b0a08]/95 backdrop-blur-md border-b border-[#1f1f1f]"
+        className="sticky z-20 bg-[#0b0a08]/95 backdrop-blur-md border-b border-[#211c15]"
         style={{ top: STICKY_TOP }}
       >
         {/* Search */}
         <div className="px-6 pt-3 pb-2.5">
           <div className="relative">
-            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#666]" />
+            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#6d6557]" />
             <input
               type="text"
               placeholder="搜尋"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-10 pr-10 py-3 bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-full text-base text-[#f5f1e8] placeholder-[#555] tracking-wider focus:outline-none transition-colors"
+              className="w-full pl-10 pr-10 py-3 bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-full text-base text-[#f5f1e8] placeholder-[#5d574c] tracking-wider focus:outline-none transition-colors"
             />
             {search && (
               <button onClick={() => setSearch('')} className="absolute right-3.5 top-1/2 -translate-y-1/2">
-                <X size={14} className="text-[#666]" />
+                <X size={14} className="text-[#6d6557]" />
               </button>
             )}
           </div>
@@ -194,14 +195,14 @@ export function ListView({
 
         {/* 優雅下劃線 tabs + 食物/店家 視角切換 */}
         <div className="px-6">
-          <div className="flex items-center justify-between border-b border-[#1f1f1f]">
+          <div className="flex items-center justify-between border-b border-[#211c15]">
             <div className="flex items-center gap-8">
               {TABS.map(t => (
                 <button
                   key={t.value}
                   onClick={() => setActiveTab(t.value)}
                   className={`relative pb-3 pt-1 text-[15px] tracking-[0.3em] transition-colors ${
-                    activeTab === t.value ? 'text-[#ead8aa]' : 'text-[#555] hover:text-[#888]'
+                    activeTab === t.value ? 'text-[#ead8aa]' : 'text-[#5d574c] hover:text-[#8a8478]'
                   }`}
                 >
                   {t.label}
@@ -214,7 +215,7 @@ export function ListView({
                 </button>
               ))}
             </div>
-            <div className="flex items-center rounded-full border border-[#2a2a2a] p-[3px] mb-1.5 text-[12px] tracking-[0.12em]">
+            <div className="flex items-center rounded-full border border-[#2c261d] p-[3px] mb-1.5 text-[12px] tracking-[0.12em]">
               <button
                 onClick={() => setViewMode('food')}
                 className={`px-3.5 py-1.5 rounded-full transition-colors ${viewMode === 'food' ? 'bg-[#d6b974] text-[#100d07] font-medium' : 'text-[#8d877a]'}`}
@@ -269,8 +270,8 @@ export function ListView({
         )}
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="text-[#c9a961]/40 text-3xl tracking-[0.5em] mb-4">— —</div>
-            <p className="text-[#777] text-[15px] tracking-wider">
+            <EmptyMark className="mb-4" />
+            <p className="text-[#7d7566] text-[15px] tracking-wider">
               {items.length === 0 ? '點下方 + 新增想吃的食物' : '無符合的食物'}
             </p>
           </div>

@@ -3,6 +3,7 @@ import { X, Bell, Download, Cloud, ExternalLink, LogOut, ChevronDown, BookOpen }
 import type { Announcement } from '../store/useAnnouncements';
 import { supabase } from '../lib/supabase';
 import { toast } from '../lib/toast';
+import { EmptyMark } from './EmptyMark';
 
 interface Props {
   items: Announcement[];
@@ -73,9 +74,9 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onSignOut, o
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-[#0a0a0a] animate-fadein" style={{ maxWidth: 430, margin: '0 auto' }}>
+    <div className="fixed inset-0 z-50 flex flex-col bg-[#0b0a08] animate-fadein" style={{ maxWidth: 430, margin: '0 auto' }}>
       <div
-        className="flex items-center justify-between px-6 pb-4 border-b border-[#1f1f1f]"
+        className="flex items-center justify-between px-6 pb-4 border-b border-[#211c15]"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}
       >
         <button onClick={onClose} className="icon-btn">
@@ -98,7 +99,7 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onSignOut, o
             <BookOpen size={18} className="text-[#c9a961] flex-shrink-0" />
             <div className="flex-1 min-w-0">
               <div className="text-[15px] text-[#f5f1e8] tracking-[0.15em] font-medium">使用說明</div>
-              <div className="text-[11px] text-[#777] tracking-wider mt-0.5">第一次用？點開看怎麼操作</div>
+              <div className="text-[11px] text-[#7d7566] tracking-wider mt-0.5">第一次用？點開看怎麼操作</div>
             </div>
             <ChevronDown
               size={18}
@@ -120,8 +121,8 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onSignOut, o
         {/* ── 公告列表（點標題展開） ── */}
         {items.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="text-[#c9a961]/40 text-3xl tracking-[0.5em] mb-3">— —</div>
-            <p className="text-[#777] text-[14px] tracking-wider">目前沒有公告</p>
+            <EmptyMark className="mb-3" />
+            <p className="text-[#7d7566] text-[14px] tracking-wider">目前沒有公告</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -138,7 +139,7 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onSignOut, o
                   className={`border rounded-[10px] overflow-hidden transition-colors ${
                     isUnread
                       ? 'bg-gradient-to-br from-[#1a1612] to-[#0f0d0a] border-[#c9a961]/35'
-                      : 'bg-[#121212] border-[#1a1a1a]'
+                      : 'bg-[#14110d] border-[#1c1812]'
                   }`}
                 >
                   {/* 標題列：點一下展開 */}
@@ -147,7 +148,7 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onSignOut, o
                     className="w-full flex items-start gap-3 px-6 py-5 text-left"
                   >
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 text-[10px] tracking-[0.45em] text-[#555] mb-1.5">
+                      <div className="flex items-center gap-2 text-[10px] tracking-[0.45em] text-[#5d574c] mb-1.5">
                         <span>{dateStr}</span>
                         {isUnread && (
                           <span className="inline-flex items-center gap-1 text-[#c9a961]/90">
@@ -193,16 +194,16 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onSignOut, o
         )}
 
         {/* 資料備份區 */}
-        <div className="mt-10 pt-6 border-t border-[#1f1f1f]">
+        <div className="mt-10 pt-6 border-t border-[#211c15]">
           <div className="text-[11px] tracking-[0.4em] text-[#c9a961]/70 mb-4">MY DATA</div>
 
           {/* 自動備份說明 */}
-          <div className="bg-[#0f0f0f] border border-[#2a2a2a] rounded-[10px] p-4 mb-3">
+          <div className="bg-[#100e0b] border border-[#2c261d] rounded-[10px] p-4 mb-3">
             <div className="flex items-start gap-3">
               <Cloud size={20} className="text-[#c9a961] flex-shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
                 <div className="text-[14px] text-[#f5f1e8] tracking-wider mb-1">每日自動異地備份</div>
-                <p className="text-[12px] text-[#777] tracking-wider leading-relaxed">
+                <p className="text-[12px] text-[#7d7566] tracking-wider leading-relaxed">
                   資料每天台灣早上 8 點自動備份到 GitHub 私人 repo（含圖片）。Supabase 全掛了也救得回來。
                 </p>
                 <a
@@ -214,7 +215,7 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onSignOut, o
                   看備份 repo（私人 · 需登入 GitHub）
                   <ExternalLink size={11} />
                 </a>
-                <p className="text-[11px] text-[#666] tracking-wider leading-relaxed mt-1">
+                <p className="text-[11px] text-[#6d6557] tracking-wider leading-relaxed mt-1">
                   是私人 repo，沒登入 GitHub 點進去會顯示 404，屬正常。
                 </p>
               </div>
@@ -225,21 +226,21 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onSignOut, o
           <button
             onClick={handleDownload}
             disabled={downloading}
-            className="w-full flex items-center gap-3 bg-[#0f0f0f] border border-[#2a2a2a] hover:border-[#c9a961]/40 hover:bg-[#c9a961]/5 rounded-[10px] px-4 py-4 transition-all disabled:opacity-50"
+            className="w-full flex items-center gap-3 bg-[#100e0b] border border-[#2c261d] hover:border-[#c9a961]/40 hover:bg-[#c9a961]/5 rounded-[10px] px-4 py-4 transition-all disabled:opacity-50"
           >
             <Download size={18} className="text-[#c9a961] flex-shrink-0" />
             <div className="flex-1 text-left">
               <div className="text-[14px] text-[#f5f1e8] tracking-wider">
                 {downloading ? '下載中...' : '立刻下載 JSON 備份'}
               </div>
-              <div className="text-[11px] text-[#777] tracking-wider mt-0.5">想自己留一份在本機隨時可下載</div>
+              <div className="text-[11px] text-[#7d7566] tracking-wider mt-0.5">想自己留一份在本機隨時可下載</div>
             </div>
           </button>
 
           {/* 登出 */}
           <button
             onClick={onSignOut}
-            className="w-full flex items-center gap-3 mt-3 border border-[#2a2a2a] hover:border-[#a85959]/50 rounded-[10px] px-4 py-3.5 transition-all"
+            className="w-full flex items-center gap-3 mt-3 border border-[#2c261d] hover:border-[#a85959]/50 rounded-[10px] px-4 py-3.5 transition-all"
           >
             <LogOut size={17} className="text-[#8a8478] flex-shrink-0" />
             <span className="text-[14px] text-[#8a8478] tracking-wider">登出</span>

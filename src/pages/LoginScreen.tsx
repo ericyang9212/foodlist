@@ -23,7 +23,7 @@ export function LoginScreen({ onSignIn }: Props) {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-svh bg-[#0a0a0a] px-8">
+    <div className="flex flex-col items-center justify-center h-svh bg-[#0b0a08] px-8">
       <div className="w-full max-w-xs">
         {/* Logo */}
         <div className="flex justify-center mb-10">
@@ -43,7 +43,7 @@ export function LoginScreen({ onSignIn }: Props) {
             placeholder="Email"
             value={email}
             onChange={e => setEmail(e.target.value)}
-            className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[8px] px-4 py-3 text-base text-[#f5f1e8] placeholder-[#555] tracking-wide focus:outline-none transition-colors"
+            className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-4 py-3 text-base text-[#f5f1e8] placeholder-[#5d574c] tracking-wide focus:outline-none transition-colors"
           />
           <input
             type="password"
@@ -51,7 +51,7 @@ export function LoginScreen({ onSignIn }: Props) {
             value={password}
             onChange={e => setPassword(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && submit()}
-            className="w-full bg-[#161616] border border-[#2a2a2a] focus:border-[#c9a961]/40 rounded-[8px] px-4 py-3 text-base text-[#f5f1e8] placeholder-[#555] tracking-wide focus:outline-none transition-colors"
+            className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-4 py-3 text-base text-[#f5f1e8] placeholder-[#5d574c] tracking-wide focus:outline-none transition-colors"
           />
 
           {error && (
