@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { MapPin, Trash2, Compass, X, ChevronDown } from 'lucide-react';
+import { MapPin, Trash2, Compass, X, ChevronDown, Plus } from 'lucide-react';
 import { Thumb } from '../components/Thumb';
 import { TaiwanMap } from '../components/TaiwanMap';
 import type { Foodprint } from '../types';
@@ -7,7 +7,10 @@ import { resolveCityName } from '../lib/foodprintGeo';
 
 interface Props {
   items: Foodprint[];
+  // 足跡沒有自己的照片時，退回顯示該食物的照片（照片常加在食物上而非足跡上）
+  imageByFoodId: Record<string, string>;
   onDelete: (id: string) => void;
+  onQuickLog: () => void;
 }
 
 // 想吃新的：同步開 Google Maps 搜「餐廳」。
@@ -37,7 +40,7 @@ function dateLabel(iso: string) {
 const PAGE_SIZE = 30;
 const MAP_HEIGHT = 280;
 
-export function FoodprintsPage({ items, onDelete }: Props) {
+export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: Props) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [collapsedMonths, setCollapsedMonths] = useState<Record<string, boolean>>({});
@@ -96,10 +99,21 @@ export function FoodprintsPage({ items, onDelete }: Props) {
   return (
     // 整頁單一捲動容器：地圖固定高度、正常排版在上方，時間軸接在下面一起捲動
     <div className="h-full overflow-y-auto bg-[#0a0a0a]">
-      <div className="px-6 pb-4" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 64px)' }}>
+      <div
+        className="px-6 pb-4 flex items-end justify-between gap-3"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 64px)' }}
+      >
         <h1 className="text-[22px] font-medium text-gold-gradient tracking-[0.15em] leading-tight">
           食 物 足 跡
         </h1>
+        {/* 剛吃了清單沒有的店 → 直接在這裡記，會一併加進「嘗過」 */}
+        <button
+          onClick={onQuickLog}
+          className="btn-secondary flex items-center gap-1.5 text-[12px] tracking-[0.2em] px-3.5 py-2 flex-shrink-0"
+        >
+          <Plus size={14} />
+          記一筆
+        </button>
       </div>
 
       <div className="relative w-full" style={{ height: MAP_HEIGHT }} onClick={() => setSelectedCity(null)}>
@@ -200,6 +214,7 @@ export function FoodprintsPage({ items, onDelete }: Props) {
                                 <FoodprintCard
                                   key={p.id}
                                   item={p}
+                                  photoSrc={p.photoUrl ?? imageByFoodId[p.foodId]}
                                   onDelete={() => onDelete(p.id)}
                                   onClick={() => handleCardClick(p)}
                                 />
@@ -236,7 +251,9 @@ export function FoodprintsPage({ items, onDelete }: Props) {
   );
 }
 
-function FoodprintCard({ item, onDelete, onClick }: { item: Foodprint; onDelete: () => void; onClick: () => void }) {
+function FoodprintCard({ item, photoSrc, onDelete, onClick }: {
+  item: Foodprint; photoSrc?: string; onDelete: () => void; onClick: () => void;
+}) {
   const region = [item.restaurantCity, item.restaurantArea].filter(Boolean).join(' ');
   return (
     <div
@@ -265,9 +282,9 @@ function FoodprintCard({ item, onDelete, onClick }: { item: Foodprint; onDelete:
             </p>
           )}
         </div>
-        {item.photoUrl && (
+        {photoSrc && (
           <div className="w-14 h-14 rounded-[4px] border border-[#2a2a2a] overflow-hidden flex-shrink-0">
-            <Thumb src={item.photoUrl} className="w-full h-full object-cover" />
+            <Thumb src={photoSrc} className="w-full h-full object-cover" />
           </div>
         )}
         <button

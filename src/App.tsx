@@ -11,6 +11,10 @@ import { MaintenanceScreen } from './pages/MaintenanceScreen';
 import { Marquee } from './components/Marquee';
 import { ListView } from './pages/ListView';
 import { LoginScreen } from './pages/LoginScreen';
+import { makeId } from './lib/id';
+import { parseLatLngFromMapsUrl } from './lib/geocode';
+import { deleteImageByUrl } from './lib/storage';
+import type { QuickLogInput } from './components/QuickLogSheet';
 import type { FoodItem, Inspiration, Tab } from './types';
 
 // 非首屏的頁面 / 彈窗改成動態載入：進到對應畫面才下載該 chunk，
@@ -32,6 +36,9 @@ const LogFoodprintSheet = lazy(() =>
 );
 const AnnouncementsModal = lazy(() =>
   import('./components/AnnouncementsModal').then(m => ({ default: m.AnnouncementsModal }))
+);
+const QuickLogSheet = lazy(() =>
+  import('./components/QuickLogSheet').then(m => ({ default: m.QuickLogSheet }))
 );
 
 function FullScreenLoader() {
@@ -77,6 +84,7 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
   const [showAnnouncements, setShowAnnouncements] = useState(false);
   const [loggingFood, setLoggingFood] = useState<FoodItem | null>(null);
   const [fromInspiration, setFromInspiration] = useState<Inspiration | null>(null);
+  const [showQuickLog, setShowQuickLog] = useState(false);
 
   // food id → 圖片 URL 的對照表（從靈感裡查）
   const imageByFoodId = useMemo(() => {
@@ -176,6 +184,53 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
     setShowAdd(true);
   };
 
+  // 足跡頁「記一筆」：清單沒有的店直接記 —— 一併建立「嘗過」項目＋足跡。
+  // 任一步失敗就回滾前面已建立的（照片 / 食物），不留半套資料；丟出讓 sheet 留著重試。
+  const handleQuickLog = async (input: QuickLogInput) => {
+    const geo = parseLatLngFromMapsUrl(input.mapsUrl);
+    const now = new Date().toISOString();
+    const food: FoodItem = {
+      id: makeId(),
+      name: input.name,
+      status: 'tried',
+      occasions: [],
+      restaurants: [{
+        id: makeId(),
+        name: input.name,
+        city: input.city,
+        googleMapsUrl: input.mapsUrl,
+        lat: geo?.lat,
+        lng: geo?.lng,
+      }],
+      mustOrder: [],
+      notes: undefined,
+      createdAt: now,
+      updatedAt: now,
+    };
+    const ok = await addItem(food);
+    if (!ok) {
+      if (input.photoUrl) void deleteImageByUrl(input.photoUrl);
+      throw new Error('food insert failed');
+    }
+    const inserted = await foodprints.addFoodprint({
+      foodId: food.id,
+      foodName: food.name,
+      restaurantName: input.name,
+      restaurantCity: input.city,
+      restaurantMapsUrl: input.mapsUrl,
+      restaurantLat: geo?.lat,
+      restaurantLng: geo?.lng,
+      ateAt: input.ateAt,
+      photoUrl: input.photoUrl,
+      note: input.note,
+    });
+    if (!inserted) {
+      // addFoodprint 失敗時已自行清掉剛上傳的照片，這裡再把剛建的食物收回
+      void deleteItem(food.id);
+      throw new Error('foodprint insert failed');
+    }
+  };
+
   if (loading) return <FullScreenLoader />;
 
   return (
@@ -199,7 +254,9 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
           <Suspense fallback={<FullScreenLoader />}>
             <FoodprintsPage
               items={foodprints.items}
+              imageByFoodId={imageByFoodId}
               onDelete={foodprints.deleteFoodprint}
+              onQuickLog={() => setShowQuickLog(true)}
             />
           </Suspense>
         )}
@@ -289,6 +346,16 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
               updateItem(updated);
             }}
             onClose={() => setLoggingFood(null)}
+          />
+        </Suspense>
+      )}
+
+      {showQuickLog && (
+        <Suspense fallback={null}>
+          <QuickLogSheet
+            uploadPhoto={foodprints.uploadPhoto}
+            onSave={handleQuickLog}
+            onClose={() => setShowQuickLog(false)}
           />
         </Suspense>
       )}
