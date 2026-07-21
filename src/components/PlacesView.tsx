@@ -59,7 +59,7 @@ export function PlacesView({ foods, imageByFoodId = {}, onOpen }: Props) {
       <div className="flex flex-col items-center justify-center py-24 text-center">
         <EmptyMark className="mb-4" />
         <p className="text-[#9a9384] text-[15px] tracking-wider">這裡的食物還沒指定店家</p>
-        <p className="text-[#5d574c] text-[12px] tracking-widest mt-1.5">幫食物加上店家，就會以店家彙整</p>
+        <p className="text-[#837b6e] text-[12px] tracking-widest mt-1.5">幫食物加上店家，就會以店家彙整</p>
       </div>
     );
   }

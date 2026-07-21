@@ -83,7 +83,7 @@ export function LogFoodprintSheet({ food, uploadPhoto, onSave, onClose }: Props)
         </div>
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#211c15]">
-          <button onClick={onClose} className="icon-btn">
+          <button onClick={onClose} className="icon-btn" aria-label="關閉">
             <X size={20} />
           </button>
           <div className="text-[12px] tracking-[0.4em] text-[#c9a961]/80">RECORD</div>
@@ -138,7 +138,7 @@ export function LogFoodprintSheet({ food, uploadPhoto, onSave, onClose }: Props)
               )}
             </div>
           ) : (
-            <div className="text-[12px] text-[#6d6557] tracking-wider italic">
+            <div className="text-[12px] text-[#837b6e] tracking-wider italic">
               這道食物還沒指定店家，足跡會少了店名資訊。
             </div>
           )}
@@ -201,12 +201,12 @@ export function LogFoodprintSheet({ food, uploadPhoto, onSave, onClose }: Props)
               value={note}
               onChange={e => setNote(e.target.value)}
               rows={2}
-              className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-2.5 text-base text-[#f5f1e8] placeholder-[#5d574c] focus:outline-none resize-none leading-relaxed"
+              className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-2.5 text-base text-[#f5f1e8] placeholder-[#837b6e] focus:outline-none resize-none leading-relaxed"
             />
           </div>
         </div>
 
-        <div className="px-6 py-3 border-t border-[#211c15] text-center text-[11px] tracking-widest text-[#5d574c]">
+        <div className="px-6 py-3 border-t border-[#211c15] text-center text-[11px] tracking-widest text-[#837b6e]">
           <Check size={12} className="inline mr-1" />
           按完成後加入你的食物足跡
         </div>

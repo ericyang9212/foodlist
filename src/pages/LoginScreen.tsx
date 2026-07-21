@@ -43,7 +43,7 @@ export function LoginScreen({ onSignIn }: Props) {
             placeholder="Email"
             value={email}
             onChange={e => setEmail(e.target.value)}
-            className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-4 py-3 text-base text-[#f5f1e8] placeholder-[#5d574c] tracking-wide focus:outline-none transition-colors"
+            className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-4 py-3 text-base text-[#f5f1e8] placeholder-[#837b6e] tracking-wide focus:outline-none transition-colors"
           />
           <input
             type="password"
@@ -51,7 +51,7 @@ export function LoginScreen({ onSignIn }: Props) {
             value={password}
             onChange={e => setPassword(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && submit()}
-            className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-4 py-3 text-base text-[#f5f1e8] placeholder-[#5d574c] tracking-wide focus:outline-none transition-colors"
+            className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-4 py-3 text-base text-[#f5f1e8] placeholder-[#837b6e] tracking-wide focus:outline-none transition-colors"
           />
 
           {error && (

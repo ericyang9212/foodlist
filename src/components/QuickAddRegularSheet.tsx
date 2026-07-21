@@ -65,7 +65,7 @@ export function QuickAddRegularSheet({ onSave, onClose }: Props) {
       >
         <div className="flex items-center justify-between mb-1">
           <h2 className="text-[17px] text-[#f2ecdd] tracking-wide font-medium">加吃過的店</h2>
-          <button onClick={onClose} className="icon-btn">
+          <button onClick={onClose} className="icon-btn" aria-label="關閉">
             <X size={20} />
           </button>
         </div>
@@ -82,7 +82,7 @@ export function QuickAddRegularSheet({ onSave, onClose }: Props) {
               onChange={e => setName(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter' && !e.nativeEvent.isComposing && canSave) handleSave(); }}
               placeholder="店名或想吃的（例：巷口牛肉麵）"
-              className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[10px] px-4 py-3 text-base text-[#f5f1e8] placeholder-[#5d574c] focus:outline-none"
+              className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[10px] px-4 py-3 text-base text-[#f5f1e8] placeholder-[#837b6e] focus:outline-none"
             />
           </div>
 
@@ -105,7 +105,7 @@ export function QuickAddRegularSheet({ onSave, onClose }: Props) {
               onChange={e => setMapsUrl(e.target.value)}
               inputMode="url"
               placeholder="貼上地圖連結，抽到就能「帶我去」"
-              className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[10px] px-4 py-3 text-base text-[#f5f1e8] placeholder-[#5d574c] focus:outline-none"
+              className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[10px] px-4 py-3 text-base text-[#f5f1e8] placeholder-[#837b6e] focus:outline-none"
             />
           </div>
         </div>

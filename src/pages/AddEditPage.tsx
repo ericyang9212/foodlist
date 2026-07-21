@@ -162,7 +162,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
         className="flex items-center justify-between px-6 pb-4 border-b border-[#211c15]"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}
       >
-        <button onClick={onClose} className="icon-btn">
+        <button onClick={onClose} className="icon-btn" aria-label="關閉">
           <X size={22} />
         </button>
         <div className="text-[12px] tracking-[0.4em] text-[#c9a961]/80">
@@ -284,7 +284,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
                 placeholder="區域（例如：大安區）"
                 value={area}
                 onChange={e => setArea(e.target.value)}
-                className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-3 text-base text-[#f5f1e8] placeholder-[#5d574c] focus:outline-none transition-colors"
+                className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-3 text-base text-[#f5f1e8] placeholder-[#837b6e] focus:outline-none transition-colors"
               />
               <input
                 type="url"
@@ -292,10 +292,10 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
                 placeholder="Google 地圖連結"
                 value={url}
                 onChange={e => setUrl(e.target.value)}
-                className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-3 text-base text-[#f5f1e8] placeholder-[#5d574c] focus:outline-none transition-colors"
+                className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-3 text-base text-[#f5f1e8] placeholder-[#837b6e] focus:outline-none transition-colors"
               />
             </div>
-            <p className="text-[11px] text-[#6d6557] tracking-wider mt-2 leading-relaxed">
+            <p className="text-[11px] text-[#837b6e] tracking-wider mt-2 leading-relaxed">
               選縣市或貼地圖連結 → 抽到能「帶我去」，也會出現在足跡地圖。
             </p>
           </div>
@@ -394,7 +394,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
                   value={notes}
                   onChange={e => setNotes(e.target.value)}
                   rows={3}
-                  className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-3 text-base text-[#f5f1e8] placeholder-[#5d574c] focus:outline-none resize-none leading-relaxed transition-colors"
+                  className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-3 text-base text-[#f5f1e8] placeholder-[#837b6e] focus:outline-none resize-none leading-relaxed transition-colors"
                 />
               </div>
 

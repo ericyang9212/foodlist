@@ -79,7 +79,7 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onSignOut, o
         className="flex items-center justify-between px-6 pb-4 border-b border-[#211c15]"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}
       >
-        <button onClick={onClose} className="icon-btn">
+        <button onClick={onClose} className="icon-btn" aria-label="關閉">
           <X size={22} />
         </button>
         <div className="flex items-center gap-2 text-[12px] tracking-[0.4em] text-[#c9a961]/80">
@@ -148,7 +148,7 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onSignOut, o
                     className="w-full flex items-start gap-3 px-6 py-5 text-left"
                   >
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 text-[10px] tracking-[0.45em] text-[#5d574c] mb-1.5">
+                      <div className="flex items-center gap-2 text-[10px] tracking-[0.45em] text-[#837b6e] mb-1.5">
                         <span>{dateStr}</span>
                         {isUnread && (
                           <span className="inline-flex items-center gap-1 text-[#c9a961]/90">
@@ -215,7 +215,7 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onSignOut, o
                   看備份 repo（私人 · 需登入 GitHub）
                   <ExternalLink size={11} />
                 </a>
-                <p className="text-[11px] text-[#6d6557] tracking-wider leading-relaxed mt-1">
+                <p className="text-[11px] text-[#837b6e] tracking-wider leading-relaxed mt-1">
                   是私人 repo，沒登入 GitHub 點進去會顯示 404，屬正常。
                 </p>
               </div>

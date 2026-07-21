@@ -46,7 +46,7 @@ export function RestaurantsEditor({ restaurants, onChange, title = '候選店家
       </div>
 
       {restaurants.length === 0 && !adding && (
-        <p className="text-[#5d574c] text-[14px] tracking-wider italic">尚未指定店家</p>
+        <p className="text-[#837b6e] text-[14px] tracking-wider italic">尚未指定店家</p>
       )}
 
       <div className="space-y-2.5">
@@ -111,7 +111,7 @@ function RestaurantRow({ restaurant: r, onEdit, onRemove }: {
               已定位
             </p>
           ) : (
-            <p className="text-[11px] text-[#6d6557] tracking-wider mt-2">
+            <p className="text-[11px] text-[#837b6e] tracking-wider mt-2">
               未定位 · 貼 Google Maps 連結可自動取得位置
             </p>
           )}
@@ -129,12 +129,12 @@ function RestaurantRow({ restaurant: r, onEdit, onRemove }: {
             </a>
           )}
           <div className="flex gap-0.5">
-            <button onClick={onEdit} className="icon-btn !p-1.5">
+            <button onClick={onEdit} className="icon-btn !p-1.5" aria-label="編輯店家">
               <Edit3 size={14} />
             </button>
             <button
               onClick={onRemove}
-              className="icon-btn !p-1.5 hover:!text-[#a85959] hover:!bg-[#a85959]/10"
+              className="icon-btn !p-1.5 hover:!text-[#a85959] hover:!bg-[#a85959]/10" aria-label="移除店家"
             >
               <X size={15} />
             </button>
@@ -209,7 +209,7 @@ function RestaurantForm({ initial, submitLabel, onSubmit, onCancel }: {
         placeholder="店名"
         value={name}
         onChange={e => setName(e.target.value)}
-        className="w-full bg-transparent border-b border-[#2c261d] focus:border-[#c9a961]/50 pb-2.5 text-base text-[#f5f1e8] placeholder-[#5d574c] focus:outline-none"
+        className="w-full bg-transparent border-b border-[#2c261d] focus:border-[#c9a961]/50 pb-2.5 text-base text-[#f5f1e8] placeholder-[#837b6e] focus:outline-none"
       />
       <select
         value={city}
@@ -224,21 +224,21 @@ function RestaurantForm({ initial, submitLabel, onSubmit, onCancel }: {
         placeholder="區域（例如：大安區）"
         value={area}
         onChange={e => setArea(e.target.value)}
-        className="w-full bg-transparent border-b border-[#2c261d] focus:border-[#c9a961]/50 pb-2.5 text-base text-[#f5f1e8] placeholder-[#5d574c] focus:outline-none"
+        className="w-full bg-transparent border-b border-[#2c261d] focus:border-[#c9a961]/50 pb-2.5 text-base text-[#f5f1e8] placeholder-[#837b6e] focus:outline-none"
       />
       <input
         type="url"
         placeholder="Google Maps 連結"
         value={url}
         onChange={e => setUrl(e.target.value)}
-        className="w-full bg-transparent border-b border-[#2c261d] focus:border-[#c9a961]/50 pb-2.5 text-base text-[#f5f1e8] placeholder-[#5d574c] focus:outline-none"
+        className="w-full bg-transparent border-b border-[#2c261d] focus:border-[#c9a961]/50 pb-2.5 text-base text-[#f5f1e8] placeholder-[#837b6e] focus:outline-none"
       />
       <input
         type="text"
         placeholder="一句話評價（例如：最便宜、最近）"
         value={note}
         onChange={e => setNote(e.target.value)}
-        className="w-full bg-transparent border-b border-[#2c261d] focus:border-[#c9a961]/50 pb-2.5 text-base text-[#f5f1e8] placeholder-[#5d574c] focus:outline-none"
+        className="w-full bg-transparent border-b border-[#2c261d] focus:border-[#c9a961]/50 pb-2.5 text-base text-[#f5f1e8] placeholder-[#837b6e] focus:outline-none"
       />
       <div className="flex gap-2 pt-2">
         <button

@@ -90,7 +90,7 @@ export function QuickLogSheet({ uploadPhoto, onSave, onClose }: Props) {
               清單沒有的店也能記，會一併加進「嘗過」
             </p>
           </div>
-          <button onClick={onClose} className="icon-btn">
+          <button onClick={onClose} className="icon-btn" aria-label="關閉">
             <X size={20} />
           </button>
         </div>
@@ -104,7 +104,7 @@ export function QuickLogSheet({ uploadPhoto, onSave, onClose }: Props) {
               onChange={e => setName(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter' && !e.nativeEvent.isComposing && canSave) handleSave(); }}
               placeholder="例：後院早午餐、精誠夜市"
-              className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[10px] px-4 py-3 text-[15px] text-[#f5f1e8] placeholder-[#5d574c] focus:outline-none"
+              className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[10px] px-4 py-3 text-[15px] text-[#f5f1e8] placeholder-[#837b6e] focus:outline-none"
             />
           </div>
 
@@ -138,7 +138,7 @@ export function QuickLogSheet({ uploadPhoto, onSave, onClose }: Props) {
               onChange={e => setMapsUrl(e.target.value)}
               inputMode="url"
               placeholder="貼上連結，之後回訪能「帶我去」"
-              className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[10px] px-4 py-3 text-[14px] text-[#f5f1e8] placeholder-[#5d574c] focus:outline-none"
+              className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[10px] px-4 py-3 text-[14px] text-[#f5f1e8] placeholder-[#837b6e] focus:outline-none"
             />
           </div>
 
@@ -183,7 +183,7 @@ export function QuickLogSheet({ uploadPhoto, onSave, onClose }: Props) {
               value={note}
               onChange={e => setNote(e.target.value)}
               rows={2}
-              className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-2.5 text-[14px] text-[#f5f1e8] placeholder-[#5d574c] focus:outline-none resize-none leading-relaxed"
+              className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-2.5 text-[14px] text-[#f5f1e8] placeholder-[#837b6e] focus:outline-none resize-none leading-relaxed"
             />
           </div>
         </div>

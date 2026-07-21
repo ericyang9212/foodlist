@@ -159,7 +159,7 @@ function MarqueeEditor({
         className="flex items-center justify-between px-6 pb-4 border-b border-[#211c15]"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}
       >
-        <button onClick={onClose} className="icon-btn">
+        <button onClick={onClose} className="icon-btn" aria-label="關閉">
           <X size={22} />
         </button>
         <div className="text-[12px] tracking-[0.4em] text-[#c9a961]/80">MARQUEE</div>
@@ -193,9 +193,9 @@ function MarqueeEditor({
             value={text}
             onChange={e => setText(e.target.value)}
             rows={6}
-            className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-4 py-3 text-base text-[#f5f1e8] placeholder-[#5d574c] focus:outline-none resize-none leading-relaxed"
+            className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-4 py-3 text-base text-[#f5f1e8] placeholder-[#837b6e] focus:outline-none resize-none leading-relaxed"
           />
-          <p className="text-[11px] text-[#6d6557] tracking-wider mt-2 leading-relaxed">
+          <p className="text-[11px] text-[#837b6e] tracking-wider mt-2 leading-relaxed">
             清空可關閉跑馬燈。多行＝多則，會一則一則淡入淡出輪播；單行太長才會橫向捲動。
           </p>
         </div>
@@ -233,7 +233,7 @@ function MarqueeEditor({
             onChange={e => setSpeed(Number(e.target.value))}
             className="w-full accent-[#c9a961]"
           />
-          <div className="flex justify-between text-[10px] text-[#5d574c] tracking-widest mt-1">
+          <div className="flex justify-between text-[10px] text-[#837b6e] tracking-widest mt-1">
             <span>快</span>
             <span>慢</span>
           </div>

@@ -140,7 +140,7 @@ export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: P
               </span>
               <button
                 onClick={() => setSelectedCity(null)}
-                className="icon-btn !p-1 ml-auto"
+                className="icon-btn !p-1 ml-auto" aria-label="關閉縣市篩選"
                 title="關閉"
               >
                 <X size={14} />
@@ -155,7 +155,7 @@ export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: P
                 ))}
               </ul>
             ) : (
-              <p className="text-[12px] text-[#6d6557] tracking-wide">還沒有這個縣市的足跡</p>
+              <p className="text-[12px] text-[#837b6e] tracking-wide">還沒有這個縣市的足跡</p>
             )}
           </div>
         )}
@@ -171,7 +171,7 @@ export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: P
           </div>
           <button
             onClick={exploreNearby}
-            className="icon-btn !p-1.5"
+            className="icon-btn !p-1.5" aria-label="在 Google Maps 找附近的店"
             title="在 Google Maps 找附近的店"
           >
             <Compass size={17} className="text-[#c9a961]" />
@@ -242,7 +242,7 @@ export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: P
           <div className="flex flex-col items-center justify-center py-10 text-center">
             <EmptyMark className="mb-3" />
             <p className="text-[#7d7566] text-[14px] tracking-wider mb-2">還沒有任何足跡</p>
-            <p className="text-[#5d574c] text-[12px] tracking-widest">
+            <p className="text-[#837b6e] text-[12px] tracking-widest">
               在食物詳情頁按「今天吃了」就會出現
             </p>
           </div>
@@ -293,7 +293,7 @@ function FoodprintCard({ item, photoSrc, onDelete, onClick }: {
             e.stopPropagation();
             if (confirm('刪除這則足跡？')) onDelete();
           }}
-          className="icon-btn !p-1 hover:!text-[#a85959] hover:!bg-[#a85959]/10 flex-shrink-0"
+          className="icon-btn !p-1 hover:!text-[#a85959] hover:!bg-[#a85959]/10 flex-shrink-0" aria-label="刪除足跡"
         >
           <Trash2 size={13} />
         </button>

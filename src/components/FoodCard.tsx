@@ -65,7 +65,7 @@ export function FoodCard({ item, thumbnailUrl, lastEatenAt, onOpen }: Props) {
           {/* 候選店家 */}
           <div className="text-[13px] text-[#76705f] tracking-wider">
             {item.restaurants.length === 0 ? (
-              <span className="text-[#5d574c] italic">未指定店家</span>
+              <span className="text-[#837b6e] italic">未指定店家</span>
             ) : (
               <span>
                 {item.restaurants.length} 家候選

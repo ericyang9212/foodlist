@@ -42,14 +42,14 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
         className="flex items-center justify-between px-6 pb-4 border-b border-[#211c15]"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}
       >
-        <button onClick={onClose} className="icon-btn">
+        <button onClick={onClose} className="icon-btn" aria-label="關閉">
           <ArrowLeft size={20} />
         </button>
         <div className="flex items-center gap-2">
-          <button onClick={() => onEdit(item)} className="icon-btn">
+          <button onClick={() => onEdit(item)} className="icon-btn" aria-label="編輯">
             <Edit3 size={17} />
           </button>
-          <button onClick={handleDelete} className="icon-btn hover:!text-[#a85959] hover:!bg-[#a85959]/10">
+          <button onClick={handleDelete} className="icon-btn hover:!text-[#a85959] hover:!bg-[#a85959]/10" aria-label="刪除">
             <Trash2 size={17} />
           </button>
         </div>
@@ -155,7 +155,7 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
           </div>
         )}
 
-        <div className="text-[12px] tracking-widest text-[#5d574c] border-t border-[#211c15] pt-5 mt-10">
+        <div className="text-[12px] tracking-widest text-[#837b6e] border-t border-[#211c15] pt-5 mt-10">
           {new Date(item.createdAt).toLocaleDateString('zh-TW')}
         </div>
       </div>

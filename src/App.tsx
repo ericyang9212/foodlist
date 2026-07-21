@@ -50,7 +50,7 @@ function FullScreenLoader() {
           alt="PSJ dice list"
           className="w-32 h-32 object-contain mx-auto mb-4 animate-pulse drop-shadow-[0_4px_20px_rgba(201,169,97,0.2)]"
         />
-        <p className="text-[#6d6557] text-[12px] tracking-[0.4em]">LOADING</p>
+        <p className="text-[#837b6e] text-[12px] tracking-[0.4em]">LOADING</p>
       </div>
     </div>
   );
@@ -386,7 +386,7 @@ function NavBtn({ icon, label, active, onClick }: {
     <button
       onClick={onClick}
       className={`flex flex-col items-center gap-1.5 px-6 py-1 transition-colors ${
-        active ? 'text-[#ead8aa]' : 'text-[#5d574c]'
+        active ? 'text-[#ead8aa]' : 'text-[#837b6e]'
       }`}
     >
       {icon}

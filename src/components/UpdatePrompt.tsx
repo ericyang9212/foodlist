@@ -36,7 +36,7 @@ export function UpdatePrompt() {
       </button>
       <button
         onClick={() => setNeedRefresh(false)}
-        className="text-[#6d6557] text-[12px] tracking-wider flex-shrink-0 px-1"
+        className="text-[#837b6e] text-[12px] tracking-wider flex-shrink-0 px-1"
       >
         稍後
       </button>

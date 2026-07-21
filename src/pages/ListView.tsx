@@ -177,17 +177,17 @@ export function ListView({
         {/* Search */}
         <div className="px-6 pt-3 pb-2.5">
           <div className="relative">
-            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#6d6557]" />
+            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#837b6e]" />
             <input
               type="text"
               placeholder="搜尋"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-10 pr-10 py-3 bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-full text-base text-[#f5f1e8] placeholder-[#5d574c] tracking-wider focus:outline-none transition-colors"
+              className="w-full pl-10 pr-10 py-3 bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-full text-base text-[#f5f1e8] placeholder-[#837b6e] tracking-wider focus:outline-none transition-colors"
             />
             {search && (
               <button onClick={() => setSearch('')} className="absolute right-3.5 top-1/2 -translate-y-1/2">
-                <X size={14} className="text-[#6d6557]" />
+                <X size={14} className="text-[#837b6e]" />
               </button>
             )}
           </div>
@@ -202,7 +202,7 @@ export function ListView({
                   key={t.value}
                   onClick={() => setActiveTab(t.value)}
                   className={`relative pb-3 pt-1 text-[15px] tracking-[0.3em] transition-colors ${
-                    activeTab === t.value ? 'text-[#ead8aa]' : 'text-[#5d574c] hover:text-[#8a8478]'
+                    activeTab === t.value ? 'text-[#ead8aa]' : 'text-[#837b6e] hover:text-[#8a8478]'
                   }`}
                 >
                   {t.label}

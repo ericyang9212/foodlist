@@ -59,7 +59,7 @@ export function InboxPage({ items, loading, onUpload, onDelete, onUpdate, onConv
         className="flex items-center justify-between px-6 pb-3 border-b border-[#211c15]"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}
       >
-        <button onClick={onClose} className="icon-btn">
+        <button onClick={onClose} className="icon-btn" aria-label="關閉">
           <ArrowLeft size={22} className="text-[#8a8478]" />
         </button>
         <div className="text-[12px] tracking-[0.4em] text-[#c9a961]/80">靈感匣</div>
@@ -94,7 +94,7 @@ export function InboxPage({ items, loading, onUpload, onDelete, onUpdate, onConv
                 value={pendingNote}
                 onChange={e => setPendingNote(e.target.value)}
                 rows={2}
-                className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[6px] px-3 py-2.5 text-base text-[#f5f1e8] placeholder-[#5d574c] focus:outline-none resize-none leading-relaxed transition-colors"
+                className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[6px] px-3 py-2.5 text-base text-[#f5f1e8] placeholder-[#837b6e] focus:outline-none resize-none leading-relaxed transition-colors"
               />
               <button
                 onClick={handleUpload}
@@ -114,7 +114,7 @@ export function InboxPage({ items, loading, onUpload, onDelete, onUpdate, onConv
                 <ImagePlus size={24} className="text-[#c9a961]" />
               </div>
               <div className="text-[14px] text-[#e6c87a] tracking-[0.3em]">上傳截圖</div>
-              <div className="text-[11px] text-[#6d6557] tracking-[0.2em]">IG · Threads · 朋友傳的</div>
+              <div className="text-[11px] text-[#837b6e] tracking-[0.2em]">IG · Threads · 朋友傳的</div>
             </button>
           )}
           <input
@@ -167,7 +167,7 @@ export function InboxPage({ items, loading, onUpload, onDelete, onUpdate, onConv
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <EmptyMark className="mb-3" />
             <p className="text-[#7d7566] text-[14px] tracking-wider">尚未收任何靈感</p>
-            <p className="text-[#5d574c] text-[12px] tracking-widest mt-1.5">用上面的按鈕收第一張截圖</p>
+            <p className="text-[#837b6e] text-[12px] tracking-widest mt-1.5">用上面的按鈕收第一張截圖</p>
           </div>
         )}
       </div>
@@ -213,7 +213,7 @@ function SectionHeader({
       >
         {title}
       </h2>
-      {subtitle && <p className="text-[11px] text-[#6d6557] tracking-wider mt-1">{subtitle}</p>}
+      {subtitle && <p className="text-[11px] text-[#837b6e] tracking-wider mt-1">{subtitle}</p>}
     </div>
   );
 }
@@ -234,7 +234,7 @@ function InspirationThumbnail({
           className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.06]"
         />
       ) : (
-        <div className="w-full h-full flex items-center justify-center text-[#5d574c] text-[11px] tracking-wider">無圖</div>
+        <div className="w-full h-full flex items-center justify-center text-[#837b6e] text-[11px] tracking-wider">無圖</div>
       )}
       {/* 邊框內陰影，增加層次 */}
       <div className="pointer-events-none absolute inset-0 rounded-[8px] ring-1 ring-inset ring-white/5" />
@@ -295,11 +295,11 @@ function InspirationDetail({
         className="flex items-center justify-between px-6 pb-4 border-b border-[#211c15]"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}
       >
-        <button onClick={onClose} className="icon-btn">
+        <button onClick={onClose} className="icon-btn" aria-label="關閉">
           <X size={22} className="text-[#8a8478]" />
         </button>
         <div className="text-[12px] tracking-[0.4em] text-[#c9a961]/80">靈感</div>
-        <button onClick={() => { if (confirm('刪除這個靈感？')) onDelete(); }} className="icon-btn">
+        <button onClick={() => { if (confirm('刪除這個靈感？')) onDelete(); }} className="icon-btn" aria-label="刪除靈感">
           <Trash2 size={19} className="text-[#a85959]" />
         </button>
       </div>
@@ -353,7 +353,7 @@ function InspirationDetail({
               onChange={e => setNote(e.target.value)}
               rows={2}
               placeholder="加一句備註（哪看到的、想吃什麼）"
-              className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 px-3 py-2.5 text-base text-[#f5f1e8] placeholder-[#5d574c] focus:outline-none resize-none leading-relaxed"
+              className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 px-3 py-2.5 text-base text-[#f5f1e8] placeholder-[#837b6e] focus:outline-none resize-none leading-relaxed"
             />
             {noteChanged && (
               <button
@@ -381,7 +381,7 @@ function InspirationDetail({
             </a>
           )}
 
-          <div className="text-[12px] tracking-widest text-[#5d574c] border-t border-[#211c15] pt-4">
+          <div className="text-[12px] tracking-widest text-[#837b6e] border-t border-[#211c15] pt-4">
             {new Date(insp.createdAt).toLocaleDateString('zh-TW')}
           </div>
         </div>
@@ -422,7 +422,7 @@ function InspirationDetail({
               <ArrowRight size={20} className="text-[#c9a961] flex-shrink-0" strokeWidth={2.5} />
             </button>
           ) : (
-            <div className="text-[13px] tracking-widest text-[#6d6557] text-center py-1">已加入想吃清單 ✓</div>
+            <div className="text-[13px] tracking-widest text-[#837b6e] text-center py-1">已加入想吃清單 ✓</div>
           )}
           <button
             onClick={() => { if (confirm('刪除這張截圖？')) onDelete(); }}

@@ -76,10 +76,23 @@ input[type='date']::-webkit-calendar-picker-indicator {
   filter: invert(0.78) sepia(0.35);
 }
 
-/* 鍵盤操作時的焦點：香檳細環（滑鼠 / 觸控點擊不顯示） */
-:where(button, a, [role='button']):focus-visible {
+/* 鍵盤操作時的焦點：香檳細環（滑鼠 / 觸控點擊不顯示）。表單控件同樣要有，
+   只靠底線變色對鍵盤使用者不夠明確 */
+:where(button, a, [role='button'], input, select, textarea):focus-visible {
   outline: 2px solid rgba(214, 185, 124, 0.55);
   outline-offset: 2px;
+}
+
+/* 尊重系統的「減少動態效果」：所有動畫收成瞬間完成，不是少一點而是不做 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* 大標題斷行更勻稱 */
@@ -95,12 +108,14 @@ h1, h2, h3 {
 /* ───── 編輯排版系統 ───── */
 
 /* 眉標：大寫英文欄題，全站統一（取代零散的 text-[11px] tracking-[0.4em] 金色小字） */
+/* 透明度原本壓到 0.55 / 0.6，11px 下對比只有 3.3:1（低於 WCAG AA 的 4.5:1）。
+   提到 0.8 後約 5.6:1，肉眼幾乎看不出差別但讀得清楚。 */
 .eyebrow {
   font-size: var(--t-micro);
   line-height: 1;
   letter-spacing: 0.4em;
   text-transform: uppercase;
-  color: rgba(201, 169, 97, 0.55);
+  color: rgba(201, 169, 97, 0.8);
   font-weight: 500;
 }
 /* 中文小節標：不轉大寫、字距略收 */
@@ -108,7 +123,7 @@ h1, h2, h3 {
   font-size: var(--t-micro);
   line-height: 1;
   letter-spacing: 0.32em;
-  color: rgba(201, 169, 97, 0.6);
+  color: rgba(201, 169, 97, 0.82);
   font-weight: 500;
 }
 
@@ -126,12 +141,11 @@ h1, h2, h3 {
 .t-body { font-size: var(--t-body); line-height: 1.6; }
 .t-caption { font-size: var(--t-caption); line-height: 1.55; }
 
-/* 香檳金漸層：保留給大標題 / 焦點，平常文字用象牙白以收斂金色 */
+/* 香檳金標題色：保留給大標題 / 焦點，平常文字用象牙白以收斂金色。
+   原本是把漸層裁進文字的做法，改回實色——那種寫法在強制對比模式或背景沒畫出來時
+   會整段消失（文字本身是透明的），而且視覺上和這個實色差極小。 */
 .text-gold-gradient {
-  background: linear-gradient(135deg, #f3e4ba 0%, #d9bd7c 52%, #ad8f51 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: #e0c68c;
 }
 
 /* 象牙白主文字 */
@@ -209,7 +223,7 @@ h1, h2, h3 {
   color: #d9bd7c;
   background: rgba(201, 169, 97, 0.05);
   border-radius: 8px;
-  transition: all 0.15s ease;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease, transform 0.1s ease;
   font-weight: 500;
 }
 .btn-secondary:hover {
@@ -226,7 +240,7 @@ h1, h2, h3 {
   color: #8a8478;
   background: transparent;
   border-radius: 8px;
-  transition: all 0.15s ease;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease, transform 0.1s ease;
 }
 .btn-neutral:hover {
   border-color: #3c352a;
@@ -243,7 +257,7 @@ h1, h2, h3 {
   border: 1px solid #2c261d;
   color: #8a8478;
   background: transparent;
-  transition: all 0.15s ease;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease, transform 0.1s ease;
 }
 .chip:hover {
   border-color: rgba(201, 169, 97, 0.4);
@@ -262,7 +276,7 @@ h1, h2, h3 {
   color: #a85959;
   background: rgba(140, 70, 70, 0.05);
   border-radius: 6px;
-  transition: all 0.15s ease;
+  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease, transform 0.1s ease;
 }
 .btn-danger:hover {
   border-color: rgba(140, 70, 70, 0.7);
@@ -271,13 +285,25 @@ h1, h2, h3 {
 
 /* 圖示鈕：圓 + 細邊 */
 .icon-btn {
+  position: relative;
   border-radius: 999px;
   padding: 8px;
   color: #8a8478;
   background: transparent;
-  transition: all 0.15s ease;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 .icon-btn:hover {
   background: rgba(201, 169, 97, 0.1);
   color: #c9a961;
+}
+/* 視覺維持小圖示，但點擊範圍補到 44×44（WCAG 2.5.5 / iOS HIG）。
+   用 ::after 撐開熱區，不動版面，所以既有排版不會位移。 */
+.icon-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
 }
