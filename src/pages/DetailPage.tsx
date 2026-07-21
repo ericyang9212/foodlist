@@ -58,7 +58,7 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
       <div className="flex-1 overflow-y-auto px-6 py-8">
         {/* Hero */}
         <div className="mb-7">
-          <div className="text-[13px] tracking-[0.5em] text-[#c9a961]/70 mb-4">想吃的食物</div>
+          <div className="eyebrow-tc mb-4">想吃的食物</div>
           <div className="flex items-start gap-4 mb-4">
             <h1 className="flex-1 text-[36px] text-gold-gradient tracking-[0.05em] font-medium leading-tight">
               {item.name}
@@ -137,7 +137,7 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
 
         {item.notes && (
           <div className="mb-8">
-            <div className="text-[13px] tracking-[0.4em] text-[#c9a961]/60 mb-3">筆記</div>
+            <div className="eyebrow-tc mb-3">筆記</div>
             <p className="text-[#d6d0c0] text-[16px] leading-relaxed border-l border-[#c9a961]/30 pl-4">
               {item.notes}
             </p>

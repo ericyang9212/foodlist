@@ -111,7 +111,7 @@ export function ListView({
               className="w-12 h-12 object-contain flex-shrink-0 drop-shadow-[0_2px_8px_rgba(201,169,97,0.2)]"
             />
             <div>
-              <div className="text-[11px] tracking-[0.5em] text-[#c9a961]/70 mb-1.5">PSJ DICE LIST</div>
+              <div className="eyebrow mb-1.5">PSJ DICE LIST</div>
               <h1 className="text-[28px] font-medium text-gold-gradient tracking-[0.12em]">待 吃 清 單</h1>
             </div>
           </div>
@@ -140,7 +140,7 @@ export function ListView({
             </button>
           </div>
         </div>
-        <div className="mt-4 h-[1px] bg-gradient-to-r from-[#c9a961]/40 via-[#c9a961]/10 to-transparent" />
+        <div className="rule mt-4" />
       </div>
 
       {/* 今晚吃什麼（隨頁面捲動） */}
@@ -153,7 +153,7 @@ export function ListView({
             <div className="absolute top-0 right-0 w-32 h-32 bg-[#c9a961]/8 rounded-full blur-2xl -mr-10 -mt-10" />
             <div className="relative flex items-center justify-between">
               <div className="text-left">
-                <div className="text-[11px] tracking-[0.5em] text-[#c9a961]/80 mb-2.5">TONIGHT</div>
+                <div className="eyebrow mb-2.5">TONIGHT</div>
                 <div className="text-[21px] text-[#f6efe0] tracking-[0.08em] font-medium" style={{ fontFamily: "'Noto Serif TC', serif" }}>今晚吃什麼？</div>
                 <div className="text-[13px] text-[#8d877a] tracking-wider mt-2">
                   {wantItems.length > 0

@@ -100,7 +100,7 @@ export function LogFoodprintSheet({ food, uploadPhoto, onSave, onClose }: Props)
         <div className="px-6 py-6 space-y-6 max-h-[70vh] overflow-y-auto">
           {/* 吃了什麼（read-only） */}
           <div>
-            <div className="text-[11px] tracking-[0.4em] text-[#c9a961]/60 mb-2">吃了什麼</div>
+            <div className="eyebrow-tc mb-2">吃了什麼</div>
             <h3 className="text-[22px] text-gold-gradient font-medium tracking-wide leading-tight">
               {food.name}
             </h3>
@@ -109,7 +109,7 @@ export function LogFoodprintSheet({ food, uploadPhoto, onSave, onClose }: Props)
           {/* 在哪家店 */}
           {food.restaurants.length > 0 ? (
             <div>
-              <div className="text-[11px] tracking-[0.4em] text-[#c9a961]/60 mb-2">在哪家店</div>
+              <div className="eyebrow-tc mb-2">在哪家店</div>
               {food.restaurants.length === 1 ? (
                 <p className="text-[15px] text-[#f5f1e8] flex items-center gap-1.5">
                   <MapPin size={13} className="text-[#8a8478]" />
@@ -145,7 +145,7 @@ export function LogFoodprintSheet({ food, uploadPhoto, onSave, onClose }: Props)
 
           {/* 日期 */}
           <div>
-            <div className="text-[11px] tracking-[0.4em] text-[#c9a961]/60 mb-2">日期</div>
+            <div className="eyebrow-tc mb-2">日期</div>
             <input
               type="date"
               value={dateStr}
@@ -156,7 +156,7 @@ export function LogFoodprintSheet({ food, uploadPhoto, onSave, onClose }: Props)
 
           {/* 照片（選填） */}
           <div>
-            <div className="text-[11px] tracking-[0.4em] text-[#c9a961]/60 mb-2">照片（選填）</div>
+            <div className="eyebrow-tc mb-2">照片（選填）</div>
             {localPreview ? (
               <div className="relative inline-block">
                 <img
@@ -195,7 +195,7 @@ export function LogFoodprintSheet({ food, uploadPhoto, onSave, onClose }: Props)
 
           {/* 感想（選填） */}
           <div>
-            <div className="text-[11px] tracking-[0.4em] text-[#c9a961]/60 mb-2">一句話感想（選填）</div>
+            <div className="eyebrow-tc mb-2">一句話感想（選填）</div>
             <textarea
               placeholder="例如：第一次吃這家、意外地比想像中清爽"
               value={note}

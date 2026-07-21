@@ -68,11 +68,11 @@ export function InboxPage({ items, loading, onUpload, onDelete, onUpdate, onConv
 
       {/* 介紹 */}
       <div className="px-6 pt-5 pb-4">
-        <div className="text-[10px] tracking-[0.5em] text-[#c9a961]/60 mb-2">INSPIRATIONS</div>
+        <div className="eyebrow mb-2">INSPIRATIONS</div>
         <p className="text-[13px] text-[#8a8478] tracking-wider leading-relaxed">
           看到想吃的，先丟進來，之後再整理成想吃清單
         </p>
-        <div className="mt-4 h-[1px] bg-gradient-to-r from-[#c9a961]/40 via-[#c9a961]/10 to-transparent" />
+        <div className="rule mt-4" />
       </div>
 
       <div className="flex-1 overflow-y-auto px-6 pb-28">
@@ -393,7 +393,7 @@ function InspirationDetail({
           className="px-6 pt-5 pb-5 border-t border-[#c9a961]/30 bg-gradient-to-t from-[#1a1612] to-[#0b0a08]"
           style={{ paddingBottom: 'max(20px, env(safe-area-inset-bottom))' }}
         >
-          <div className="text-[10px] tracking-[0.5em] text-[#c9a961]/70 mb-3 text-center">
+          <div className="eyebrow mb-3 text-center">
             DECIDE TO EAT
           </div>
           <button
@@ -416,7 +416,7 @@ function InspirationDetail({
               className="w-full flex items-center gap-4 bg-[#100e0b] border border-[#c9a961]/30 hover:border-[#c9a961]/60 hover:bg-[#c9a961]/5 rounded-[6px] active:scale-[0.99] transition-all px-5 py-4 text-left"
             >
               <div className="flex-1 min-w-0">
-                <div className="text-[10px] tracking-[0.4em] text-[#c9a961]/70 mb-1">已整理成</div>
+                <div className="eyebrow-tc mb-1">已整理成</div>
                 <div className="text-[17px] text-[#f5f1e8] tracking-wide truncate">{linkedFood.name}</div>
               </div>
               <ArrowRight size={20} className="text-[#c9a961] flex-shrink-0" strokeWidth={2.5} />

@@ -177,7 +177,7 @@ function MarqueeEditor({
         {/* 預覽 */}
         {lines.length > 0 && (
           <div>
-            <div className="text-[11px] tracking-[0.4em] text-[#c9a961]/60 mb-2">PREVIEW</div>
+            <div className="eyebrow mb-2">PREVIEW</div>
             <div className="relative bg-[#0b0a08] border border-[#c9a961]/15 rounded-[8px] overflow-hidden h-11 flex items-center">
               <MarqueeText key={lines.join('\n')} lines={lines} speed={speed} hex={colorHexOf(color)} />
             </div>
@@ -186,7 +186,7 @@ function MarqueeEditor({
 
         {/* 文字 */}
         <div>
-          <div className="text-[13px] tracking-[0.4em] text-[#c9a961]/60 mb-3">想留什麼訊息？</div>
+          <div className="eyebrow-tc mb-3">想留什麼訊息？</div>
           <textarea
             autoFocus
             placeholder={`一行一則訊息，例如：\n本週末記得訂位\n要試試新開的拉麵店\n生日快樂 🎂`}
@@ -202,7 +202,7 @@ function MarqueeEditor({
 
         {/* 顏色 */}
         <div>
-          <div className="text-[13px] tracking-[0.4em] text-[#c9a961]/60 mb-3">顏色</div>
+          <div className="eyebrow-tc mb-3">顏色</div>
           <div className="flex gap-3">
             {MARQUEE_COLORS.map(c => (
               <button
@@ -221,7 +221,7 @@ function MarqueeEditor({
         {/* 速度 */}
         <div>
           <div className="flex items-baseline justify-between mb-3">
-            <span className="text-[13px] tracking-[0.4em] text-[#c9a961]/60">速度</span>
+            <span className="eyebrow-tc">速度</span>
             <span className="text-[12px] text-[#8a8478] tracking-wider">{lines.length >= 2 ? '多則切換快慢' : '捲動快慢'}</span>
           </div>
           <input

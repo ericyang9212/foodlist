@@ -31,7 +31,7 @@ export function RestaurantsEditor({ restaurants, onChange, title = '候選店家
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <div className="text-[13px] tracking-[0.4em] text-[#c9a961]/60">
+        <div className="eyebrow-tc">
           {title} · {restaurants.length}
         </div>
         {!adding && !editingId && (

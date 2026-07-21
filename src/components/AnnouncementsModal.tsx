@@ -195,7 +195,7 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onSignOut, o
 
         {/* 資料備份區 */}
         <div className="mt-10 pt-6 border-t border-[#211c15]">
-          <div className="text-[11px] tracking-[0.4em] text-[#c9a961]/70 mb-4">MY DATA</div>
+          <div className="eyebrow mb-4">MY DATA</div>
 
           {/* 自動備份說明 */}
           <div className="bg-[#100e0b] border border-[#2c261d] rounded-[10px] p-4 mb-3">

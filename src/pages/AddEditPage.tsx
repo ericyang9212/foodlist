@@ -250,7 +250,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
 
           {/* 吃什麼（類別）：主要欄位，直接點選 */}
           <div>
-            <div className="text-[13px] tracking-[0.4em] text-[#c9a961]/60 mb-3">吃什麼（類別）</div>
+            <div className="eyebrow-tc mb-3">吃什麼（類別）</div>
             <div className="flex flex-wrap gap-2">
               {CUISINE_TYPES.map(c => (
                 <button
@@ -269,7 +269,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
           {/* 地點（選填）：掛在這家店，餵地圖 / 帶我去。想吃型沒有店，收起。 */}
           {kind === 'store' && (
           <div>
-            <div className="text-[13px] tracking-[0.4em] text-[#c9a961]/60 mb-3">地點（選填）</div>
+            <div className="eyebrow-tc mb-3">地點（選填）</div>
             <div className="space-y-3">
               <select
                 value={city}
@@ -336,7 +336,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
             <div className="space-y-7 pt-2 border-t border-[#211c15]">
               {/* 狀態 */}
               <div className="pt-5">
-                <label className="block text-[13px] tracking-[0.4em] text-[#c9a961]/60 mb-4">心情</label>
+                <label className="block eyebrow-tc mb-4">心情</label>
                 <div className="grid grid-cols-3 gap-2">
                   {STATUSES.map(s => (
                     <button
@@ -352,7 +352,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
 
               {/* 情境 */}
               <div>
-                <label className="block text-[13px] tracking-[0.4em] text-[#c9a961]/60 mb-4">適合情境</label>
+                <label className="block eyebrow-tc mb-4">適合情境</label>
                 <div className="flex flex-wrap gap-2">
                   {OCCASIONS.map(o => (
                     <button
@@ -369,7 +369,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
               {/* 評分 */}
               {status === 'tried' && (
                 <div>
-                  <label className="block text-[13px] tracking-[0.4em] text-[#c9a961]/60 mb-4">評分</label>
+                  <label className="block eyebrow-tc mb-4">評分</label>
                   <div className="flex gap-2.5">
                     {[1, 2, 3, 4, 5].map(n => (
                       <button
@@ -388,7 +388,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
 
               {/* 筆記 */}
               <div>
-                <label className="block text-[13px] tracking-[0.4em] text-[#c9a961]/60 mb-3">筆記</label>
+                <label className="block eyebrow-tc mb-3">筆記</label>
                 <textarea
                   placeholder="必點品項、雷點、推薦時段..."
                   value={notes}

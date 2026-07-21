@@ -169,7 +169,7 @@ export function TonightModal({ wantItems, triedItems, lastEatenByFoodId, onOpen,
         </button>
 
         <div className="text-center mb-6">
-          <div className="text-[13px] tracking-[0.5em] text-[#c9a961]/70 mb-3">TONIGHT</div>
+          <div className="eyebrow mb-3">TONIGHT</div>
           <div className="h-[1px] w-12 bg-[#c9a961]/40 mx-auto" />
         </div>
 
