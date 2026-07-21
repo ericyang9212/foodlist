@@ -4,6 +4,7 @@ import { STATUS_LABELS, CUISINE_TYPES, OCCASION_LABELS, CITIES } from '../types'
 import { RestaurantsEditor } from '../components/RestaurantsEditor';
 import { resolveRestaurantLocation } from '../lib/geocode';
 import { makeId } from '../lib/id';
+import { toast } from '../lib/toast';
 import type { FoodItem, Inspiration, Restaurant, Status, Occasion } from '../types';
 
 interface Props {
@@ -14,7 +15,8 @@ interface Props {
   initialImageUrl?: string;
   // 新增時想直接上傳一張圖
   onUploadImage?: (file: File) => Promise<string>;
-  onSave: (item: FoodItem, attachedImageUrl?: string) => void;
+  // 回傳是否寫入成功；失敗時表單留著（內容不丟），成功由 App 層負責關閉
+  onSave: (item: FoodItem, attachedImageUrl?: string) => Promise<boolean>;
   onClose: () => void;
 }
 
@@ -91,8 +93,11 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
       setUploading(true);
       try {
         finalImage = await onUploadImage(pendingFile);
+        // 記下已上傳的 URL 並清掉 pending：之後若 DB 寫入失敗重試，不會再傳一份重複檔案
+        setImageUrl(finalImage);
+        setPendingFile(null);
       } catch {
-        alert('圖片上傳失敗');
+        toast.error('圖片上傳失敗，請再試一次');
         setUploading(false);
         setSaving(false);
         return;
@@ -132,7 +137,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
       restaurants = [store, ...extraStores];
     }
 
-    onSave({
+    const ok = await onSave({
       id: item?.id ?? makeId(),
       name: name.trim(),
       // 表單沒有這幾個欄位，編輯時必須保留原值，否則會被洗掉
@@ -149,7 +154,8 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
       createdAt: item?.createdAt ?? now,
       updatedAt: now,
     }, finalImage);
-    onClose();
+    // 成功時 App 層會關閉表單；失敗就留在原地，內容不丟，直接重試即可
+    if (!ok) setSaving(false);
   };
 
   const previewSrc = localPreview ?? imageUrl;
@@ -220,6 +226,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
                   <img src={previewSrc} alt="" className="w-full h-full object-cover" />
                 </div>
                 <button
+                  aria-label="移除圖片"
                   onClick={removeImage}
                   className="absolute -top-1.5 -right-1.5 bg-[#0b0a08] border border-[#c9a961]/60 w-6 h-6 rounded-full flex items-center justify-center hover:bg-[#c9a961]/20 transition-colors"
                 >

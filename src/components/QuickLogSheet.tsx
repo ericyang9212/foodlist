@@ -148,6 +148,7 @@ export function QuickLogSheet({ uploadPhoto, onSave, onClose }: Props) {
               <div className="relative inline-block">
                 <img src={localPreview} alt="" className="max-w-full max-h-40 rounded-[8px] border border-[#c9a961]/30" />
                 <button
+                  aria-label="移除照片"
                   onClick={() => { setPendingFile(null); setLocalPreview(null); }}
                   className="absolute -top-2 -right-2 bg-[#0b0a08] border border-[#c9a961]/60 w-6 h-6 rounded-full flex items-center justify-center"
                 >

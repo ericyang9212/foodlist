@@ -3,6 +3,7 @@ import { ImagePlus, Check, Trash2, ArrowRight, X, Loader2, ArrowLeft, ChevronLef
 import type { Inspiration, FoodItem } from '../types';
 import { PLATFORM_LABELS } from '../types';
 import { safeHttpUrl } from '../lib/url';
+import { toast } from '../lib/toast';
 import { Thumb } from '../components/Thumb';
 import { EmptyMark } from '../components/EmptyMark';
 
@@ -45,7 +46,7 @@ export function InboxPage({ items, loading, onUpload, onDelete, onUpdate, onConv
       setPendingPreview(null);
       setPendingNote('');
     } catch (e) {
-      alert('上傳失敗，請再試一次');
+      toast.error('上傳失敗，請再試一次');
       console.error(e);
     } finally {
       setUploading(false);

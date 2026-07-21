@@ -146,14 +146,17 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
     }
   };
 
-  // 新增 / 編輯食物儲存，可帶圖
-  const handleSave = async (item: FoodItem, attachedImageUrl?: string) => {
+  // 新增 / 編輯食物儲存，可帶圖。回傳是否成功：
+  // 失敗時「不關表單」，讓使用者保留打到一半的內容直接重試（store 已 toast 並回滾）
+  const handleSave = async (item: FoodItem, attachedImageUrl?: string): Promise<boolean> => {
     // 等食物實際寫入成功再處理圖片連結，避免食物回滾後靈感仍指向不存在的食物
     const ok = editing ? await updateItem(item) : await addItem(item);
-    if (ok) await syncFoodImage(item.id, attachedImageUrl);
+    if (!ok) return false;
+    await syncFoodImage(item.id, attachedImageUrl);
     setEditing(undefined);
     setShowAdd(false);
     setFromInspiration(null);
+    return true;
   };
 
   // updateItem 是樂觀更新，items 立即變 → 推導的 detail 自動跟上，不用手動同步
@@ -270,7 +273,7 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#c9a961]/30 to-transparent" />
         <NavBtn icon={<List size={22} />} label="清單" active={tab === 'list'} onClick={() => setTab('list')} />
 
-        <button onClick={handleAddNew} className="flex flex-col items-center px-4">
+        <button onClick={handleAddNew} className="flex flex-col items-center px-4" aria-label="新增想吃的">
           <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-[0_4px_24px_rgba(201,169,97,0.45)] active:scale-95 transition-transform -mt-9 ring-1 ring-[#f0deae]/40" style={{ background: 'linear-gradient(150deg,#f0deae 0%,#d6b974 55%,#b1934f 100%)' }}>
             <Plus size={30} className="text-[#100d07]" strokeWidth={2.5} />
           </div>
