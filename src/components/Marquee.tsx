@@ -252,7 +252,6 @@ function MarqueeBoard({
           <div className="eyebrow-tc mb-3">留一則訊息</div>
           <textarea
             autoFocus
-            placeholder="想跟對方說什麼？"
             value={draft}
             onChange={e => setDraft(e.target.value)}
             rows={2}
