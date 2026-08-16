@@ -396,16 +396,11 @@ h1, h2, h3 {
     animation: pop 0.34s var(--ease-out-quint) both;
   }
 
-  /* 跑馬燈：橫向捲動與多則淡入 */
+  /* 跑馬燈：從容器右緣外進場，往左走到左緣外。
+     位移量是元件量出來的（容器寬 / 字寬），用 CSS 變數帶進來，
+     所以不管句子多長都剛好完整進場、完整離場。 */
   @keyframes marquee {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
-  }
-  @keyframes mqfade {
-    from { opacity: 0; transform: translateY(4px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .animate-mqfade {
-    animation: mqfade 0.6s var(--ease-ios);
+    from { transform: translateX(var(--mq-from, 100%)); }
+    to { transform: translateX(var(--mq-to, -100%)); }
   }
 }

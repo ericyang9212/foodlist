@@ -42,67 +42,75 @@ function textStyle(hex: string): CSSProperties {
   return { color: hex };
 }
 
-// 共用的跑馬燈內容：單句連續橫向捲動、多則淡入淡出輪播；尊重「減少動態」
+// 共用的跑馬燈內容：每一則都從右緣外進場、往左走到左緣外，走完換下一則。
+// 尊重「減少動態」：關掉捲動，改成置中靜止（多則就定時輪替）。
 function MarqueeText({ lines, speed, hex, maskColor = 'var(--color-bg)' }: {
   lines: string[]; speed: number; hex: string; maskColor?: string;
 }) {
-  const isMulti = lines.length >= 2;
   const reduce = usePrefersReducedMotion();
   const [idx, setIdx] = useState(0);
+  const line = lines[idx % Math.max(lines.length, 1)] ?? '';
 
-  // 單句只有「字比列還寬」才需要捲動。塞得下卻照捲，會同時看到兩份複本
-  // （捲動是靠複製一份接在後面做無縫循環），看起來像訊息被重複了一次。
+  // 進場距離要算出來才知道「右緣外」在哪：容器寬 + 這句話的寬。
+  // 字體是非同步載入的，載入後寬度會變 → 用 ResizeObserver 而不是量一次就算。
   const boxRef = useRef<HTMLDivElement>(null);
   const measureRef = useRef<HTMLSpanElement>(null);
-  const [overflows, setOverflows] = useState(false);
+  const [metrics, setMetrics] = useState<{ box: number; text: number } | null>(null);
   useLayoutEffect(() => {
-    if (isMulti) return;
     const box = boxRef.current;
     const text = measureRef.current;
     if (!box || !text) return;
-    // 字體是非同步載入的，寬度會在載入後改變 → 用 ResizeObserver 而不是量一次就算
-    const measure = () => setOverflows(text.scrollWidth > box.clientWidth);
+    const measure = () => setMetrics({ box: box.clientWidth, text: text.scrollWidth });
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(box);
     ro.observe(text);
     return () => ro.disconnect();
-  }, [isMulti, lines]);
+  }, [line]);
 
-  // 多則：定時淡入淡出切換。
-  // 內容變更時由呼叫端用 key remount 重置 idx，effect 裡不需要同步 setState。
+  // 減少動態時沒有動畫可以接力，多則改用計時器輪替
   useEffect(() => {
-    if (!isMulti) return;
+    if (!reduce || lines.length < 2) return;
     const dwell = Math.max(2600, speed * 130);
     const t = setInterval(() => setIdx(i => (i + 1) % lines.length), dwell);
     return () => clearInterval(t);
-  }, [isMulti, lines.length, speed]);
+  }, [reduce, lines.length, speed]);
 
   if (lines.length === 0) return null;
 
+  const scrolling = !reduce && metrics !== null;
+
   return (
     <div ref={boxRef} className="relative w-full h-11 flex items-center overflow-hidden">
-      {!isMulti && (
-        <span ref={measureRef} aria-hidden className={`${SPAN} invisible absolute whitespace-nowrap`}>
-          {lines[0]}
-        </span>
-      )}
+      {/* 量測用：不可見，只為了知道這句話多寬 */}
+      <span ref={measureRef} aria-hidden className={`${SPAN} invisible absolute whitespace-nowrap`}>
+        {line}
+      </span>
+
       {/* 邊緣柔化只留 20px：再寬就會把放大後的字吃掉，失去滿版的感覺 */}
       <div className="absolute left-0 top-0 bottom-0 w-5 z-10 pointer-events-none" style={{ background: `linear-gradient(90deg, ${maskColor}, transparent)` }} />
       <div className="absolute right-0 top-0 bottom-0 w-5 z-10 pointer-events-none" style={{ background: `linear-gradient(270deg, ${maskColor}, transparent)` }} />
 
-      {isMulti ? (
-        <div key={idx} className="w-full text-center px-3 animate-mqfade">
-          <span className={`${SPAN} block truncate`} style={textStyle(hex)}>{lines[idx]}</span>
-        </div>
-      ) : reduce || !overflows ? (
-        <div className="w-full text-center px-3">
-          <span className={`${SPAN} block truncate`} style={textStyle(hex)}>{lines[0]}</span>
-        </div>
+      {scrolling ? (
+        // key 讓每一則都重新掛載，從右緣乾淨地重跑一次，不會接在上一則的半途
+        <span
+          key={idx}
+          className={`${SPAN} absolute left-0 whitespace-nowrap will-change-transform`}
+          style={{
+            ...textStyle(hex),
+            // speed ＝「跑完一趟」的秒數：8 快、60 慢
+            animation: `marquee ${speed}s linear infinite`,
+            ['--mq-from' as string]: `${metrics.box}px`,
+            ['--mq-to' as string]: `${-metrics.text}px`,
+          }}
+          // 一則跑完才換下一則，不用另外計時
+          onAnimationIteration={lines.length > 1 ? () => setIdx(i => (i + 1) % lines.length) : undefined}
+        >
+          {line}
+        </span>
       ) : (
-        <div className="flex whitespace-nowrap" style={{ animation: `marquee ${speed}s linear infinite` }}>
-          <span className={`${SPAN} px-6`} style={textStyle(hex)}>{lines[0]}</span>
-          <span className={`${SPAN} px-6`} aria-hidden style={textStyle(hex)}>{lines[0]}</span>
+        <div className="w-full text-center px-3">
+          <span className={`${SPAN} block truncate`} style={textStyle(hex)}>{line}</span>
         </div>
       )}
     </div>
