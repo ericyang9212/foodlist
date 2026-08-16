@@ -102,7 +102,10 @@ export function HomePage({
         <div className="flex items-center justify-between gap-3">
           <div className="flex-1 flex items-center gap-3 min-w-0">
             {/* iOS app icon 的作法：圖放進圓角方塊，不讓它散在背景上 */}
-            <div className="w-12 h-12 rounded-[14px] bg-tint flex items-center justify-center flex-shrink-0 overflow-hidden shadow-[var(--shadow-card)]">
+            <div
+              className="w-12 h-12 rounded-[14px] flex items-center justify-center flex-shrink-0 overflow-hidden"
+              style={{ background: 'var(--metal-rose)', boxShadow: 'var(--metal-gloss), var(--shadow-card)' }}
+            >
               <img src="/logo.png" alt="" className="w-10 h-10 object-contain" />
             </div>
             <div className="min-w-0">

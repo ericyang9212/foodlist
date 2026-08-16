@@ -2,9 +2,10 @@
 
 /* ───────────────────────────────────────────────────────────
    設計語言：暖調深色 + 玫瑰金
-   —— 帶紅的近黑畫布 + 微暖的深色卡片 + 髮絲分隔線 + 系統字，
+   —— 帶紅的近黑畫布 + 微暖的深色卡片 + 髮絲分隔線，大標題走襯線、介面走系統無襯線，
       版面骨架仍是蘋果那套（大圓角、毛玻璃、分段控制項、收緊字距）。
       互動一律走玫瑰金，三個段落各有點題色（玫瑰金 / 香檳金 / 丁香紫），
+      這三色在色塊上是「金屬漆」漸層（亮邊→本色→暗面→反光），不是平塗，
       三色都在暖色家族裡，只有紫色是刻意留的冷調對比，避免整頁單調。
    單一深色主題，不跟隨系統切淺色——玫瑰金就是要壓在深色上才成立。
    顏色一律走這裡的 token，元件不要再寫死 hex，換色只改這個檔案。
@@ -46,6 +47,21 @@
   color-scheme: dark;
   accent-color: var(--color-tint);
 
+  /* 字體分工：大標題走襯線（撐氣質），介面與內文維持系統無襯線（撐易讀）。
+     兩者混用是刻意的——整頁都襯線會變成閱讀負擔，都無襯線又太像設定頁。 */
+  --font-body: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue',
+    'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', system-ui, sans-serif;
+  --font-display: 'Playfair Display', 'Noto Serif TC', 'Songti TC', 'Source Han Serif TC',
+    'PingFang TC', serif;
+
+  /* 金屬漆：亮邊 → 本色 → 暗面 → 反光，四段模擬打在弧面上的光。
+     每一段都實測過，深色文字壓在上面最低 5.9:1。 */
+  --metal-rose: linear-gradient(145deg, #f8d3c7 0%, #e8a89a 38%, #cf8b7c 66%, #f2c2b3 100%);
+  --metal-gold: linear-gradient(145deg, #f4dfb8 0%, #e2c08d 38%, #c39c62 66%, #efd7ab 100%);
+  --metal-mauve: linear-gradient(145deg, #e0caf2 0%, #c8a8e0 38%, #a486c0 66%, #d7bde9 100%);
+  /* 漆面高光：頂緣一道細白、底緣一道暗，讓色塊看起來有厚度 */
+  --metal-gloss: inset 0 1px 0 rgba(255, 255, 255, 0.45), inset 0 -1px 0 rgba(0, 0, 0, 0.12);
+
   /* 字級階梯：對齊 iOS 的 Large Title / Title / Headline / Body / Footnote */
   --t-display: 34px;
   --t-title: 22px;
@@ -83,9 +99,7 @@ input, textarea, select {
 
 body {
   margin: 0;
-  /* 系統字優先（iOS / macOS 直接吃 SF Pro 與蘋方），其餘平台退到 Noto Sans TC */
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue',
-    'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', system-ui, sans-serif;
+  font-family: var(--font-body);
   background: var(--color-bg);
   color: var(--color-text);
   -webkit-font-smoothing: antialiased;
@@ -176,22 +190,29 @@ h1, h2, h3 {
   background: var(--color-separator);
 }
 
-.t-display { font-size: var(--t-display); line-height: 1.12; letter-spacing: -0.028em; font-weight: 700; }
-.t-title { font-size: var(--t-title); line-height: 1.25; letter-spacing: -0.022em; font-weight: 700; }
+.t-display {
+  font-family: var(--font-display);
+  font-size: var(--t-display); line-height: 1.14; letter-spacing: -0.012em; font-weight: 700;
+}
+.t-title {
+  font-family: var(--font-display);
+  font-size: var(--t-title); line-height: 1.28; letter-spacing: -0.008em; font-weight: 700;
+}
 .t-heading { font-size: var(--t-heading); line-height: 1.35; letter-spacing: -0.015em; font-weight: 600; }
 .t-body { font-size: var(--t-body); line-height: 1.55; letter-spacing: -0.01em; }
 .t-caption { font-size: var(--t-caption); line-height: 1.45; letter-spacing: 0; color: var(--color-muted); }
 
 /* 大標題（原本的金色漸層標題）：改成實色主文字色 */
 .text-hero {
+  font-family: var(--font-display);
   color: var(--color-text);
   font-weight: 700;
-  letter-spacing: -0.028em;
+  letter-spacing: -0.012em;
 }
 
 /* ───── 表面 ───── */
 
-/* 卡片：白面、極淺陰影、大圓角——「浮一點點」而不是壓在紙上 */
+/* 卡片：微暖深色面、髮絲邊、大圓角——深色底下靠邊框而不是陰影撐層次 */
 .card-surface {
   background: var(--color-surface);
   border: 1px solid var(--color-separator);
@@ -208,14 +229,15 @@ h1, h2, h3 {
 /* ───── 按鈕 ───── */
 
 .btn-primary {
-  background: var(--color-tint);
+  background: var(--metal-rose);
+  box-shadow: var(--metal-gloss);
   color: var(--color-on-accent);
   border-radius: var(--r-md);
   font-weight: 600;
-  transition: background 0.18s var(--ease-ios), transform 0.14s var(--ease-out-quint), opacity 0.18s ease;
+  transition: filter 0.18s var(--ease-ios), transform 0.14s var(--ease-out-quint), opacity 0.18s ease;
 }
 .btn-primary:hover {
-  background: color-mix(in srgb, var(--color-tint) 88%, black);
+  filter: brightness(1.06);
 }
 .btn-primary:active {
   transform: scale(0.97);
@@ -290,15 +312,16 @@ h1, h2, h3 {
   transform: scale(0.96);
 }
 .chip-active {
-  background: var(--color-tint);
+  background: var(--metal-rose);
+  box-shadow: var(--metal-gloss);
   border-color: transparent;
   color: var(--color-on-accent);
   font-weight: 600;
 }
 /* 段落切換的 chip 各自帶色：靠 data-accent 指定，不用另外寫一次性樣式 */
-.chip-active[data-accent='rose'] { background: var(--color-rose); }
-.chip-active[data-accent='gold'] { background: var(--color-gold); }
-.chip-active[data-accent='mauve'] { background: var(--color-mauve); }
+.chip-active[data-accent='rose'] { background: var(--metal-rose); }
+.chip-active[data-accent='gold'] { background: var(--metal-gold); }
+.chip-active[data-accent='mauve'] { background: var(--metal-mauve); }
 
 /* 圖示鈕：視覺小、熱區 44×44（WCAG 2.5.5 / iOS HIG） */
 .icon-btn {

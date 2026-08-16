@@ -261,10 +261,11 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
       <button
         onClick={handleAddNew}
         aria-label="新增想吃的"
-        className="group fixed right-5 z-40 flex items-center gap-2 pl-4 pr-5 py-3.5 rounded-full text-on-accent font-semibold shadow-[var(--shadow-glow)] transition-transform duration-200 ease-[var(--ease-out-quint)] active:scale-95"
+        className="group fixed right-5 z-40 flex items-center gap-2 pl-4 pr-5 py-3.5 rounded-full text-on-accent font-semibold transition-transform duration-200 ease-[var(--ease-out-quint)] active:scale-95"
         style={{
           bottom: 'max(20px, calc(env(safe-area-inset-bottom) + 12px))',
-          background: 'linear-gradient(145deg, #f3c0b2 0%, #e8a89a 55%, #d08e80 100%)',
+          background: 'var(--metal-rose)',
+          boxShadow: 'var(--metal-gloss), var(--shadow-glow)',
         }}
       >
         <Plus size={20} strokeWidth={2.75} />
