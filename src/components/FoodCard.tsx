@@ -32,7 +32,7 @@ export function FoodCard({ item, thumbnailUrl, lastEatenAt, onOpen }: Props) {
       {/* 左緣的狀態色條：想吃＝珊瑚、嘗過＝松綠、不好吃＝灰 */}
       <div
         className={`absolute left-0 top-0 bottom-0 w-[3px] ${
-          item.status === 'want' ? 'bg-coral' : item.status === 'tried' ? 'bg-teal' : 'bg-fill-strong'
+          item.status === 'want' ? 'bg-rose' : item.status === 'tried' ? 'bg-gold' : 'bg-fill-strong'
         }`}
       />
 

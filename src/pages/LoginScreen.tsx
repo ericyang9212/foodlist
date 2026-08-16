@@ -30,7 +30,7 @@ export function LoginScreen({ onSignIn }: Props) {
           <img
             src="/logo.png"
             alt="PSJ dice list"
-            className="w-44 h-44 object-contain"
+            className="w-44 h-44 object-contain drop-shadow-[0_4px_22px_rgba(232,168,154,0.28)]"
           />
         </div>
 

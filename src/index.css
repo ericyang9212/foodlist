@@ -1,80 +1,49 @@
 @import "tailwindcss";
 
 /* ───────────────────────────────────────────────────────────
-   設計語言：明亮、通透、圓潤的「蘋果版面」
-   —— 淺灰畫布 + 純白卡片 + 髮絲分隔線 + 系統字，
-      互動一律走藍色 tint，三個段落各有自己的點題色（珊瑚 / 松綠 / 紫），
-      避免整頁只剩黑白灰。
-   顏色一律走這裡的 token，元件不要再寫死 hex——
-   換色、深色模式都只改這個檔案。
+   設計語言：暖調深色 + 玫瑰金
+   —— 帶紅的近黑畫布 + 微暖的深色卡片 + 髮絲分隔線 + 系統字，
+      版面骨架仍是蘋果那套（大圓角、毛玻璃、分段控制項、收緊字距）。
+      互動一律走玫瑰金，三個段落各有點題色（玫瑰金 / 香檳金 / 丁香紫），
+      三色都在暖色家族裡，只有紫色是刻意留的冷調對比，避免整頁單調。
+   單一深色主題，不跟隨系統切淺色——玫瑰金就是要壓在深色上才成立。
+   顏色一律走這裡的 token，元件不要再寫死 hex，換色只改這個檔案。
    ─────────────────────────────────────────────────────────── */
 
 @theme {
-  /* 畫布與表面 */
-  --color-bg: #f2f2f7;          /* 整頁底：淺灰畫布 */
-  --color-surface: #ffffff;     /* 卡片 / 輸入框 */
-  --color-fill: #f1f2f6;        /* 白卡片內的次級填色 */
-  --color-fill-strong: #e4e4ea; /* 分段控制項底、停用態 */
-  --color-line: #d8d8de;        /* 實線邊框 */
-  --color-separator: #e6e6eb;   /* 髮絲分隔線 */
+  /* 畫布與表面（都帶一點紅，純灰會讓玫瑰金顯得髒） */
+  --color-bg: #131010;          /* 整頁底：暖近黑 */
+  --color-surface: #1d1918;     /* 卡片 / 輸入框 */
+  --color-fill: #292322;        /* 卡片內的次級填色 */
+  --color-fill-strong: #372f2d; /* 分段控制項底、停用態 */
+  --color-line: #453b39;        /* 實線邊框 */
+  --color-separator: #2b2422;   /* 髮絲分隔線 */
 
-  /* 文字（對比皆以自身背景實測 ≥ 4.5:1） */
-  --color-text: #1c1c1e;        /* 主文字 */
-  --color-text-2: #3c3c43;      /* 長文內文 */
-  --color-muted: #6e6e73;       /* 次要說明——最淺可用的灰，不要再淺 */
+  /* 文字（對比皆以自身背景實測，最低 5.3:1） */
+  --color-text: #f7f1ef;        /* 主文字：暖白 */
+  --color-text-2: #e7dcd8;      /* 長文內文 */
+  --color-muted: #a3948f;       /* 次要說明——最暗可用的灰，不要再暗 */
 
-  /* 互動 tint 與段落點題色（-soft 是淺底，用來鋪淡色區塊） */
-  --color-tint: #0b6bd3;
-  --color-tint-soft: #e9f1fc;
-  --color-coral: #c23a18;       /* 清單 */
-  --color-coral-soft: #fff1ed;
-  --color-teal: #00786a;        /* 足跡 */
-  --color-teal-soft: #e2f2f0;
-  --color-violet: #6d3dd4;      /* 靈感匣 */
-  --color-violet-soft: #efe9fe;
-  --color-amber: #96600a;       /* 提醒 / 星等 */
-  --color-amber-soft: #fff3df;
-  --color-danger: #d70015;
-  --color-danger-soft: #ffecec;
+  /* 互動 tint 與段落點題色（-soft 是深色淡底，用來鋪色塊） */
+  --color-tint: #e8a89a;        /* 玫瑰金：連結、聚焦、主要動作 */
+  --color-tint-soft: #33231f;
+  --color-rose: #e8a89a;        /* 清單 */
+  --color-rose-soft: #33231f;
+  --color-gold: #e2c08d;        /* 足跡：香檳金 */
+  --color-gold-soft: #302819;
+  --color-mauve: #c8a8e0;       /* 靈感匣：丁香紫 */
+  --color-mauve-soft: #2a2338;
+  --color-amber: #e2c08d;       /* 星等沿用香檳金 */
+  --color-amber-soft: #302819;
+  --color-danger: #ff7a70;
+  --color-danger-soft: #351d1c;
 
-  /* 反白：放在有色塊上的文字 */
-  --color-on-accent: #ffffff;
-}
-
-/* 深色模式：只翻 token，元件不用改。
-   （沒有實機驗證過，若哪裡怪就調這一段就好） */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg: #000000;
-    --color-surface: #1c1c1e;
-    --color-fill: #2c2c2e;
-    --color-fill-strong: #3a3a3c;
-    --color-line: #3a3a3c;
-    --color-separator: #2e2e31;
-
-    --color-text: #f5f5f7;
-    --color-text-2: #e3e3e8;
-    --color-muted: #9b9ba1;
-
-    --color-tint: #57a6f5;
-    --color-tint-soft: #16283c;
-    --color-coral: #ff8462;
-    --color-coral-soft: #3a1d15;
-    --color-teal: #3fc3ae;
-    --color-teal-soft: #10302c;
-    --color-violet: #b092ff;
-    --color-violet-soft: #241a3d;
-    --color-amber: #e5a63c;
-    --color-amber-soft: #33260f;
-    --color-danger: #ff6961;
-    --color-danger-soft: #3a1618;
-
-    --color-on-accent: #10100f;
-  }
+  /* 放在玫瑰金 / 香檳金色塊上的文字：反過來用深色 */
+  --color-on-accent: #1a1211;
 }
 
 :root {
-  color-scheme: light dark;
+  color-scheme: dark;
   accent-color: var(--color-tint);
 
   /* 字級階梯：對齊 iOS 的 Large Title / Title / Headline / Body / Footnote */
@@ -95,16 +64,11 @@
   --ease-ios: cubic-bezier(0.32, 0.72, 0, 1);
   --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
 
-  /* 陰影：淺、散、貼近紙面，不做厚重投影 */
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 6px 20px rgba(0, 0, 0, 0.05);
-  --shadow-raised: 0 2px 6px rgba(0, 0, 0, 0.08), 0 12px 32px rgba(0, 0, 0, 0.1);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.5);
-    --shadow-raised: 0 8px 28px rgba(0, 0, 0, 0.65);
-  }
+  /* 陰影：深色底下投影看不太出來，改讓邊框撐層次，陰影只負責「離開版面」的感覺 */
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.45);
+  --shadow-raised: 0 10px 34px rgba(0, 0, 0, 0.62);
+  /* 主要動作（浮動新增鈕）：玫瑰金的暈，是整頁唯一發光的東西 */
+  --shadow-glow: 0 8px 26px rgba(232, 168, 154, 0.28);
 }
 
 * {
@@ -135,12 +99,14 @@ body {
   margin: 0 auto;
   position: relative;
   background-color: var(--color-bg);
-  /* 極淡的三色光暈，讓大片淺灰不至於死平（不影響文字對比） */
+  /* 頂部玫瑰金暈 + 底部香檳金餘燼 + 極細顆粒：
+     深色大面積最怕死平，這三層讓暗部有層次又不影響文字對比 */
   background-image:
-    radial-gradient(120% 42% at 8% -4%, rgba(216, 69, 30, 0.07) 0%, rgba(216, 69, 30, 0) 60%),
-    radial-gradient(110% 38% at 96% 2%, rgba(109, 61, 212, 0.07) 0%, rgba(109, 61, 212, 0) 62%),
-    radial-gradient(120% 45% at 50% 104%, rgba(0, 120, 106, 0.06) 0%, rgba(0, 120, 106, 0) 64%);
-  background-repeat: no-repeat;
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.035'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"),
+    radial-gradient(125% 48% at 12% -6%, rgba(232, 168, 154, 0.16) 0%, rgba(232, 168, 154, 0) 62%),
+    radial-gradient(110% 40% at 92% 4%, rgba(200, 168, 224, 0.1) 0%, rgba(200, 168, 224, 0) 64%),
+    radial-gradient(125% 45% at 50% 105%, rgba(226, 192, 141, 0.09) 0%, rgba(226, 192, 141, 0) 66%);
+  background-repeat: repeat, no-repeat, no-repeat, no-repeat;
   background-attachment: fixed;
 }
 
@@ -330,9 +296,9 @@ h1, h2, h3 {
   font-weight: 600;
 }
 /* 段落切換的 chip 各自帶色：靠 data-accent 指定，不用另外寫一次性樣式 */
-.chip-active[data-accent='coral'] { background: var(--color-coral); }
-.chip-active[data-accent='teal'] { background: var(--color-teal); }
-.chip-active[data-accent='violet'] { background: var(--color-violet); }
+.chip-active[data-accent='rose'] { background: var(--color-rose); }
+.chip-active[data-accent='gold'] { background: var(--color-gold); }
+.chip-active[data-accent='mauve'] { background: var(--color-mauve); }
 
 /* 圖示鈕：視覺小、熱區 44×44（WCAG 2.5.5 / iOS HIG） */
 .icon-btn {

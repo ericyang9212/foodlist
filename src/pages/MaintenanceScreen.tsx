@@ -5,7 +5,7 @@ export function MaintenanceScreen({ message }: { message?: string }) {
       <img
         src="/logo.png"
         alt="PSJ dice list"
-        className="w-28 h-28 object-contain mb-7 opacity-90"
+        className="w-28 h-28 object-contain mb-7 opacity-90 drop-shadow-[0_4px_22px_rgba(232,168,154,0.28)]"
       />
       <div className="eyebrow mb-3">MAINTENANCE</div>
       <h1 className="t-title mb-4">暫停服務中</h1>

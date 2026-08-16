@@ -158,7 +158,7 @@ export function TonightModal({ wantItems, triedItems, lastEatenByFoodId, onOpen,
   const hasFilter = cityFilter !== null || advancedActive;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/35 backdrop-blur-[2px] flex items-center justify-center px-6"
+    <div className="fixed inset-0 z-50 bg-black/55 backdrop-blur-[3px] flex items-center justify-center px-6"
          onClick={onClose}>
       <div
         className="relative w-full max-w-sm bg-surface border border-separator rounded-[18px] shadow-[var(--shadow-raised)] px-8 py-10 animate-fadein"
@@ -175,7 +175,7 @@ export function TonightModal({ wantItems, triedItems, lastEatenByFoodId, onOpen,
 
         {/* 抽籤來源：想吃（試新的）／回訪（吃過的安心牌）／全部（兩邊一起抽） */}
         <div className="flex justify-center mb-6">
-          <div className="inline-flex items-center rounded-full bg-fill p-[3px] text-[13px]">
+          <div className="inline-flex items-center rounded-full bg-fill p-[3px] border border-separator text-[13px]">
             {([
               ['want', '想吃', wantItems.length],
               ['tried', '回訪', triedItems.length],
@@ -184,7 +184,7 @@ export function TonightModal({ wantItems, triedItems, lastEatenByFoodId, onOpen,
               <button
                 key={key}
                 onClick={() => switchSource(key)}
-                className={`px-3.5 py-1.5 rounded-full transition-colors ${source === key ? 'bg-surface text-text font-semibold shadow-[var(--shadow-card)]' : 'text-muted'}`}
+                className={`px-3.5 py-1.5 rounded-full transition-colors ${source === key ? 'bg-fill-strong text-text font-semibold' : 'text-muted'}`}
               >
                 {label}<span className="ml-1 opacity-70 text-[11px]">{n}</span>
               </button>

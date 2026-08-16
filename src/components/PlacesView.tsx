@@ -84,7 +84,7 @@ export function PlacesView({ foods, imageByFoodId = {}, onOpen }: Props) {
                 <div className="flex items-center gap-2">
                   <h3 className="t-heading truncate">{g.name}</h3>
                   {isTop && (
-                    <span className="flex-shrink-0 text-[11px] font-semibold text-coral bg-coral-soft rounded-full px-2 py-[2px]">最想去</span>
+                    <span className="flex-shrink-0 text-[11px] font-semibold text-rose bg-rose-soft rounded-full px-2 py-[2px]">最想去</span>
                   )}
                 </div>
                 <div className="flex items-center gap-1.5 mt-1 text-muted">

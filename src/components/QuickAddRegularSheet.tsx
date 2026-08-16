@@ -55,7 +55,7 @@ export function QuickAddRegularSheet({ onSave, onClose }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/35 backdrop-blur-[2px] flex items-end justify-center"
+      className="fixed inset-0 z-50 bg-black/55 backdrop-blur-[3px] flex items-end justify-center"
       onClick={onClose}
     >
       <div

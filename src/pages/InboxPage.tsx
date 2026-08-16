@@ -99,12 +99,12 @@ export function InboxPage({ items, loading, onUpload, onDelete, onUpdate, onConv
           ) : (
             <button
               onClick={() => fileRef.current?.click()}
-              className="group w-full rounded-[20px] border border-dashed border-line bg-surface hover:bg-violet-soft py-9 flex flex-col items-center justify-center gap-3 transition-colors active:scale-[0.99]"
+              className="group w-full rounded-[20px] border border-dashed border-line bg-surface hover:bg-mauve-soft py-9 flex flex-col items-center justify-center gap-3 transition-colors active:scale-[0.99]"
             >
-              <div className="w-14 h-14 rounded-full bg-violet-soft flex items-center justify-center transition-transform duration-200 ease-[var(--ease-out-quint)] group-active:scale-90">
-                <ImagePlus size={24} className="text-violet" />
+              <div className="w-14 h-14 rounded-full bg-mauve-soft flex items-center justify-center transition-transform duration-200 ease-[var(--ease-out-quint)] group-active:scale-90">
+                <ImagePlus size={24} className="text-mauve" />
               </div>
-              <div className="t-heading text-violet">上傳截圖</div>
+              <div className="t-heading text-mauve">上傳截圖</div>
               <div className="t-caption">IG · Threads · 朋友傳的</div>
             </button>
           )}
@@ -228,7 +228,7 @@ function InspirationThumbnail({
         </div>
       )}
       {insp.convertedFoodId && !hideCheck && (
-        <div className="absolute top-2 right-2 bg-teal text-white p-1 rounded-full shadow-[var(--shadow-raised)]">
+        <div className="absolute top-2 right-2 bg-gold text-on-accent p-1 rounded-full shadow-[var(--shadow-raised)]">
           <Check size={10} strokeWidth={3} />
         </div>
       )}

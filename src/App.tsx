@@ -42,7 +42,7 @@ function FullScreenLoader() {
         <img
           src="/logo.png"
           alt="PSJ dice list"
-          className="w-32 h-32 object-contain mx-auto mb-4 animate-pulse"
+          className="w-32 h-32 object-contain mx-auto mb-4 animate-pulse drop-shadow-[0_4px_22px_rgba(232,168,154,0.28)]"
         />
         <p className="eyebrow">LOADING</p>
       </div>
@@ -256,24 +256,20 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
         />
       </div>
 
-      {/* 三頁併成一頁後底部只留新增：不再需要分頁切換。
-          毛玻璃底列 + 珊瑚色主按鈕，是整頁唯一的高彩度色塊 */}
-      <nav
-        className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] blur-bar flex items-center justify-center px-4 pt-3 z-40"
-        style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}
+      {/* 新增：拿掉整條底列，改成右下角的浮動膠囊鈕。
+          不佔一整條版面、拇指也搆得到，是全頁唯一發光的元素（玫瑰金）。 */}
+      <button
+        onClick={handleAddNew}
+        aria-label="新增想吃的"
+        className="group fixed right-5 z-40 flex items-center gap-2 pl-4 pr-5 py-3.5 rounded-full text-on-accent font-semibold shadow-[var(--shadow-glow)] transition-transform duration-200 ease-[var(--ease-out-quint)] active:scale-95"
+        style={{
+          bottom: 'max(20px, calc(env(safe-area-inset-bottom) + 12px))',
+          background: 'linear-gradient(145deg, #f3c0b2 0%, #e8a89a 55%, #d08e80 100%)',
+        }}
       >
-        <div className="absolute top-0 left-0 right-0 h-[1px] bg-separator" />
-
-        <button onClick={handleAddNew} className="flex flex-col items-center px-4 group" aria-label="新增想吃的">
-          {/* 漸層最亮的一端也讓白色加號有 4.5:1，不是只有中間夠 */}
-          <div
-            className="w-16 h-16 rounded-full flex items-center justify-center -mt-9 shadow-[var(--shadow-raised)] transition-transform duration-200 ease-[var(--ease-out-quint)] group-active:scale-90"
-            style={{ background: 'linear-gradient(145deg, #cf4320 0%, #c23a18 60%, #a83113 100%)' }}
-          >
-            <Plus size={30} className="text-white" strokeWidth={2.5} />
-          </div>
-        </button>
-      </nav>
+        <Plus size={20} strokeWidth={2.75} />
+        <span className="text-[15px]">新增</span>
+      </button>
 
       {/* 公告 */}
       {showAnnouncements && (

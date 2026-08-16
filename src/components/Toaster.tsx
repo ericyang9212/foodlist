@@ -3,13 +3,13 @@ import { Check, AlertTriangle, Info, X } from 'lucide-react';
 import { subscribeToasts, dismissToast, type Toast } from '../lib/toast';
 
 const ICONS = {
-  success: <Check size={15} className="text-teal" />,
+  success: <Check size={15} className="text-gold" />,
   error: <AlertTriangle size={15} className="text-danger" />,
   info: <Info size={15} className="text-muted" />,
 };
 
 const BORDERS = {
-  success: 'border-teal/40',
+  success: 'border-gold/40',
   error: 'border-danger/50',
   info: 'border-separator',
 };

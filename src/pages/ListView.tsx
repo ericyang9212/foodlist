@@ -107,7 +107,7 @@ export function ListView({
 
         {/* 想吃／嘗過／全部 + 食物／店家：兩組都走 iOS 分段控制項 */}
         <div className="px-6 pb-3 flex items-center gap-2">
-          <div className="flex items-center bg-fill rounded-[10px] p-[2px] flex-1">
+          <div className="flex items-center bg-surface border border-separator rounded-[10px] p-[2px] flex-1">
             {TABS.map(t => (
               <button
                 key={t.value}
@@ -115,7 +115,7 @@ export function ListView({
                 aria-pressed={activeTab === t.value}
                 className={`flex-1 px-2 py-1.5 rounded-[8px] t-caption font-medium transition-[background,color,transform] duration-200 ease-[var(--ease-ios)] active:scale-95 ${
                   activeTab === t.value
-                    ? 'bg-surface text-text shadow-[var(--shadow-card)]'
+                    ? 'bg-fill-strong text-text'
                     : 'text-muted'
                 }`}
               >
@@ -124,14 +124,14 @@ export function ListView({
               </button>
             ))}
           </div>
-          <div className="flex items-center bg-fill rounded-[10px] p-[2px] flex-shrink-0">
+          <div className="flex items-center bg-surface border border-separator rounded-[10px] p-[2px] flex-shrink-0">
             {([['food', '食物'], ['place', '店家']] as const).map(([mode, label]) => (
               <button
                 key={mode}
                 onClick={() => setViewMode(mode)}
                 aria-pressed={viewMode === mode}
                 className={`px-3 py-1.5 rounded-[8px] t-caption font-medium transition-[background,color,transform] duration-200 ease-[var(--ease-ios)] active:scale-95 ${
-                  viewMode === mode ? 'bg-surface text-text shadow-[var(--shadow-card)]' : 'text-muted'
+                  viewMode === mode ? 'bg-fill-strong text-text' : 'text-muted'
                 }`}
               >
                 {label}
@@ -180,7 +180,7 @@ export function ListView({
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <EmptyMark className="mb-4" />
             <p className="t-body text-muted">
-              {items.length === 0 ? '點下方 + 新增想吃的食物' : '無符合的食物'}
+              {items.length === 0 ? '按右下角「新增」加想吃的食物' : '無符合的食物'}
             </p>
           </div>
         ) : viewMode === 'place' ? (

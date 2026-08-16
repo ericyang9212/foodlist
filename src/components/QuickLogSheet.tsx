@@ -74,7 +74,7 @@ export function QuickLogSheet({ uploadPhoto, onSave, onClose }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/35 backdrop-blur-[2px] flex items-end justify-center animate-slideup"
+      className="fixed inset-0 z-50 bg-black/55 backdrop-blur-[3px] flex items-end justify-center animate-slideup"
       onClick={onClose}
     >
       <div

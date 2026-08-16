@@ -9,15 +9,15 @@ interface Props {
 }
 
 // 情境色：key 存進資料庫（沿用舊 key，不用改資料），
-// hex 換成淺色底看得清楚的深色版本——原本的淺金／淺粉在白底上等於看不見。
+// hex 是壓在深色底上的亮色版本；底色換過就要跟著重挑，否則會整條看不見。
 const MARQUEE_COLORS: { key: string; label: string; hex: string }[] = [
-  { key: 'gold', label: '琥珀', hex: '#96600a' },
-  { key: 'rose', label: '玫瑰', hex: '#b83280' },
-  { key: 'red', label: '暖紅', hex: '#c23a18' },
-  { key: 'teal', label: '松綠', hex: '#00786a' },
+  { key: 'gold', label: '香檳金', hex: '#e2c08d' },
+  { key: 'rose', label: '玫瑰金', hex: '#e8a89a' },
+  { key: 'red', label: '暖紅', hex: '#f0937f' },
+  { key: 'teal', label: '丁香紫', hex: '#c8a8e0' },
 ];
 function colorHexOf(key: string): string {
-  return MARQUEE_COLORS.find(c => c.key === key)?.hex ?? '#96600a';
+  return MARQUEE_COLORS.find(c => c.key === key)?.hex ?? '#e2c08d';
 }
 
 function usePrefersReducedMotion(): boolean {

@@ -36,15 +36,17 @@
 
 ## 設計系統（改 UI 前必讀）
 
-2026-08-16 從「暖黑底 + 香檳金 + 襯線字」整組換成**明亮的蘋果版面**；舊的金色 / 深色寫法全部作廢，看到殘留就是漏改的。
+2026-08-16 同一天改了兩次：先從「暖黑金 + 襯線字」換成明亮蘋果版面，再換成**暖調深色 + 玫瑰金**（現行）。版面骨架維持蘋果那套，只有色彩換掉。舊的香檳金寫法與中間那版的淺色寫法都已作廢，看到殘留就是漏改的。
 
-- 語言：淺灰畫布（`bg`）+ 純白卡片（`surface`）+ 髮絲分隔線 + 系統字（SF Pro / 蘋方，退到 Noto Sans TC）。字距是**收緊**的（`letter-spacing: -0.01em`），不要再用 `tracking-[0.3em]` 那種拉開的排版。
-- **顏色只走 token，元件不要再寫死 hex**：token 都在 `src/index.css` 的 `@theme`，用 Tailwind 語意類別（`bg-bg` / `bg-surface` / `bg-fill` / `border-separator` / `text-text` / `text-muted` / `text-tint` …）。深色模式靠同一份 token 在 `prefers-color-scheme: dark` 翻面，所以寫死 hex 會直接在深色模式壞掉。
-- 色彩分工：互動一律藍色 `tint`；三個段落各有點題色——足跡 `teal`、清單 `coral`、靈感匣 `violet`；評分 `amber`、刪除 `danger`。每個色都有 `-soft` 淺底版本可鋪區塊。
+- 語言：暖近黑畫布（`bg` `#131010`，刻意帶紅——純灰會讓玫瑰金顯髒）+ 微暖深色卡片（`surface`）+ 髮絲分隔線 + 系統字（SF Pro / 蘋方，退到 Noto Sans TC）。字距是**收緊**的（`letter-spacing: -0.01em`），不要再用 `tracking-[0.3em]` 那種拉開的排版。
+- **單一深色主題**，不跟隨系統切淺色（`color-scheme: dark`）。要加淺色版就得整組重挑，不是把 token 反過來就好。
+- **顏色只走 token，元件不要再寫死 hex**：token 都在 `src/index.css` 的 `@theme`，用 Tailwind 語意類別（`bg-bg` / `bg-surface` / `bg-fill` / `border-separator` / `text-text` / `text-muted` / `text-tint` …）。寫死 hex 會讓下次換色又得全站掃一遍（這次就掃了兩遍）。
+- 色彩分工：互動一律玫瑰金 `tint`；三個段落各有點題色——足跡 `gold`（香檳金）、清單 `rose`（玫瑰金）、靈感匣 `mauve`（丁香紫，唯一的冷調對比）；評分 `amber`、刪除 `danger`。每個色都有 `-soft` 深色淡底版本可鋪區塊。放在這些亮色塊上的文字用 `text-on-accent`（深色），不要用白色。
+- 深色特有的坑（都踩過）：分段控制項要「深軌道 + 亮滑塊」（`bg-surface` 軌道、`bg-fill-strong` 選中），照淺色版的寫法會反過來變暗；跑馬燈顯示色與台灣地圖色階都得跟著底色重挑，否則整條看不見；深銅色的 logo 壓在深底會糊，主畫面給它玫瑰金底板、全螢幕的加柔光暈。
 - **用既有的類別，不要發明新的一次性樣式**：眉標 `.eyebrow` / `.eyebrow-tc`、分隔線 `.rule`、字級 `.t-display`~`.t-caption`、按鈕 `.btn-primary` / `.btn-secondary` / `.btn-neutral` / `.btn-danger` / `.chip`、卡片 `.card-surface`、毛玻璃列 `.blur-bar`。
 - 動態：曲線用 `--ease-ios` / `--ease-out-quint`，進場用 `.animate-rise`（單塊）、`.stagger`（列表逐項）、`.animate-pop`（抽籤結果）、`.animate-slideup`（sheet）、`.animate-fadein`（全頁覆蓋層）。**不要做回彈過衝**（impeccable 會擋 bounce-easing）。
 - **無障礙底線（已全站校正過，不要倒退）**：
-  - 淺色底下最淺可用的灰是 `muted`（`#6e6e73`，在白底 5.07:1、在 `fill` 4.53:1）。不要用更淺的灰做正文或 placeholder。
+  - 深色底下最暗可用的灰是 `muted`（`#a3948f`，在 `bg` 6.48:1、在 `fill` 5.30:1）。不要用更暗的灰做正文或 placeholder。
   - 所有點題色的深淺兩版都實測過 ≥ 4.5:1（含反白文字放在色塊上）。改色時請一併重算，不要憑感覺挑。
   - 禁止漸層字（`background-clip: text`）——強制對比模式下會整段消失。
   - 圖示鈕一律 `.icon-btn`（自帶 44×44 熱區）+ `aria-label`。

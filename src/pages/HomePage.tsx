@@ -35,11 +35,11 @@ type ListTab = 'want' | 'tried' | 'all';
 
 // 每個段落有自己的點題色（chip 選中時上色），整頁才不會只剩黑白灰
 const SECTIONS: {
-  value: Section; label: string; icon: typeof Footprints; accent: 'teal' | 'coral' | 'violet';
+  value: Section; label: string; icon: typeof Footprints; accent: 'rose' | 'gold' | 'mauve';
 }[] = [
-  { value: 'foodprints', label: '足跡', icon: Footprints, accent: 'teal' },
-  { value: 'list', label: '清單', icon: List, accent: 'coral' },
-  { value: 'inbox', label: '靈感匣', icon: Images, accent: 'violet' },
+  { value: 'foodprints', label: '足跡', icon: Footprints, accent: 'gold' },
+  { value: 'list', label: '清單', icon: List, accent: 'rose' },
+  { value: 'inbox', label: '靈感匣', icon: Images, accent: 'mauve' },
 ];
 
 const CITY_FILTER_KEY = 'foodlist_city_filter';
@@ -102,7 +102,7 @@ export function HomePage({
         <div className="flex items-center justify-between gap-3">
           <div className="flex-1 flex items-center gap-3 min-w-0">
             {/* iOS app icon 的作法：圖放進圓角方塊，不讓它散在背景上 */}
-            <div className="w-12 h-12 rounded-[14px] bg-surface border border-separator shadow-[var(--shadow-card)] flex items-center justify-center flex-shrink-0 overflow-hidden">
+            <div className="w-12 h-12 rounded-[14px] bg-tint flex items-center justify-center flex-shrink-0 overflow-hidden shadow-[var(--shadow-card)]">
               <img src="/logo.png" alt="" className="w-10 h-10 object-contain" />
             </div>
             <div className="min-w-0">

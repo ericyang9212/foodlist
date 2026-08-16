@@ -136,7 +136,7 @@ export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: P
           >
             <div className="flex items-baseline gap-2 mb-2 flex-shrink-0">
               <h3 className="t-heading">{selectedCity}</h3>
-              <span className="text-[12px] font-medium text-teal">
+              <span className="text-[12px] font-medium text-gold">
                 {(storesByCity.get(selectedCity) ?? []).length} 家店
               </span>
               <button
@@ -167,7 +167,7 @@ export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: P
           <div className="flex items-baseline gap-2">
             <h2 className="t-heading">足跡時間軸</h2>
             {storeCount > 0 && (
-              <span className="text-[12px] font-medium text-teal">{storeCount} 家店</span>
+              <span className="text-[12px] font-medium text-gold">{storeCount} 家店</span>
             )}
           </div>
           <button
@@ -175,7 +175,7 @@ export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: P
             className="icon-btn !p-1.5" aria-label="在 Google Maps 找附近的店"
             title="在 Google Maps 找附近的店"
           >
-            <Compass size={17} className="text-teal" />
+            <Compass size={17} className="text-gold" />
           </button>
         </div>
 
@@ -185,20 +185,20 @@ export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: P
                 手機上少一層「捲動區裡的捲動區」 */}
             <div className="pr-1">
               <div className="relative pl-1">
-                <div className="absolute left-[6px] top-1 bottom-1 w-[2px] rounded-full bg-gradient-to-b from-teal via-teal/40 to-transparent" />
+                <div className="absolute left-[6px] top-1 bottom-1 w-[2px] rounded-full bg-gradient-to-b from-gold via-gold/40 to-transparent" />
                 <div className="space-y-7">
                   {grouped.map((group, index) => {
                     const collapsed = isMonthCollapsed(group.key, index);
                     return (
                       <div key={group.key} className="relative pl-6">
-                        <div className="absolute left-0 top-1 w-[11px] h-[11px] rounded-full bg-surface border-2 border-teal" />
+                        <div className="absolute left-0 top-1 w-[11px] h-[11px] rounded-full bg-surface border-2 border-gold" />
                         <button
                           onClick={() => toggleMonth(group.key, index)}
                           className="flex items-center gap-3 mb-3 w-full text-left"
                         >
                           <span className="eyebrow">{group.label}</span>
                           <div className="h-[1px] flex-1 bg-separator" />
-                          <span className="text-[11px] font-semibold text-teal bg-teal-soft px-2 py-0.5 rounded-full">
+                          <span className="text-[11px] font-semibold text-gold bg-gold-soft px-2 py-0.5 rounded-full">
                             {group.prints.length}
                           </span>
                           <ChevronDown
@@ -265,7 +265,7 @@ function FoodprintCard({ item, photoSrc, onDelete, onClick }: {
       onClick={onClick}
     >
       <div className="flex items-start gap-3">
-        <div className="text-[12px] font-semibold text-teal w-12 flex-shrink-0 mt-0.5 tabular-nums">
+        <div className="text-[12px] font-semibold text-gold w-12 flex-shrink-0 mt-0.5 tabular-nums">
           {dateLabel(item.ateAt)}
         </div>
         <div className="flex-1 min-w-0">

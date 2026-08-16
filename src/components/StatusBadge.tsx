@@ -7,8 +7,8 @@ interface Props {
 
 // 淡色底 + 同色系文字的 iOS 標籤；三個狀態各自一個色相
 const STYLES: Record<Status, string> = {
-  want: 'bg-coral-soft text-coral',
-  tried: 'bg-teal-soft text-teal',
+  want: 'bg-rose-soft text-rose',
+  tried: 'bg-gold-soft text-gold',
   skip: 'bg-fill text-muted',
 };
 
