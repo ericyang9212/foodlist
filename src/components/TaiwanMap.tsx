@@ -34,7 +34,7 @@ const COUNTIES: CountyDatum[] = [
 
 // 去過的縣市走玫瑰金色階（暗 → 亮），沒去過的是比畫布略亮的暖灰；顏色亮度＝足跡多寡
 const NOT_VISITED_COLOR = '#2b2422';
-const LOW_RGB: [number, number, number] = [0x6b, 0x45, 0x3d];
+const LOW_RGB: [number, number, number] = [0x96, 0x68, 0x5c];
 const HIGH_RGB: [number, number, number] = [0xf0, 0xbe, 0xac];
 
 function visitedColor(t: number): string {

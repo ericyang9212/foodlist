@@ -15,11 +15,12 @@ interface Props {
 
 // 使用說明內容（靜態、固定置頂）
 const GUIDE: { label: string; desc: string }[] = [
+  { label: '一頁三段', desc: '主畫面上方的「足跡 / 清單 / 靈感匣」可切換，三者共用同一頁——不用再在分頁之間跳。預設停在足跡。' },
+  { label: '足跡', desc: '吃過的紀錄。在詳情頁按「今天吃了」，或在足跡段落右上「記一筆」直接記（清單沒有的店也行，會一併加進嘗過）。累積成台灣縣市地圖與時間軸，點縣市能看你們在那裡吃過什麼。' },
   { label: '清單', desc: '想吃與吃過的都在這。上方切「想吃 / 嘗過 / 全部」，可搜尋、按縣市篩選，也能切「店家」視角以店彙整；點卡片看詳情、編輯。' },
-  { label: '＋ 新增', desc: '中間金色按鈕新增：填店家名稱、點「吃什麼」類別，選縣市或貼 Google 地圖連結會自動定位；其他分店和更多細節收在選填。' },
-  { label: '今晚吃什麼', desc: '清單上方按一下開抽籤：來源可切「想吃 / 回訪 / 全部」，想去哪個縣市先選再抽；抽到能直接「帶我去」或再抽一個。' },
-  { label: '靈感匣', desc: '看到想吃的截圖先丟進靈感匣（清單右上角圖示），有空再一鍵轉成正式的想吃；整理過的截圖會收進相簿。' },
-  { label: '足跡', desc: '在詳情頁按「今天吃了」，或在足跡頁右上「記一筆」直接記（清單沒有的店也行，會一併加進嘗過）。累積成台灣縣市地圖與時間軸，點縣市能看你們在那裡吃過什麼。' },
+  { label: '靈感匣', desc: '看到想吃的截圖先丟進來，有空再一鍵轉成正式的想吃；整理過的截圖會收進相簿。未整理的張數會顯示在上方的「靈感匣」上。' },
+  { label: '＋ 新增', desc: '右下角的浮動按鈕：填店家名稱、點「吃什麼」類別，選縣市或貼 Google 地圖連結會自動定位；其他分店和更多細節收在選填。' },
+  { label: '今晚吃什麼', desc: '抬頭下方按一下開抽籤，三個段落都按得到：來源可切「想吃 / 回訪 / 全部」，想去哪個縣市先選再抽；抽到能直接「帶我去」或再抽一個。' },
   { label: '備份', desc: '這頁最下方可看每日自動異地備份、手動下載 JSON、以及登出。' },
 ];
 
@@ -159,7 +160,6 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onSignOut, o
                       </div>
                       <h3
                         className="t-title leading-[1.35]"
-                        style={{ fontFamily: "'Noto Serif TC', serif", fontWeight: 500 }}
                       >
                         {a.title}
                       </h3>
@@ -179,7 +179,7 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onSignOut, o
                       </div>
                       <div
                         className="space-y-4 text-text-2 text-[15.5px] leading-[1.85] whitespace-pre-line"
-                        style={{ fontFamily: "'Noto Serif TC', serif", fontWeight: 400 }}
+                        style={{ fontFamily: 'var(--font-display)' }}
                       >
                         {paragraphs.map((p, i) => (
                           <p key={i}>{p}</p>

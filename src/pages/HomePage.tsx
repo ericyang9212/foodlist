@@ -156,7 +156,7 @@ export function HomePage({
                 onClick={() => selectSection(s.value)}
                 aria-current={active ? 'page' : undefined}
                 data-accent={s.accent}
-                className={`flex items-center gap-1.5 px-4 py-2 t-caption ${active ? 'chip chip-active !text-on-accent' : 'chip'}`}
+                className={`flex items-center gap-1.5 px-4 py-2 t-caption ${active ? 'chip chip-active' : 'chip'}`}
               >
                 <Icon size={15} />
                 {s.label}

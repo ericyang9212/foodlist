@@ -35,7 +35,6 @@
   --color-mauve: #c8a8e0;       /* 靈感匣：丁香紫 */
   --color-mauve-soft: #2a2338;
   --color-amber: #e2c08d;       /* 星等沿用香檳金 */
-  --color-amber-soft: #302819;
   --color-danger: #ff7a70;
   --color-danger-soft: #351d1c;
 
@@ -70,10 +69,8 @@
   --t-caption: 13px;
   --t-micro: 12px;
 
-  /* 圓角：iOS 的連續曲率靠大圓角近似 */
-  --r-sm: 10px;
+  /* 圓角：元件層多半直接寫 rounded-[Npx]，這裡只留按鈕 / 膠囊在用的兩個 */
   --r-md: 14px;
-  --r-lg: 20px;
   --r-pill: 999px;
 
   /* 動態曲線：兩條都是純減速，不做回彈過衝——真實物體只會減速停住 */
@@ -160,256 +157,255 @@ h1, h2, h3 {
   letter-spacing: -0.022em;   /* 大字要更收，才有 SF Display 的味道 */
 }
 
-.tabular-nums {
-  font-variant-numeric: tabular-nums;
-}
 
-/* ───── 排版 ───── */
+@layer components {
+  /* ───── 排版 ───── */
 
-/* 眉標：小尺寸的分區欄題（iOS 分組列表的 section header） */
-.eyebrow {
-  font-size: var(--t-micro);
-  line-height: 1.2;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--color-muted);
-  font-weight: 600;
-}
-.eyebrow-tc {
-  font-size: var(--t-micro);
-  line-height: 1.2;
-  letter-spacing: 0;
-  color: var(--color-muted);
-  font-weight: 600;
-}
+  /* 眉標：小尺寸的分區欄題（iOS 分組列表的 section header） */
+  .eyebrow {
+    font-size: var(--t-micro);
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    font-weight: 600;
+  }
+  .eyebrow-tc {
+    font-size: var(--t-micro);
+    line-height: 1.2;
+    letter-spacing: 0;
+    color: var(--color-muted);
+    font-weight: 600;
+  }
 
-/* 髮絲分隔線 */
-.rule {
-  height: 1px;
-  border: 0;
-  background: var(--color-separator);
-}
+  /* 髮絲分隔線 */
+  .rule {
+    height: 1px;
+    border: 0;
+    background: var(--color-separator);
+  }
 
-.t-display {
-  font-family: var(--font-display);
-  font-size: var(--t-display); line-height: 1.14; letter-spacing: -0.012em; font-weight: 700;
-}
-.t-title {
-  font-family: var(--font-display);
-  font-size: var(--t-title); line-height: 1.28; letter-spacing: -0.008em; font-weight: 700;
-}
-.t-heading { font-size: var(--t-heading); line-height: 1.35; letter-spacing: -0.015em; font-weight: 600; }
-.t-body { font-size: var(--t-body); line-height: 1.55; letter-spacing: -0.01em; }
-.t-caption { font-size: var(--t-caption); line-height: 1.45; letter-spacing: 0; color: var(--color-muted); }
+  .t-display {
+    font-family: var(--font-display);
+    font-size: var(--t-display); line-height: 1.14; letter-spacing: -0.012em; font-weight: 700;
+  }
+  .t-title {
+    font-family: var(--font-display);
+    font-size: var(--t-title); line-height: 1.28; letter-spacing: -0.008em; font-weight: 700;
+  }
+  .t-heading { font-size: var(--t-heading); line-height: 1.35; letter-spacing: -0.015em; font-weight: 600; }
+  .t-body { font-size: var(--t-body); line-height: 1.55; letter-spacing: -0.01em; }
+  .t-caption { font-size: var(--t-caption); line-height: 1.45; letter-spacing: 0; color: var(--color-muted); }
 
-/* 大標題（原本的金色漸層標題）：改成實色主文字色 */
-.text-hero {
-  font-family: var(--font-display);
-  color: var(--color-text);
-  font-weight: 700;
-  letter-spacing: -0.012em;
-}
+  /* 大標題：襯線 + 實色主文字色（絕不用漸層字） */
+  .text-hero {
+    font-family: var(--font-display);
+    color: var(--color-text);
+    font-weight: 700;
+    letter-spacing: -0.012em;
+  }
 
-/* ───── 表面 ───── */
+  /* ───── 表面 ───── */
 
-/* 卡片：微暖深色面、髮絲邊、大圓角——深色底下靠邊框而不是陰影撐層次 */
-.card-surface {
-  background: var(--color-surface);
-  border: 1px solid var(--color-separator);
-  box-shadow: var(--shadow-card);
-}
+  /* 卡片：微暖深色面、髮絲邊、大圓角——深色底下靠邊框而不是陰影撐層次 */
+  .card-surface {
+    background: var(--color-surface);
+    border: 1px solid var(--color-separator);
+    box-shadow: var(--shadow-card);
+  }
 
-/* 毛玻璃列（吸頂 / 底部導列） */
-.blur-bar {
-  background: color-mix(in srgb, var(--color-bg) 82%, transparent);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
-}
+  /* 毛玻璃列（吸頂 / 底部導列） */
+  .blur-bar {
+    background: color-mix(in srgb, var(--color-bg) 82%, transparent);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+  }
 
-/* ───── 按鈕 ───── */
+  /* ───── 按鈕 ───── */
 
-.btn-primary {
-  background: var(--metal-rose);
-  box-shadow: var(--metal-gloss);
-  color: var(--color-on-accent);
-  border-radius: var(--r-md);
-  font-weight: 600;
-  transition: filter 0.18s var(--ease-ios), transform 0.14s var(--ease-out-quint), opacity 0.18s ease;
-}
-.btn-primary:hover {
-  filter: brightness(1.06);
-}
-.btn-primary:active {
-  transform: scale(0.97);
-}
-.btn-primary:disabled {
-  opacity: 0.42;
-  pointer-events: none;
-}
+  .btn-primary {
+    background: var(--metal-rose);
+    box-shadow: var(--metal-gloss);
+    color: var(--color-on-accent);
+    border-radius: var(--r-md);
+    font-weight: 600;
+    transition: filter 0.18s var(--ease-ios), transform 0.14s var(--ease-out-quint), opacity 0.18s ease;
+  }
+  .btn-primary:hover {
+    filter: brightness(1.06);
+  }
+  .btn-primary:active {
+    transform: scale(0.97);
+  }
+  .btn-primary:disabled {
+    opacity: 0.42;
+    pointer-events: none;
+  }
 
-/* 次要：tint 淡底、tint 字，iOS 常見的柔性按鈕 */
-.btn-secondary {
-  background: var(--color-tint-soft);
-  color: var(--color-tint);
-  border: 0;
-  border-radius: var(--r-md);
-  font-weight: 600;
-  transition: background 0.18s var(--ease-ios), transform 0.14s var(--ease-out-quint);
-}
-.btn-secondary:hover {
-  background: color-mix(in srgb, var(--color-tint) 16%, var(--color-surface));
-}
-.btn-secondary:active {
-  transform: scale(0.97);
-}
+  /* 次要：tint 淡底、tint 字，iOS 常見的柔性按鈕 */
+  .btn-secondary {
+    background: var(--color-tint-soft);
+    color: var(--color-tint);
+    border: 0;
+    border-radius: var(--r-md);
+    font-weight: 600;
+    transition: background 0.18s var(--ease-ios), transform 0.14s var(--ease-out-quint);
+  }
+  .btn-secondary:hover {
+    background: color-mix(in srgb, var(--color-tint) 16%, var(--color-surface));
+  }
+  .btn-secondary:active {
+    transform: scale(0.97);
+  }
 
-/* 中性：灰底無框，給取消 / 輔助動作 */
-.btn-neutral {
-  background: var(--color-fill);
-  color: var(--color-text);
-  border: 0;
-  border-radius: var(--r-md);
-  font-weight: 500;
-  transition: background 0.18s var(--ease-ios), transform 0.14s var(--ease-out-quint);
-}
-.btn-neutral:hover {
-  background: var(--color-fill-strong);
-}
-.btn-neutral:active {
-  transform: scale(0.97);
-}
+  /* 中性：灰底無框，給取消 / 輔助動作 */
+  .btn-neutral {
+    background: var(--color-fill);
+    color: var(--color-text);
+    border: 0;
+    border-radius: var(--r-md);
+    font-weight: 500;
+    transition: background 0.18s var(--ease-ios), transform 0.14s var(--ease-out-quint);
+  }
+  .btn-neutral:hover {
+    background: var(--color-fill-strong);
+  }
+  .btn-neutral:active {
+    transform: scale(0.97);
+  }
 
-.btn-danger {
-  background: var(--color-danger-soft);
-  color: var(--color-danger);
-  border: 0;
-  border-radius: var(--r-md);
-  font-weight: 600;
-  transition: background 0.18s var(--ease-ios), transform 0.14s var(--ease-out-quint);
-}
-.btn-danger:hover {
-  background: color-mix(in srgb, var(--color-danger) 14%, var(--color-surface));
-}
-.btn-danger:active {
-  transform: scale(0.97);
-}
+  .btn-danger {
+    background: var(--color-danger-soft);
+    color: var(--color-danger);
+    border: 0;
+    border-radius: var(--r-md);
+    font-weight: 600;
+    transition: background 0.18s var(--ease-ios), transform 0.14s var(--ease-out-quint);
+  }
+  .btn-danger:hover {
+    background: color-mix(in srgb, var(--color-danger) 14%, var(--color-surface));
+  }
+  .btn-danger:active {
+    transform: scale(0.97);
+  }
 
-/* 膠囊 chip：篩選、段落切換 */
-.chip {
-  border-radius: var(--r-pill);
-  border: 1px solid var(--color-separator);
-  color: var(--color-muted);
-  background: var(--color-surface);
-  font-weight: 500;
-  transition: background 0.18s var(--ease-ios), color 0.18s var(--ease-ios),
-    border-color 0.18s var(--ease-ios), transform 0.14s var(--ease-out-quint);
-}
-.chip:hover {
-  color: var(--color-text);
-  border-color: var(--color-line);
-}
-.chip:active {
-  transform: scale(0.96);
-}
-.chip-active {
-  background: var(--metal-rose);
-  box-shadow: var(--metal-gloss);
-  border-color: transparent;
-  color: var(--color-on-accent);
-  font-weight: 600;
-}
-/* 段落切換的 chip 各自帶色：靠 data-accent 指定，不用另外寫一次性樣式 */
-.chip-active[data-accent='rose'] { background: var(--metal-rose); }
-.chip-active[data-accent='gold'] { background: var(--metal-gold); }
-.chip-active[data-accent='mauve'] { background: var(--metal-mauve); }
+  /* 膠囊 chip：篩選、段落切換 */
+  .chip {
+    border-radius: var(--r-pill);
+    border: 1px solid var(--color-separator);
+    color: var(--color-muted);
+    background: var(--color-surface);
+    font-weight: 500;
+    transition: background 0.18s var(--ease-ios), color 0.18s var(--ease-ios),
+      border-color 0.18s var(--ease-ios), transform 0.14s var(--ease-out-quint);
+  }
+  .chip:hover {
+    color: var(--color-text);
+    border-color: var(--color-line);
+  }
+  .chip:active {
+    transform: scale(0.96);
+  }
+  .chip-active {
+    background: var(--metal-rose);
+    box-shadow: var(--metal-gloss);
+    border-color: transparent;
+    color: var(--color-on-accent);
+    font-weight: 600;
+  }
+  /* 段落切換的 chip 各自帶色：靠 data-accent 指定，不用另外寫一次性樣式 */
+  .chip-active[data-accent='rose'] { background: var(--metal-rose); }
+  .chip-active[data-accent='gold'] { background: var(--metal-gold); }
+  .chip-active[data-accent='mauve'] { background: var(--metal-mauve); }
 
-/* 圖示鈕：視覺小、熱區 44×44（WCAG 2.5.5 / iOS HIG） */
-.icon-btn {
-  position: relative;
-  border-radius: var(--r-pill);
-  padding: 8px;
-  color: var(--color-muted);
-  background: transparent;
-  transition: background 0.18s var(--ease-ios), color 0.18s var(--ease-ios), transform 0.14s var(--ease-out-quint);
-}
-.icon-btn:hover {
-  background: var(--color-fill);
-  color: var(--color-text);
-}
-.icon-btn:active {
-  transform: scale(0.92);
-}
-.icon-btn::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 44px;
-  height: 44px;
-}
+  /* 圖示鈕：視覺小、熱區 44×44（WCAG 2.5.5 / iOS HIG） */
+  .icon-btn {
+    position: relative;
+    border-radius: var(--r-pill);
+    padding: 8px;
+    color: var(--color-muted);
+    background: transparent;
+    transition: background 0.18s var(--ease-ios), color 0.18s var(--ease-ios), transform 0.14s var(--ease-out-quint);
+  }
+  .icon-btn:hover {
+    background: var(--color-fill);
+    color: var(--color-text);
+  }
+  .icon-btn:active {
+    transform: scale(0.92);
+  }
+  .icon-btn::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 44px;
+    height: 44px;
+  }
 
-/* ───── 動態 ───── */
+  /* ───── 動態 ───── */
 
-/* 底部彈出的 sheet */
-@keyframes slideup {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
-}
-.animate-slideup {
-  animation: slideup 0.42s var(--ease-ios);
-}
+  /* 底部彈出的 sheet */
+  @keyframes slideup {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  .animate-slideup {
+    animation: slideup 0.42s var(--ease-ios);
+  }
 
-/* 全頁覆蓋層：淡入 + 輕微放大，像 iOS 的推進 */
-@keyframes fadein {
-  from { opacity: 0; transform: scale(0.985) translateY(6px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
-}
-.animate-fadein {
-  animation: fadein 0.32s var(--ease-ios);
-}
+  /* 全頁覆蓋層：淡入 + 輕微放大，像 iOS 的推進 */
+  @keyframes fadein {
+    from { opacity: 0; transform: scale(0.985) translateY(6px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .animate-fadein {
+    animation: fadein 0.32s var(--ease-ios);
+  }
 
-/* 內容進場：往上浮一點點。切段落、換分頁都用這個 */
-@keyframes rise {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.animate-rise {
-  animation: rise 0.38s var(--ease-ios) both;
-}
+  /* 內容進場：往上浮一點點。切段落、換分頁都用這個 */
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-rise {
+    animation: rise 0.38s var(--ease-ios) both;
+  }
 
-/* 列表逐項錯開進場：父層加 .stagger，子項自動依序延遲 */
-.stagger > * {
-  animation: rise 0.42s var(--ease-ios) both;
-}
-.stagger > *:nth-child(1) { animation-delay: 0.02s; }
-.stagger > *:nth-child(2) { animation-delay: 0.05s; }
-.stagger > *:nth-child(3) { animation-delay: 0.08s; }
-.stagger > *:nth-child(4) { animation-delay: 0.11s; }
-.stagger > *:nth-child(5) { animation-delay: 0.14s; }
-.stagger > *:nth-child(6) { animation-delay: 0.17s; }
-.stagger > *:nth-child(7) { animation-delay: 0.2s; }
-.stagger > *:nth-child(8) { animation-delay: 0.23s; }
-.stagger > *:nth-child(n + 9) { animation-delay: 0.26s; }
+  /* 列表逐項錯開進場：父層加 .stagger，子項自動依序延遲 */
+  .stagger > * {
+    animation: rise 0.42s var(--ease-ios) both;
+  }
+  .stagger > *:nth-child(1) { animation-delay: 0.02s; }
+  .stagger > *:nth-child(2) { animation-delay: 0.05s; }
+  .stagger > *:nth-child(3) { animation-delay: 0.08s; }
+  .stagger > *:nth-child(4) { animation-delay: 0.11s; }
+  .stagger > *:nth-child(5) { animation-delay: 0.14s; }
+  .stagger > *:nth-child(6) { animation-delay: 0.17s; }
+  .stagger > *:nth-child(7) { animation-delay: 0.2s; }
+  .stagger > *:nth-child(8) { animation-delay: 0.23s; }
+  .stagger > *:nth-child(n + 9) { animation-delay: 0.26s; }
 
-/* 抽籤結果登場：由小到大平順放大 */
-@keyframes pop {
-  0% { opacity: 0; transform: scale(0.9); }
-  100% { opacity: 1; transform: scale(1); }
-}
-.animate-pop {
-  animation: pop 0.34s var(--ease-out-quint) both;
-}
+  /* 抽籤結果登場：由小到大平順放大 */
+  @keyframes pop {
+    0% { opacity: 0; transform: scale(0.9); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  .animate-pop {
+    animation: pop 0.34s var(--ease-out-quint) both;
+  }
 
-/* 跑馬燈：橫向捲動與多則淡入 */
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-@keyframes mqfade {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.animate-mqfade {
-  animation: mqfade 0.6s var(--ease-ios);
+  /* 跑馬燈：橫向捲動與多則淡入 */
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @keyframes mqfade {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-mqfade {
+    animation: mqfade 0.6s var(--ease-ios);
+  }
 }

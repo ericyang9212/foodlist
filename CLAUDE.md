@@ -45,6 +45,7 @@
 - 色彩分工：互動一律玫瑰金 `tint`；三個段落各有點題色——足跡 `gold`（香檳金）、清單 `rose`（玫瑰金）、靈感匣 `mauve`（丁香紫，唯一的冷調對比）；評分 `amber`、刪除 `danger`。每個色都有 `-soft` 深色淡底版本可鋪區塊。放在這些亮色塊上的文字用 `text-on-accent`（深色），不要用白色。
 - **金屬漆**：這三個點題色鋪在色塊上時走漸層 token `--metal-rose` / `--metal-gold` / `--metal-mauve`（亮邊→本色→暗面→反光四段）＋ `--metal-gloss`（頂緣白、底緣暗的內陰影），已套在 `.btn-primary`、選中的 `.chip-active`、浮動新增鈕、主畫面 logo 底板。平塗的 `bg-rose` 等仍留給小色塊。**文字不能做金屬漸層**——漸層字在強制對比模式會整段消失，這條沒有例外。
 - 深色特有的坑（都踩過）：分段控制項要「深軌道 + 亮滑塊」（`bg-surface` 軌道、`bg-fill-strong` 選中），照淺色版的寫法會反過來變暗；跑馬燈顯示色與台灣地圖色階都得跟著底色重挑，否則整條看不見；深銅色的 logo 壓在深底會糊，主畫面給它玫瑰金底板、全螢幕的加柔光暈。
+- **自訂類別一律寫在 `@layer components` 裡**：Tailwind v4 的 utilities 在 `@layer utilities`，而沒分層的 CSS 會贏過任何 layer。曾因此讓 `.icon-btn` 的 `position: relative` 蓋掉 `absolute`（彈窗的關閉鈕跑到左上角）、`.t-caption` 的顏色蓋掉 `text-*`。分層後 utilities 才能正常覆寫，也就不需要靠 `!important` 硬壓。
 - **用既有的類別，不要發明新的一次性樣式**：眉標 `.eyebrow` / `.eyebrow-tc`、分隔線 `.rule`、字級 `.t-display`~`.t-caption`、按鈕 `.btn-primary` / `.btn-secondary` / `.btn-neutral` / `.btn-danger` / `.chip`、卡片 `.card-surface`、毛玻璃列 `.blur-bar`。
 - 動態：曲線用 `--ease-ios` / `--ease-out-quint`，進場用 `.animate-rise`（單塊）、`.stagger`（列表逐項）、`.animate-pop`（抽籤結果）、`.animate-slideup`（sheet）、`.animate-fadein`（全頁覆蓋層）。**不要做回彈過衝**（impeccable 會擋 bounce-easing）。
 - **無障礙底線（已全站校正過，不要倒退）**：
@@ -54,3 +55,4 @@
   - 圖示鈕一律 `.icon-btn`（自帶 44×44 熱區）+ `aria-label`。
   - 新動畫不用另外處理 reduced-motion，`index.css` 有全域規則；但不要用 `transition: all`。
 - 可跑 `npx impeccable detect src` 做設計反模式掃描（目前是 0 issues，保持）。
+- **UI 改完可以真的看一眼**：登入牆擋的是登入後的資料，不是元件本身。開一個拋棄式的預覽入口（`preview.html` + 一支用假資料渲染 `HomePage` 的 entry），`npx vite` 起 dev server，再用 `/opt/pw-browsers/chromium-1194/chrome-linux/chrome` 配 playwright 截圖，就能檢查版面——關閉鈕跑位、跑馬燈重複、地圖色階看不出差別這三個 bug 都是這樣抓到的，靜態檢查全過但畫面是錯的。檢查完記得刪掉預覽檔。

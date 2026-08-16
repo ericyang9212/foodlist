@@ -29,7 +29,7 @@ export function FoodCard({ item, thumbnailUrl, lastEatenAt, onOpen }: Props) {
       onClick={() => onOpen(item)}
       className="group relative card-surface rounded-[18px] overflow-hidden cursor-pointer transition-transform duration-200 ease-[var(--ease-out-quint)] active:scale-[0.98]"
     >
-      {/* 左緣的狀態色條：想吃＝珊瑚、嘗過＝松綠、不好吃＝灰 */}
+      {/* 左緣的狀態色條：想吃＝玫瑰金、嘗過＝香檳金、不好吃＝灰 */}
       <div
         className={`absolute left-0 top-0 bottom-0 w-[3px] ${
           item.status === 'want' ? 'bg-rose' : item.status === 'tried' ? 'bg-gold' : 'bg-fill-strong'

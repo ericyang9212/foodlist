@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import type { CSSProperties } from 'react';
 import { Pencil, X, Loader2, Check } from 'lucide-react';
 import type { MarqueeData } from '../store/useMarquee';
@@ -50,6 +50,25 @@ function MarqueeText({ lines, speed, hex, maskColor = 'var(--color-bg)' }: {
   const reduce = usePrefersReducedMotion();
   const [idx, setIdx] = useState(0);
 
+  // 單句只有「字比列還寬」才需要捲動。塞得下卻照捲，會同時看到兩份複本
+  // （捲動是靠複製一份接在後面做無縫循環），看起來像訊息被重複了一次。
+  const boxRef = useRef<HTMLDivElement>(null);
+  const measureRef = useRef<HTMLSpanElement>(null);
+  const [overflows, setOverflows] = useState(false);
+  useLayoutEffect(() => {
+    if (isMulti) return;
+    const box = boxRef.current;
+    const text = measureRef.current;
+    if (!box || !text) return;
+    // 字體是非同步載入的，寬度會在載入後改變 → 用 ResizeObserver 而不是量一次就算
+    const measure = () => setOverflows(text.scrollWidth > box.clientWidth);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(box);
+    ro.observe(text);
+    return () => ro.disconnect();
+  }, [isMulti, lines]);
+
   // 多則：定時淡入淡出切換。
   // 內容變更時由呼叫端用 key remount 重置 idx，effect 裡不需要同步 setState。
   useEffect(() => {
@@ -62,7 +81,12 @@ function MarqueeText({ lines, speed, hex, maskColor = 'var(--color-bg)' }: {
   if (lines.length === 0) return null;
 
   return (
-    <div className="relative w-full h-11 flex items-center overflow-hidden">
+    <div ref={boxRef} className="relative w-full h-11 flex items-center overflow-hidden">
+      {!isMulti && (
+        <span ref={measureRef} aria-hidden className={`${SPAN} invisible absolute whitespace-nowrap`}>
+          {lines[0]}
+        </span>
+      )}
       {/* 邊緣柔化只留 20px：再寬就會把放大後的字吃掉，失去滿版的感覺 */}
       <div className="absolute left-0 top-0 bottom-0 w-5 z-10 pointer-events-none" style={{ background: `linear-gradient(90deg, ${maskColor}, transparent)` }} />
       <div className="absolute right-0 top-0 bottom-0 w-5 z-10 pointer-events-none" style={{ background: `linear-gradient(270deg, ${maskColor}, transparent)` }} />
@@ -71,7 +95,7 @@ function MarqueeText({ lines, speed, hex, maskColor = 'var(--color-bg)' }: {
         <div key={idx} className="w-full text-center px-3 animate-mqfade">
           <span className={`${SPAN} block truncate`} style={textStyle(hex)}>{lines[idx]}</span>
         </div>
-      ) : reduce ? (
+      ) : reduce || !overflows ? (
         <div className="w-full text-center px-3">
           <span className={`${SPAN} block truncate`} style={textStyle(hex)}>{lines[0]}</span>
         </div>

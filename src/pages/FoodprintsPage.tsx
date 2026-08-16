@@ -235,7 +235,7 @@ export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: P
             {visibleCount < items.length && (
               <button
                 onClick={() => setVisibleCount(c => c + PAGE_SIZE)}
-                className="btn-neutral w-full mt-4 py-3 t-caption !text-text"
+                className="btn-neutral w-full mt-4 py-3 text-[13px]"
               >
                 載入更多（剩 {items.length - visibleCount} 筆）
               </button>

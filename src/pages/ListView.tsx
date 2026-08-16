@@ -170,7 +170,7 @@ export function ListView({
         {activeTab === 'tried' && !search && (
           <button
             onClick={onQuickAdd}
-            className="w-full mb-3 border border-dashed border-line text-tint hover:bg-tint-soft rounded-[18px] py-3.5 flex items-center justify-center gap-2 t-caption !text-tint font-medium transition-colors"
+            className="w-full mb-3 border border-dashed border-line text-tint hover:bg-tint-soft rounded-[18px] py-3.5 flex items-center justify-center gap-2 text-[13px] font-medium transition-colors"
           >
             <Plus size={15} />
             快速加吃過的店
