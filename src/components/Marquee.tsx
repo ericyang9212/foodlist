@@ -32,7 +32,10 @@ function usePrefersReducedMotion(): boolean {
   return reduce;
 }
 
-const SPAN = 'text-[15px] font-semibold';
+// 跑馬燈是這條窄列唯一的內容，所以字給到標題級（22px / 700）並貼近左右邊緣。
+// 注意：整條列的高度仍維持 safe-area + 56px（padding 8 + 44 + 4）——
+// HomePage 的段落切換列就吸在這個 56px 底下，改高度要連那邊一起改。
+const SPAN = 't-title';
 
 // 跑馬燈文字：跟全站一樣走系統字，只用顏色點題，不再加光暈
 function textStyle(hex: string): CSSProperties {
@@ -60,21 +63,22 @@ function MarqueeText({ lines, speed, hex, maskColor = 'var(--color-bg)' }: {
 
   return (
     <div className="relative w-full h-11 flex items-center overflow-hidden">
-      <div className="absolute left-0 top-0 bottom-0 w-8 z-10 pointer-events-none" style={{ background: `linear-gradient(90deg, ${maskColor}, transparent)` }} />
-      <div className="absolute right-0 top-0 bottom-0 w-8 z-10 pointer-events-none" style={{ background: `linear-gradient(270deg, ${maskColor}, transparent)` }} />
+      {/* 邊緣柔化只留 20px：再寬就會把放大後的字吃掉，失去滿版的感覺 */}
+      <div className="absolute left-0 top-0 bottom-0 w-5 z-10 pointer-events-none" style={{ background: `linear-gradient(90deg, ${maskColor}, transparent)` }} />
+      <div className="absolute right-0 top-0 bottom-0 w-5 z-10 pointer-events-none" style={{ background: `linear-gradient(270deg, ${maskColor}, transparent)` }} />
 
       {isMulti ? (
-        <div key={idx} className="w-full text-center px-6 animate-mqfade">
-          <span className={`${SPAN} inline-block max-w-full truncate align-bottom`} style={textStyle(hex)}>{lines[idx]}</span>
+        <div key={idx} className="w-full text-center px-3 animate-mqfade">
+          <span className={`${SPAN} block truncate`} style={textStyle(hex)}>{lines[idx]}</span>
         </div>
       ) : reduce ? (
-        <div className="w-full text-center px-6">
-          <span className={`${SPAN} inline-block max-w-full truncate align-bottom`} style={textStyle(hex)}>{lines[0]}</span>
+        <div className="w-full text-center px-3">
+          <span className={`${SPAN} block truncate`} style={textStyle(hex)}>{lines[0]}</span>
         </div>
       ) : (
         <div className="flex whitespace-nowrap" style={{ animation: `marquee ${speed}s linear infinite` }}>
-          <span className={`${SPAN} px-8`} style={textStyle(hex)}>{lines[0]}</span>
-          <span className={`${SPAN} px-8`} aria-hidden style={textStyle(hex)}>{lines[0]}</span>
+          <span className={`${SPAN} px-6`} style={textStyle(hex)}>{lines[0]}</span>
+          <span className={`${SPAN} px-6`} aria-hidden style={textStyle(hex)}>{lines[0]}</span>
         </div>
       )}
     </div>
