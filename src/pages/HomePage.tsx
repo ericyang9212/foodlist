@@ -122,13 +122,14 @@ export function HomePage({
           </button>
         </div>
 
-        {/* 抽籤入口：原本清單上方那張大卡片，收成一顆小按鈕，三個段落都按得到 */}
+        {/* 抽籤入口：不再是原本那張大卡片，但也不必縮成小 chip——
+            這是全 app 最常按的動作，放大到一眼就找得到的尺寸 */}
         {canDraw && (
           <button
             onClick={() => setShowTonight(true)}
-            className="btn-secondary mt-4 flex items-center gap-2 px-4 py-2.5 t-caption !text-tint"
+            className="btn-secondary mt-5 flex items-center gap-2.5 px-6 py-4 t-heading"
           >
-            <Sparkles size={15} />
+            <Sparkles size={19} />
             今晚吃什麼
           </button>
         )}
