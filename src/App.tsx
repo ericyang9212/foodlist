@@ -4,6 +4,7 @@ import { useStore } from './store/useStore';
 import { useInspirations } from './store/useInspirations';
 import { useAnnouncements } from './store/useAnnouncements';
 import { useMarquee } from './store/useMarquee';
+import { useMarqueeMessages } from './store/useMarqueeMessages';
 import { useFoodprints } from './store/useFoodprints';
 import { useAuth } from './store/useAuth';
 import { useAppConfig } from './store/useAppConfig';
@@ -68,6 +69,7 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
   const inspirations = useInspirations();
   const announcements = useAnnouncements();
   const marquee = useMarquee();
+  const marqueeMessages = useMarqueeMessages();
   const foodprints = useFoodprints();
 
   const [detailId, setDetailId] = useState<string | null>(null);
@@ -229,7 +231,13 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
 
   return (
     <div className="relative flex flex-col h-svh overflow-hidden bg-bg">
-      <Marquee data={marquee.data} onUpdate={marquee.update} />
+      <Marquee
+        data={marquee.data}
+        onUpdate={marquee.update}
+        messages={marqueeMessages.items}
+        onAdd={marqueeMessages.addMessage}
+        onDelete={marqueeMessages.deleteMessage}
+      />
       <div className="flex-1 overflow-hidden relative">
         <HomePage
           items={items}

@@ -1,11 +1,15 @@
 import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import type { CSSProperties } from 'react';
-import { Pencil, X, Loader2, Check } from 'lucide-react';
+import { Pencil, X, Loader2, Check, Trash2, Send } from 'lucide-react';
 import type { MarqueeData } from '../store/useMarquee';
+import type { MarqueeMessage } from '../store/useMarqueeMessages';
 
 interface Props {
-  data: MarqueeData;
+  data: MarqueeData;                                  // 顏色 / 速度（仍存在 marquee 那一列）
   onUpdate: (next: MarqueeData) => Promise<void>;
+  messages: MarqueeMessage[];                         // 已由新到舊排序
+  onAdd: (text: string) => Promise<boolean>;
+  onDelete: (id: string) => Promise<boolean>;
 }
 
 // 情境色：key 存進資料庫（沿用舊 key，不用改資料），
@@ -36,6 +40,9 @@ function usePrefersReducedMotion(): boolean {
 // 注意：整條列的高度仍維持 safe-area + 56px（padding 8 + 44 + 4）——
 // HomePage 的段落切換列就吸在這個 56px 底下，改高度要連那邊一起改。
 const SPAN = 't-title';
+
+// 跑馬燈同時只輪播最新這幾則；更舊的不刪，留在留言板的紀錄裡看得到
+const MARQUEE_VISIBLE = 5;
 
 // 跑馬燈文字：跟全站一樣走系統字，只用顏色點題，不再加光暈
 function textStyle(hex: string): CSSProperties {
@@ -117,14 +124,17 @@ function MarqueeText({ lines, speed, hex, maskColor = 'var(--color-bg)' }: {
   );
 }
 
-function parseLines(text: string): string[] {
-  return text.split('\n').map(s => s.trim()).filter(Boolean);
+function formatWhen(iso: string): string {
+  const d = new Date(iso);
+  return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 }
 
-export function Marquee({ data, onUpdate }: Props) {
+export function Marquee({ data, onUpdate, messages, onAdd, onDelete }: Props) {
   const [editing, setEditing] = useState(false);
+  // 只輪播最新幾則；更舊的留在留言板裡，不會一直佔著跑馬燈
+  const visible = messages.slice(0, MARQUEE_VISIBLE);
 
-  if (!data.text.trim() && !editing) {
+  if (visible.length === 0 && !editing) {
     return (
       <button
         onClick={() => setEditing(true)}
@@ -136,12 +146,10 @@ export function Marquee({ data, onUpdate }: Props) {
         }}
       >
         <Pencil size={11} />
-        點此設定跑馬燈
+        點此留言
       </button>
     );
   }
-
-  const lines = parseLines(data.text);
 
   return (
     <>
@@ -149,15 +157,23 @@ export function Marquee({ data, onUpdate }: Props) {
         className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-30 blur-bar border-b border-separator overflow-hidden"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 8px)', paddingBottom: '4px' }}
       >
-        <button onClick={() => setEditing(true)} className="w-full">
-          <MarqueeText key={lines.join('\n')} lines={lines} speed={data.speed} hex={colorHexOf(data.color)} />
+        <button onClick={() => setEditing(true)} className="w-full" aria-label="打開留言板">
+          <MarqueeText
+            key={visible.map(m => m.id).join(',')}
+            lines={visible.map(m => m.text)}
+            speed={data.speed}
+            hex={colorHexOf(data.color)}
+          />
         </button>
       </div>
 
       {editing && (
-        <MarqueeEditor
+        <MarqueeBoard
           data={data}
-          onSave={async (next) => { await onUpdate(next); setEditing(false); }}
+          messages={messages}
+          onSave={onUpdate}
+          onAdd={onAdd}
+          onDelete={onDelete}
           onClose={() => setEditing(false)}
         />
       )}
@@ -165,22 +181,42 @@ export function Marquee({ data, onUpdate }: Props) {
   );
 }
 
-function MarqueeEditor({
-  data, onSave, onClose,
-}: { data: MarqueeData; onSave: (d: MarqueeData) => Promise<void>; onClose: () => void }) {
-  const [text, setText] = useState(data.text);
+// 留言板：上面留新訊息，下面是完整歷史（新到舊）。
+// 只有最新 MARQUEE_VISIBLE 則會上跑馬燈，其餘留著當紀錄、不會被自動清掉。
+function MarqueeBoard({
+  data, messages, onSave, onAdd, onDelete, onClose,
+}: {
+  data: MarqueeData;
+  messages: MarqueeMessage[];
+  onSave: (d: MarqueeData) => Promise<void>;
+  onAdd: (text: string) => Promise<boolean>;
+  onDelete: (id: string) => Promise<boolean>;
+  onClose: () => void;
+}) {
+  const [draft, setDraft] = useState('');
+  const [sending, setSending] = useState(false);
   const [speed, setSpeed] = useState(data.speed);
   const [color, setColor] = useState(data.color || 'gold');
   const [saving, setSaving] = useState(false);
 
-  const lines = parseLines(text);
+  const dirty = speed !== data.speed || color !== (data.color || 'gold');
+  const visible = messages.slice(0, MARQUEE_VISIBLE);
 
-  const handleSave = async () => {
+  const handleSend = async () => {
+    if (!draft.trim() || sending) return;
+    setSending(true);
+    // 失敗時不清空輸入框（store 已跳 toast），內容留著讓使用者直接重送
+    const ok = await onAdd(draft);
+    if (ok) setDraft('');
+    setSending(false);
+  };
+
+  const handleSaveSettings = async () => {
     setSaving(true);
     try {
-      await onSave({ text, speed, color });
+      await onSave({ text: data.text, speed, color });
     } catch {
-      // 儲存失敗（useMarquee 已跳 toast 並還原）：留在編輯器讓使用者重試
+      // 儲存失敗（useMarquee 已跳 toast 並還原）：留在原地讓使用者重試
     } finally {
       setSaving(false);
     }
@@ -195,42 +231,93 @@ function MarqueeEditor({
         <button onClick={onClose} className="icon-btn" aria-label="關閉">
           <X size={22} />
         </button>
-        <div className="eyebrow">MARQUEE</div>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="btn-primary px-5 py-2 text-[13px] flex items-center gap-1.5"
-        >
-          {saving && <Loader2 size={12} className="animate-spin" />}
-          儲存
-        </button>
+        <div className="eyebrow">MESSAGES</div>
+        {dirty ? (
+          <button
+            onClick={handleSaveSettings}
+            disabled={saving}
+            className="btn-primary px-5 py-2 text-[13px] flex items-center gap-1.5"
+          >
+            {saving && <Loader2 size={12} className="animate-spin" />}
+            儲存
+          </button>
+        ) : (
+          <button onClick={onClose} className="btn-neutral px-5 py-2 text-[13px]">完成</button>
+        )}
       </div>
 
-      <div className="flex-1 overflow-y-auto px-6 py-8 space-y-7">
+      <div className="flex-1 overflow-y-auto px-6 py-7 space-y-8">
+        {/* 留一則 */}
+        <div>
+          <div className="eyebrow-tc mb-3">留一則訊息</div>
+          <textarea
+            autoFocus
+            placeholder="想跟對方說什麼？"
+            value={draft}
+            onChange={e => setDraft(e.target.value)}
+            rows={2}
+            className="w-full bg-surface border border-separator focus:border-tint rounded-[14px] px-4 py-3 text-base text-text placeholder-muted focus:outline-none resize-none leading-relaxed"
+          />
+          <button
+            onClick={handleSend}
+            disabled={!draft.trim() || sending}
+            className="btn-primary mt-3 w-full py-3.5 text-[14px] flex items-center justify-center gap-2"
+          >
+            {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={15} />}
+            {sending ? '送出中' : '留言'}
+          </button>
+          <p className="t-caption mt-2 leading-relaxed">
+            跑馬燈只會輪播最新 {MARQUEE_VISIBLE} 則，更舊的留在下面的紀錄裡，不會消失。
+          </p>
+        </div>
+
         {/* 預覽 */}
-        {lines.length > 0 && (
+        {visible.length > 0 && (
           <div>
             <div className="eyebrow mb-2">PREVIEW</div>
             <div className="relative bg-bg border border-separator rounded-[14px] overflow-hidden h-11 flex items-center">
-              <MarqueeText key={lines.join('\n')} lines={lines} speed={speed} hex={colorHexOf(color)} />
+              <MarqueeText
+                key={visible.map(m => m.id).join(',') + speed + color}
+                lines={visible.map(m => m.text)}
+                speed={speed}
+                hex={colorHexOf(color)}
+              />
             </div>
           </div>
         )}
 
-        {/* 文字 */}
+        {/* 紀錄 */}
         <div>
-          <div className="eyebrow-tc mb-3">想留什麼訊息？</div>
-          <textarea
-            autoFocus
-            placeholder={`一行一則訊息，例如：\n本週末記得訂位\n要試試新開的拉麵店\n生日快樂 🎂`}
-            value={text}
-            onChange={e => setText(e.target.value)}
-            rows={6}
-            className="w-full bg-surface border border-separator focus:border-tint rounded-[14px] px-4 py-3 text-base text-text placeholder-muted focus:outline-none resize-none leading-relaxed"
-          />
-          <p className="text-[11px] text-muted mt-2 leading-relaxed">
-            清空可關閉跑馬燈。多行＝多則，會一則一則淡入淡出輪播；單行太長才會橫向捲動。
-          </p>
+          <div className="flex items-baseline justify-between mb-3">
+            <span className="eyebrow-tc">全部留言</span>
+            <span className="text-[12px] text-muted tabular-nums">{messages.length}</span>
+          </div>
+          {messages.length === 0 ? (
+            <p className="t-caption">還沒有留言</p>
+          ) : (
+            <ul className="flex flex-col gap-2">
+              {messages.map((m, i) => (
+                <li key={m.id} className="card-surface rounded-[14px] px-4 py-3 flex items-start gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[15px] text-text leading-snug break-words">{m.text}</p>
+                    <div className="flex items-center gap-2 mt-1.5">
+                      <span className="text-[11px] text-muted tabular-nums">{formatWhen(m.createdAt)}</span>
+                      {i < MARQUEE_VISIBLE && (
+                        <span className="text-[11px] font-semibold text-tint">顯示中</span>
+                      )}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => { if (confirm('刪除這則留言？')) void onDelete(m.id); }}
+                    className="icon-btn !p-1.5 hover:!text-danger hover:!bg-danger-soft flex-shrink-0"
+                    aria-label="刪除留言"
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         {/* 顏色 */}
@@ -255,7 +342,7 @@ function MarqueeEditor({
         <div>
           <div className="flex items-baseline justify-between mb-3">
             <span className="eyebrow-tc">速度</span>
-            <span className="text-[12px] text-muted">{lines.length >= 2 ? '多則切換快慢' : '捲動快慢'}</span>
+            <span className="text-[12px] text-muted">跑完一趟的快慢</span>
           </div>
           <input
             type="range"
