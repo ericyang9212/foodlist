@@ -1,32 +1,115 @@
 @import "tailwindcss";
 
+/* ───────────────────────────────────────────────────────────
+   設計語言：明亮、通透、圓潤的「蘋果版面」
+   —— 淺灰畫布 + 純白卡片 + 髮絲分隔線 + 系統字，
+      互動一律走藍色 tint，三個段落各有自己的點題色（珊瑚 / 松綠 / 紫），
+      避免整頁只剩黑白灰。
+   顏色一律走這裡的 token，元件不要再寫死 hex——
+   換色、深色模式都只改這個檔案。
+   ─────────────────────────────────────────────────────────── */
+
 @theme {
-  --color-bg: #0b0a08;
-  --color-surface: #171410;
-  --color-surface-2: #211c15;
-  --color-border: #2c261d;
-  --color-gold: #c9a961;
-  --color-gold-dim: #8a7544;
-  --color-text: #f5f1e8;
-  --color-muted: #8a8478;
+  /* 畫布與表面 */
+  --color-bg: #f2f2f7;          /* 整頁底：淺灰畫布 */
+  --color-surface: #ffffff;     /* 卡片 / 輸入框 */
+  --color-fill: #f1f2f6;        /* 白卡片內的次級填色 */
+  --color-fill-strong: #e4e4ea; /* 分段控制項底、停用態 */
+  --color-line: #d8d8de;        /* 實線邊框 */
+  --color-separator: #e6e6eb;   /* 髮絲分隔線 */
+
+  /* 文字（對比皆以自身背景實測 ≥ 4.5:1） */
+  --color-text: #1c1c1e;        /* 主文字 */
+  --color-text-2: #3c3c43;      /* 長文內文 */
+  --color-muted: #6e6e73;       /* 次要說明——最淺可用的灰，不要再淺 */
+
+  /* 互動 tint 與段落點題色（-soft 是淺底，用來鋪淡色區塊） */
+  --color-tint: #0b6bd3;
+  --color-tint-soft: #e9f1fc;
+  --color-coral: #c23a18;       /* 清單 */
+  --color-coral-soft: #fff1ed;
+  --color-teal: #00786a;        /* 足跡 */
+  --color-teal-soft: #e2f2f0;
+  --color-violet: #6d3dd4;      /* 靈感匣 */
+  --color-violet-soft: #efe9fe;
+  --color-amber: #96600a;       /* 提醒 / 星等 */
+  --color-amber-soft: #fff3df;
+  --color-danger: #d70015;
+  --color-danger-soft: #ffecec;
+
+  /* 反白：放在有色塊上的文字 */
+  --color-on-accent: #ffffff;
+}
+
+/* 深色模式：只翻 token，元件不用改。
+   （沒有實機驗證過，若哪裡怪就調這一段就好） */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #000000;
+    --color-surface: #1c1c1e;
+    --color-fill: #2c2c2e;
+    --color-fill-strong: #3a3a3c;
+    --color-line: #3a3a3c;
+    --color-separator: #2e2e31;
+
+    --color-text: #f5f5f7;
+    --color-text-2: #e3e3e8;
+    --color-muted: #9b9ba1;
+
+    --color-tint: #57a6f5;
+    --color-tint-soft: #16283c;
+    --color-coral: #ff8462;
+    --color-coral-soft: #3a1d15;
+    --color-teal: #3fc3ae;
+    --color-teal-soft: #10302c;
+    --color-violet: #b092ff;
+    --color-violet-soft: #241a3d;
+    --color-amber: #e5a63c;
+    --color-amber-soft: #33260f;
+    --color-danger: #ff6961;
+    --color-danger-soft: #3a1618;
+
+    --color-on-accent: #10100f;
+  }
+}
+
+:root {
+  color-scheme: light dark;
+  accent-color: var(--color-tint);
+
+  /* 字級階梯：對齊 iOS 的 Large Title / Title / Headline / Body / Footnote */
+  --t-display: 34px;
+  --t-title: 22px;
+  --t-heading: 17px;
+  --t-body: 16px;
+  --t-caption: 13px;
+  --t-micro: 12px;
+
+  /* 圓角：iOS 的連續曲率靠大圓角近似 */
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-pill: 999px;
+
+  /* 動態曲線：兩條都是純減速，不做回彈過衝——真實物體只會減速停住 */
+  --ease-ios: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* 陰影：淺、散、貼近紙面，不做厚重投影 */
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 6px 20px rgba(0, 0, 0, 0.05);
+  --shadow-raised: 0 2px 6px rgba(0, 0, 0, 0.08), 0 12px 32px rgba(0, 0, 0, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.5);
+    --shadow-raised: 0 8px 28px rgba(0, 0, 0, 0.65);
+  }
 }
 
 * {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
-}
-
-/* 原生控件（日期選擇器、下拉選單）走暗色系，並以香檳金作為系統控件主色 */
-:root {
-  color-scheme: dark;
-  accent-color: #d6b974;
-  /* 字級階梯：全站排版依這套，取代零散的一次性字級 */
-  --t-display: 34px;   /* 抽籤結果 / 詳情主標 */
-  --t-title: 22px;     /* 頁標題 */
-  --t-heading: 18px;   /* 卡片 / 小節標題 */
-  --t-body: 15px;      /* 內文 */
-  --t-caption: 13px;   /* 次要說明 */
-  --t-micro: 11px;     /* 眉標 / meta */
 }
 
 /* 保底：避免 iOS Safari 在 input font-size < 16px 時自動放大畫面 */
@@ -36,11 +119,14 @@ input, textarea, select {
 
 body {
   margin: 0;
-  font-family: 'Noto Serif TC', 'Songti TC', 'Source Han Serif TC', 'PingFang TC', -apple-system, serif;
-  background: #070605;
-  color: #f2ecdd;
+  /* 系統字優先（iOS / macOS 直接吃 SF Pro 與蘋方），其餘平台退到 Noto Sans TC */
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue',
+    'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', system-ui, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  letter-spacing: -0.01em;   /* 蘋果版面的關鍵：字距收緊，不是拉開 */
 }
 
 #root {
@@ -48,42 +134,36 @@ body {
   max-width: 430px;
   margin: 0 auto;
   position: relative;
-  /* 暖黑底 + 頂部香檳金暈 + 底部微弱餘燼光 + 極細顆粒，暗部不死平、有紙感 */
-  background-color: #0b0a08;
+  background-color: var(--color-bg);
+  /* 極淡的三色光暈，讓大片淺灰不至於死平（不影響文字對比） */
   background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.04'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"),
-    radial-gradient(130% 55% at 50% -5%, rgba(214, 185, 124, 0.08) 0%, rgba(214, 185, 124, 0) 58%),
-    radial-gradient(120% 50% at 50% 108%, rgba(177, 147, 79, 0.05) 0%, rgba(177, 147, 79, 0) 62%);
-  background-repeat: repeat, no-repeat, no-repeat;
+    radial-gradient(120% 42% at 8% -4%, rgba(216, 69, 30, 0.07) 0%, rgba(216, 69, 30, 0) 60%),
+    radial-gradient(110% 38% at 96% 2%, rgba(109, 61, 212, 0.07) 0%, rgba(109, 61, 212, 0) 62%),
+    radial-gradient(120% 45% at 50% 104%, rgba(0, 120, 106, 0.06) 0%, rgba(0, 120, 106, 0) 64%);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
 ::-webkit-scrollbar {
   width: 0;
 }
 
-/* 反白選取也走金色 */
 ::selection {
-  background: rgba(214, 185, 124, 0.32);
-  color: #f6efe0;
+  background: color-mix(in srgb, var(--color-tint) 22%, transparent);
+  color: var(--color-text);
 }
 
-/* 輸入游標香檳金；日期選擇器的系統圖示調暖、收斂 */
 input, textarea {
-  caret-color: #d6b974;
-}
-input[type='date']::-webkit-calendar-picker-indicator {
-  opacity: 0.55;
-  filter: invert(0.78) sepia(0.35);
+  caret-color: var(--color-tint);
 }
 
-/* 鍵盤操作時的焦點：香檳細環（滑鼠 / 觸控點擊不顯示）。表單控件同樣要有，
-   只靠底線變色對鍵盤使用者不夠明確 */
+/* 鍵盤操作時的焦點環（滑鼠 / 觸控點擊不顯示） */
 :where(button, a, [role='button'], input, select, textarea):focus-visible {
-  outline: 2px solid rgba(214, 185, 124, 0.55);
+  outline: 2px solid var(--color-tint);
   outline-offset: 2px;
 }
 
-/* 尊重系統的「減少動態效果」：所有動畫收成瞬間完成，不是少一點而是不做 */
+/* 尊重系統的「減少動態效果」：所有動畫收成瞬間完成 */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -95,209 +175,181 @@ input[type='date']::-webkit-calendar-picker-indicator {
   }
 }
 
-/* 大標題斷行更勻稱 */
 h1, h2, h3 {
   text-wrap: balance;
+  letter-spacing: -0.022em;   /* 大字要更收，才有 SF Display 的味道 */
 }
 
-/* 數字等寬，列表數量對齊更穩 */
 .tabular-nums {
   font-variant-numeric: tabular-nums;
 }
 
-/* ───── 編輯排版系統 ───── */
+/* ───── 排版 ───── */
 
-/* 眉標：大寫英文欄題，全站統一（取代零散的 text-[11px] tracking-[0.4em] 金色小字） */
-/* 透明度原本壓到 0.55 / 0.6，11px 下對比只有 3.3:1（低於 WCAG AA 的 4.5:1）。
-   提到 0.8 後約 5.6:1，肉眼幾乎看不出差別但讀得清楚。 */
+/* 眉標：小尺寸的分區欄題（iOS 分組列表的 section header） */
 .eyebrow {
   font-size: var(--t-micro);
-  line-height: 1;
-  letter-spacing: 0.4em;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  color: rgba(201, 169, 97, 0.8);
-  font-weight: 500;
+  color: var(--color-muted);
+  font-weight: 600;
 }
-/* 中文小節標：不轉大寫、字距略收 */
 .eyebrow-tc {
   font-size: var(--t-micro);
-  line-height: 1;
-  letter-spacing: 0.32em;
-  color: rgba(201, 169, 97, 0.82);
-  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0;
+  color: var(--color-muted);
+  font-weight: 600;
 }
 
-/* 髮絲欄線：章節分隔，由金到透明，比整條灰線更像刊物 */
+/* 髮絲分隔線 */
 .rule {
   height: 1px;
   border: 0;
-  background: linear-gradient(90deg, rgba(201, 169, 97, 0.32), rgba(201, 169, 97, 0.07) 62%, transparent);
+  background: var(--color-separator);
 }
 
-/* 字級階梯的語意類（依 :root 變數） */
-.t-display { font-size: var(--t-display); line-height: 1.14; letter-spacing: 0.03em; }
-.t-title { font-size: var(--t-title); line-height: 1.3; letter-spacing: 0.02em; }
-.t-heading { font-size: var(--t-heading); line-height: 1.35; }
-.t-body { font-size: var(--t-body); line-height: 1.6; }
-.t-caption { font-size: var(--t-caption); line-height: 1.55; }
+.t-display { font-size: var(--t-display); line-height: 1.12; letter-spacing: -0.028em; font-weight: 700; }
+.t-title { font-size: var(--t-title); line-height: 1.25; letter-spacing: -0.022em; font-weight: 700; }
+.t-heading { font-size: var(--t-heading); line-height: 1.35; letter-spacing: -0.015em; font-weight: 600; }
+.t-body { font-size: var(--t-body); line-height: 1.55; letter-spacing: -0.01em; }
+.t-caption { font-size: var(--t-caption); line-height: 1.45; letter-spacing: 0; color: var(--color-muted); }
 
-/* 香檳金標題色：保留給大標題 / 焦點，平常文字用象牙白以收斂金色。
-   原本是把漸層裁進文字的做法，改回實色——那種寫法在強制對比模式或背景沒畫出來時
-   會整段消失（文字本身是透明的），而且視覺上和這個實色差極小。 */
-.text-gold-gradient {
-  color: #e0c68c;
+/* 大標題（原本的金色漸層標題）：改成實色主文字色 */
+.text-hero {
+  color: var(--color-text);
+  font-weight: 700;
+  letter-spacing: -0.028em;
 }
 
-/* 象牙白主文字 */
-.text-ivory { color: #f2ecdd; }
+/* ───── 表面 ───── */
 
-.border-gold-subtle {
-  border-color: rgba(201, 169, 97, 0.2);
-}
-
-@keyframes slideup {
-  from { transform: translateY(100%); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-.animate-slideup {
-  animation: slideup 0.25s ease-out;
-}
-
-/* 全頁覆蓋層的進場：淡入 + 輕微上浮，比硬切高級 */
-@keyframes fadein {
-  from { transform: translateY(10px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
-}
-.animate-fadein {
-  animation: fadein 0.22s ease-out;
-}
-
-/* 卡片表面：近乎平整的暖色面板，讓髮絲金邊單獨撐場。
-   刻意移除內光高光與厚陰影（塑膠感來源），走「印在紙上」而非「浮起的方塊」 */
+/* 卡片：白面、極淺陰影、大圓角——「浮一點點」而不是壓在紙上 */
 .card-surface {
-  background: linear-gradient(162deg, #16130d 0%, #100e0a 100%);
-  border: 1px solid rgba(201, 169, 97, 0.16);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  background: var(--color-surface);
+  border: 1px solid var(--color-separator);
+  box-shadow: var(--shadow-card);
 }
 
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+/* 毛玻璃列（吸頂 / 底部導列） */
+.blur-bar {
+  background: color-mix(in srgb, var(--color-bg) 82%, transparent);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
 }
 
-/* 多則跑馬燈切換時的淡入 */
-@keyframes mqfade {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-.animate-mqfade {
-  animation: mqfade 0.6s ease;
-}
+/* ───── 按鈕 ───── */
 
-/* ───── 按鈕系統 ───── */
-
-/* 主要 CTA：香檳金「燙金箔面」而非光澤塑膠——收斂光暈與高光、去掉懸浮位移 */
 .btn-primary {
-  background: linear-gradient(135deg, #ecd8a4 0%, #d6b974 55%, #bd9d59 100%);
-  color: #100d07;
-  border-radius: 8px;
-  box-shadow: inset 0 1px 0 rgba(255, 246, 222, 0.22);
-  transition: background 0.15s ease, transform 0.1s ease, opacity 0.15s ease;
-  font-weight: 500;
+  background: var(--color-tint);
+  color: var(--color-on-accent);
+  border-radius: var(--r-md);
+  font-weight: 600;
+  transition: background 0.18s var(--ease-ios), transform 0.14s var(--ease-out-quint), opacity 0.18s ease;
 }
 .btn-primary:hover {
-  background: linear-gradient(135deg, #f0deae 0%, #ddc180 55%, #c4a460 100%);
+  background: color-mix(in srgb, var(--color-tint) 88%, black);
 }
 .btn-primary:active {
-  transform: scale(0.985);
-  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.22);
+  transform: scale(0.97);
 }
 .btn-primary:disabled {
-  opacity: 0.4;
+  opacity: 0.42;
   pointer-events: none;
 }
 
-/* 次要：金邊空心，hover 滿金 */
+/* 次要：tint 淡底、tint 字，iOS 常見的柔性按鈕 */
 .btn-secondary {
-  border: 1px solid rgba(201, 169, 97, 0.45);
-  color: #d9bd7c;
-  background: rgba(201, 169, 97, 0.05);
-  border-radius: 8px;
-  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease, transform 0.1s ease;
-  font-weight: 500;
+  background: var(--color-tint-soft);
+  color: var(--color-tint);
+  border: 0;
+  border-radius: var(--r-md);
+  font-weight: 600;
+  transition: background 0.18s var(--ease-ios), transform 0.14s var(--ease-out-quint);
 }
 .btn-secondary:hover {
-  border-color: rgba(201, 169, 97, 1);
-  background: rgba(201, 169, 97, 0.12);
+  background: color-mix(in srgb, var(--color-tint) 16%, var(--color-surface));
 }
 .btn-secondary:active {
-  transform: scale(0.985);
+  transform: scale(0.97);
 }
 
-/* 中性：低調，提供取消/輔助動作 */
+/* 中性：灰底無框，給取消 / 輔助動作 */
 .btn-neutral {
-  border: 1px solid #2c261d;
-  color: #8a8478;
-  background: transparent;
-  border-radius: 8px;
-  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+  background: var(--color-fill);
+  color: var(--color-text);
+  border: 0;
+  border-radius: var(--r-md);
+  font-weight: 500;
+  transition: background 0.18s var(--ease-ios), transform 0.14s var(--ease-out-quint);
 }
 .btn-neutral:hover {
-  border-color: #3c352a;
-  color: #c9a961;
-  background: rgba(201, 169, 97, 0.04);
+  background: var(--color-fill-strong);
 }
 .btn-neutral:active {
-  transform: scale(0.985);
+  transform: scale(0.97);
 }
 
-/* 圓潤膠囊：篩選 chip 用 */
-.chip {
-  border-radius: 999px;
-  border: 1px solid #2c261d;
-  color: #8a8478;
-  background: transparent;
-  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease, transform 0.1s ease;
-}
-.chip:hover {
-  border-color: rgba(201, 169, 97, 0.4);
-  color: #c9a961;
-}
-.chip-active {
-  background: linear-gradient(135deg, #ecd8a4 0%, #d6b974 100%);
-  border-color: transparent;
-  color: #100d07;
-  font-weight: 500;
-}
-
-/* 危險動作：紅褐色 */
 .btn-danger {
-  border: 1px solid rgba(140, 70, 70, 0.4);
-  color: #a85959;
-  background: rgba(140, 70, 70, 0.05);
-  border-radius: 6px;
-  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+  border: 0;
+  border-radius: var(--r-md);
+  font-weight: 600;
+  transition: background 0.18s var(--ease-ios), transform 0.14s var(--ease-out-quint);
 }
 .btn-danger:hover {
-  border-color: rgba(140, 70, 70, 0.7);
-  background: rgba(140, 70, 70, 0.1);
+  background: color-mix(in srgb, var(--color-danger) 14%, var(--color-surface));
+}
+.btn-danger:active {
+  transform: scale(0.97);
 }
 
-/* 圖示鈕：圓 + 細邊 */
+/* 膠囊 chip：篩選、段落切換 */
+.chip {
+  border-radius: var(--r-pill);
+  border: 1px solid var(--color-separator);
+  color: var(--color-muted);
+  background: var(--color-surface);
+  font-weight: 500;
+  transition: background 0.18s var(--ease-ios), color 0.18s var(--ease-ios),
+    border-color 0.18s var(--ease-ios), transform 0.14s var(--ease-out-quint);
+}
+.chip:hover {
+  color: var(--color-text);
+  border-color: var(--color-line);
+}
+.chip:active {
+  transform: scale(0.96);
+}
+.chip-active {
+  background: var(--color-tint);
+  border-color: transparent;
+  color: var(--color-on-accent);
+  font-weight: 600;
+}
+/* 段落切換的 chip 各自帶色：靠 data-accent 指定，不用另外寫一次性樣式 */
+.chip-active[data-accent='coral'] { background: var(--color-coral); }
+.chip-active[data-accent='teal'] { background: var(--color-teal); }
+.chip-active[data-accent='violet'] { background: var(--color-violet); }
+
+/* 圖示鈕：視覺小、熱區 44×44（WCAG 2.5.5 / iOS HIG） */
 .icon-btn {
   position: relative;
-  border-radius: 999px;
+  border-radius: var(--r-pill);
   padding: 8px;
-  color: #8a8478;
+  color: var(--color-muted);
   background: transparent;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition: background 0.18s var(--ease-ios), color 0.18s var(--ease-ios), transform 0.14s var(--ease-out-quint);
 }
 .icon-btn:hover {
-  background: rgba(201, 169, 97, 0.1);
-  color: #c9a961;
+  background: var(--color-fill);
+  color: var(--color-text);
 }
-/* 視覺維持小圖示，但點擊範圍補到 44×44（WCAG 2.5.5 / iOS HIG）。
-   用 ::after 撐開熱區，不動版面，所以既有排版不會位移。 */
+.icon-btn:active {
+  transform: scale(0.92);
+}
 .icon-btn::after {
   content: '';
   position: absolute;
@@ -306,4 +358,69 @@ h1, h2, h3 {
   transform: translate(-50%, -50%);
   width: 44px;
   height: 44px;
+}
+
+/* ───── 動態 ───── */
+
+/* 底部彈出的 sheet */
+@keyframes slideup {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.animate-slideup {
+  animation: slideup 0.42s var(--ease-ios);
+}
+
+/* 全頁覆蓋層：淡入 + 輕微放大，像 iOS 的推進 */
+@keyframes fadein {
+  from { opacity: 0; transform: scale(0.985) translateY(6px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.animate-fadein {
+  animation: fadein 0.32s var(--ease-ios);
+}
+
+/* 內容進場：往上浮一點點。切段落、換分頁都用這個 */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-rise {
+  animation: rise 0.38s var(--ease-ios) both;
+}
+
+/* 列表逐項錯開進場：父層加 .stagger，子項自動依序延遲 */
+.stagger > * {
+  animation: rise 0.42s var(--ease-ios) both;
+}
+.stagger > *:nth-child(1) { animation-delay: 0.02s; }
+.stagger > *:nth-child(2) { animation-delay: 0.05s; }
+.stagger > *:nth-child(3) { animation-delay: 0.08s; }
+.stagger > *:nth-child(4) { animation-delay: 0.11s; }
+.stagger > *:nth-child(5) { animation-delay: 0.14s; }
+.stagger > *:nth-child(6) { animation-delay: 0.17s; }
+.stagger > *:nth-child(7) { animation-delay: 0.2s; }
+.stagger > *:nth-child(8) { animation-delay: 0.23s; }
+.stagger > *:nth-child(n + 9) { animation-delay: 0.26s; }
+
+/* 抽籤結果登場：由小到大平順放大 */
+@keyframes pop {
+  0% { opacity: 0; transform: scale(0.9); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.animate-pop {
+  animation: pop 0.34s var(--ease-out-quint) both;
+}
+
+/* 跑馬燈：橫向捲動與多則淡入 */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes mqfade {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-mqfade {
+  animation: mqfade 0.6s var(--ease-ios);
 }

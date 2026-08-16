@@ -33,10 +33,13 @@ interface Props {
 type Section = 'foodprints' | 'list' | 'inbox';
 type ListTab = 'want' | 'tried' | 'all';
 
-const SECTIONS: { value: Section; label: string; icon: typeof Footprints }[] = [
-  { value: 'foodprints', label: '足跡', icon: Footprints },
-  { value: 'list', label: '清單', icon: List },
-  { value: 'inbox', label: '靈感匣', icon: Images },
+// 每個段落有自己的點題色（chip 選中時上色），整頁才不會只剩黑白灰
+const SECTIONS: {
+  value: Section; label: string; icon: typeof Footprints; accent: 'teal' | 'coral' | 'violet';
+}[] = [
+  { value: 'foodprints', label: '足跡', icon: Footprints, accent: 'teal' },
+  { value: 'list', label: '清單', icon: List, accent: 'coral' },
+  { value: 'inbox', label: '靈感匣', icon: Images, accent: 'violet' },
 ];
 
 const CITY_FILTER_KEY = 'foodlist_city_filter';
@@ -91,31 +94,30 @@ export function HomePage({
 
   return (
     // 整頁單一捲動容器：抬頭會隨內容往上滑走，段落切換列則吸在跑馬燈下方
-    <div ref={scrollRef} className="h-full overflow-y-auto bg-[#0b0a08]">
+    <div ref={scrollRef} className="h-full overflow-y-auto bg-bg">
       <div
         className="px-6 pb-5"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 72px)' }}
       >
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center justify-between gap-3">
           <div className="flex-1 flex items-center gap-3 min-w-0">
-            <img
-              src="/logo.png"
-              alt=""
-              className="w-12 h-12 object-contain flex-shrink-0 drop-shadow-[0_2px_8px_rgba(201,169,97,0.2)]"
-            />
+            {/* iOS app icon 的作法：圖放進圓角方塊，不讓它散在背景上 */}
+            <div className="w-12 h-12 rounded-[14px] bg-surface border border-separator shadow-[var(--shadow-card)] flex items-center justify-center flex-shrink-0 overflow-hidden">
+              <img src="/logo.png" alt="" className="w-10 h-10 object-contain" />
+            </div>
             <div className="min-w-0">
-              <div className="eyebrow mb-1.5">PSJ DICE LIST</div>
-              <h1 className="text-[28px] font-medium text-gold-gradient tracking-[0.12em]">待 吃 清 單</h1>
+              <div className="eyebrow mb-1">PSJ DICE LIST</div>
+              <h1 className="t-display">待吃清單</h1>
             </div>
           </div>
           <button
             onClick={onOpenAnnouncements}
-            className="icon-btn relative -mr-2 mt-1 flex-shrink-0"
+            className="icon-btn relative -mr-2 flex-shrink-0"
             aria-label="公告"
           >
-            <Bell size={20} className="text-[#c9a961]/80" />
+            <Bell size={20} />
             {unreadAnnouncements > 0 && (
-              <span className="absolute top-1 right-1 w-2 h-2 bg-[#c9a961] rounded-full" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-danger rounded-full" />
             )}
           </button>
         </div>
@@ -124,19 +126,17 @@ export function HomePage({
         {canDraw && (
           <button
             onClick={() => setShowTonight(true)}
-            className="btn-secondary mt-4 flex items-center gap-2 px-4 py-2.5 text-[13px] tracking-[0.2em]"
+            className="btn-secondary mt-4 flex items-center gap-2 px-4 py-2.5 t-caption !text-tint"
           >
             <Sparkles size={15} />
             今晚吃什麼
           </button>
         )}
-
-        <div className="rule mt-4" />
       </div>
 
       {/* ── 段落切換：足跡 / 清單 / 靈感匣，往下滑時固定在跑馬燈下方 ── */}
       <div
-        className="sticky z-30 bg-[#0b0a08]/95 backdrop-blur-md border-b border-[#211c15]"
+        className="sticky z-30 blur-bar border-b border-separator"
         style={{ top: SECTION_BAR_TOP }}
       >
         <div
@@ -151,12 +151,13 @@ export function HomePage({
                 key={s.value}
                 onClick={() => selectSection(s.value)}
                 aria-current={active ? 'page' : undefined}
-                className={`flex items-center gap-1.5 px-4 py-2 text-[13px] tracking-[0.2em] ${active ? 'chip chip-active' : 'chip'}`}
+                data-accent={s.accent}
+                className={`flex items-center gap-1.5 px-4 py-2 t-caption ${active ? 'chip chip-active !text-on-accent' : 'chip'}`}
               >
-                <Icon size={14} />
+                <Icon size={15} />
                 {s.label}
                 {s.value === 'inbox' && pendingInspirations > 0 && (
-                  <span className="text-[11px] tracking-normal tabular-nums opacity-70">
+                  <span className="text-[11px] tabular-nums opacity-80">
                     {pendingInspirations}
                   </span>
                 )}
@@ -166,44 +167,51 @@ export function HomePage({
         </div>
       </div>
 
+      {/* key 讓段落一切換就重播進場動畫 */}
       {section === 'foodprints' && (
-        <FoodprintsPage
-          items={foodprints}
-          imageByFoodId={imageByFoodId}
-          onDelete={onDeleteFoodprint}
-          onQuickLog={onQuickLog}
-        />
+        <div key="foodprints" className="animate-rise">
+          <FoodprintsPage
+            items={foodprints}
+            imageByFoodId={imageByFoodId}
+            onDelete={onDeleteFoodprint}
+            onQuickLog={onQuickLog}
+          />
+        </div>
       )}
 
       {section === 'list' && (
         <Suspense fallback={<SectionLoader />}>
-          <ListView
-            items={items}
-            imageByFoodId={imageByFoodId}
-            lastEatenByFoodId={lastEatenByFoodId}
-            activeTab={listTab}
-            onTabChange={setListTab}
-            activeCity={activeCity}
-            onCityChange={setActiveCity}
-            stickyTop={LIST_STICKY_TOP}
-            onOpen={onOpen}
-            onQuickAdd={() => setShowQuickAdd(true)}
-          />
+          <div key="list" className="animate-rise">
+            <ListView
+              items={items}
+              imageByFoodId={imageByFoodId}
+              lastEatenByFoodId={lastEatenByFoodId}
+              activeTab={listTab}
+              onTabChange={setListTab}
+              activeCity={activeCity}
+              onCityChange={setActiveCity}
+              stickyTop={LIST_STICKY_TOP}
+              onOpen={onOpen}
+              onQuickAdd={() => setShowQuickAdd(true)}
+            />
+          </div>
         </Suspense>
       )}
 
       {section === 'inbox' && (
         <Suspense fallback={<SectionLoader />}>
-          <InboxPage
-            items={inspirations}
-            loading={inspirationsLoading}
-            onUpload={onUploadInspiration}
-            onDelete={onDeleteInspiration}
-            onUpdate={onUpdateInspiration}
-            onConvertToFood={onConvertInspiration}
-            foodById={foodById}
-            onOpenFood={onOpenFood}
-          />
+          <div key="inbox" className="animate-rise">
+            <InboxPage
+              items={inspirations}
+              loading={inspirationsLoading}
+              onUpload={onUploadInspiration}
+              onDelete={onDeleteInspiration}
+              onUpdate={onUpdateInspiration}
+              onConvertToFood={onConvertInspiration}
+              foodById={foodById}
+              onOpenFood={onOpenFood}
+            />
+          </div>
         </Suspense>
       )}
 
@@ -241,7 +249,7 @@ export function HomePage({
 function SectionLoader() {
   return (
     <div className="flex items-center justify-center py-24">
-      <p className="text-[#837b6e] text-[12px] tracking-[0.4em]">LOADING</p>
+      <p className="eyebrow">LOADING</p>
     </div>
   );
 }

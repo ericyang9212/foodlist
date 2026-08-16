@@ -74,19 +74,19 @@ export function QuickLogSheet({ uploadPhoto, onSave, onClose }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end justify-center animate-slideup"
+      className="fixed inset-0 z-50 bg-black/35 backdrop-blur-[2px] flex items-end justify-center animate-slideup"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-[430px] bg-gradient-to-b from-[#151310] to-[#0d0c0a] border-t border-[#c9a961]/25 rounded-t-[18px]"
+        className="w-full max-w-[430px] bg-surface border-t border-separator rounded-t-[22px]"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-5 pb-3">
           <div>
-            <h2 className="text-[17px] text-[#f2ecdd] tracking-wide font-medium">記一筆足跡</h2>
-            <p className="text-[12px] text-[#8d877a] tracking-wide mt-1">
+            <h2 className="text-[17px] text-text font-medium">記一筆足跡</h2>
+            <p className="text-[12px] text-muted mt-1">
               清單沒有的店也能記，會一併加進「嘗過」
             </p>
           </div>
@@ -97,71 +97,71 @@ export function QuickLogSheet({ uploadPhoto, onSave, onClose }: Props) {
 
         <div className="px-6 pb-4 space-y-4 max-h-[62vh] overflow-y-auto">
           <div>
-            <label className="block text-[11px] tracking-[0.3em] text-[#c9a961]/60 mb-2">吃了什麼 / 哪間店</label>
+            <label className="eyebrow-tc block mb-2">吃了什麼 / 哪間店</label>
             <input
               autoFocus
               value={name}
               onChange={e => setName(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter' && !e.nativeEvent.isComposing && canSave) handleSave(); }}
               placeholder="例：後院早午餐、精誠夜市"
-              className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[10px] px-4 py-3 text-[15px] text-[#f5f1e8] placeholder-[#837b6e] focus:outline-none"
+              className="w-full bg-surface border border-separator focus:border-tint rounded-[16px] px-4 py-3 text-[15px] text-text placeholder-muted focus:outline-none"
             />
           </div>
 
           <div className="flex gap-3">
             <div className="flex-1">
-              <label className="block text-[11px] tracking-[0.3em] text-[#c9a961]/60 mb-2">縣市（可略）</label>
+              <label className="eyebrow-tc block mb-2">縣市（可略）</label>
               <select
                 value={city}
                 onChange={e => setCity(e.target.value)}
-                className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[10px] px-3 py-3 text-[15px] text-[#f5f1e8] focus:outline-none"
+                className="w-full bg-surface border border-separator focus:border-tint rounded-[16px] px-3 py-3 text-[15px] text-text focus:outline-none"
               >
                 <option value="">不指定</option>
                 {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div className="flex-1">
-              <label className="block text-[11px] tracking-[0.3em] text-[#c9a961]/60 mb-2">吃的日期</label>
+              <label className="eyebrow-tc block mb-2">吃的日期</label>
               <input
                 type="date"
                 value={dateStr}
                 onChange={e => setDateStr(e.target.value)}
-                className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[10px] px-3 py-3 text-[15px] text-[#f5f1e8] focus:outline-none"
+                className="w-full bg-surface border border-separator focus:border-tint rounded-[16px] px-3 py-3 text-[15px] text-text focus:outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-[11px] tracking-[0.3em] text-[#c9a961]/60 mb-2">Google 地圖連結（可略）</label>
+            <label className="eyebrow-tc block mb-2">Google 地圖連結（可略）</label>
             <input
               value={mapsUrl}
               onChange={e => setMapsUrl(e.target.value)}
               inputMode="url"
               placeholder="貼上連結，之後回訪能「帶我去」"
-              className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[10px] px-4 py-3 text-[14px] text-[#f5f1e8] placeholder-[#837b6e] focus:outline-none"
+              className="w-full bg-surface border border-separator focus:border-tint rounded-[16px] px-4 py-3 text-[14px] text-text placeholder-muted focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-[11px] tracking-[0.3em] text-[#c9a961]/60 mb-2">照片（選填）</label>
+            <label className="eyebrow-tc block mb-2">照片（選填）</label>
             {localPreview ? (
               <div className="relative inline-block">
-                <img src={localPreview} alt="" className="max-w-full max-h-40 rounded-[8px] border border-[#c9a961]/30" />
+                <img src={localPreview} alt="" className="max-w-full max-h-40 rounded-[14px] border border-separator" />
                 <button
                   aria-label="移除照片"
                   onClick={() => { setPendingFile(null); setLocalPreview(null); }}
-                  className="absolute -top-2 -right-2 bg-[#0b0a08] border border-[#c9a961]/60 w-6 h-6 rounded-full flex items-center justify-center"
+                  className="absolute -top-2 -right-2 bg-bg border border-separator w-6 h-6 rounded-full flex items-center justify-center"
                 >
-                  <X size={12} className="text-[#c9a961]" />
+                  <X size={12} className="text-muted" />
                 </button>
               </div>
             ) : (
               <button
                 onClick={() => fileRef.current?.click()}
-                className="w-full border border-dashed border-[#c9a961]/40 hover:border-[#c9a961] hover:bg-[#c9a961]/5 bg-[#0f0d0a] rounded-[8px] py-4 flex items-center justify-center gap-2 transition-all"
+                className="w-full border border-dashed border-line hover:border-tint hover:bg-tint-soft bg-surface rounded-[14px] py-4 flex items-center justify-center gap-2 transition-all"
               >
-                <ImagePlus size={17} className="text-[#c9a961]" />
-                <span className="text-[12px] tracking-wider text-[#c9a961]/80">加一張照片</span>
+                <ImagePlus size={17} className="text-tint" />
+                <span className="eyebrow">加一張照片</span>
               </button>
             )}
             <input
@@ -178,13 +178,13 @@ export function QuickLogSheet({ uploadPhoto, onSave, onClose }: Props) {
           </div>
 
           <div>
-            <label className="block text-[11px] tracking-[0.3em] text-[#c9a961]/60 mb-2">一句話感想（選填）</label>
+            <label className="eyebrow-tc block mb-2">一句話感想（選填）</label>
             <textarea
               placeholder="例如：比想像中好吃、下次帶爸媽來"
               value={note}
               onChange={e => setNote(e.target.value)}
               rows={2}
-              className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-2.5 text-[14px] text-[#f5f1e8] placeholder-[#837b6e] focus:outline-none resize-none leading-relaxed"
+              className="w-full bg-surface border border-separator focus:border-tint rounded-[14px] px-3 py-2.5 text-[14px] text-text placeholder-muted focus:outline-none resize-none leading-relaxed"
             />
           </div>
         </div>
@@ -193,7 +193,7 @@ export function QuickLogSheet({ uploadPhoto, onSave, onClose }: Props) {
           <button
             onClick={handleSave}
             disabled={!canSave}
-            className="btn-primary w-full flex items-center justify-center gap-2 py-3.5 text-[15px] tracking-[0.2em] disabled:opacity-40"
+            className="btn-primary w-full flex items-center justify-center gap-2 py-3.5 text-[15px] disabled:opacity-40"
           >
             {saving && <Loader2 size={14} className="animate-spin" />}
             記下來

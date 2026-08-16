@@ -104,14 +104,14 @@ export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: P
       <div className="px-6 pt-5 pb-4 flex items-end justify-between gap-3">
         <div>
           <div className="eyebrow mb-2">FOODPRINTS</div>
-          <h2 className="text-[22px] font-medium text-gold-gradient tracking-[0.15em] leading-tight">
-            食 物 足 跡
+          <h2 className="t-title">
+            食物足跡
           </h2>
         </div>
         {/* 剛吃了清單沒有的店 → 直接在這裡記，會一併加進「嘗過」 */}
         <button
           onClick={onQuickLog}
-          className="btn-secondary flex items-center gap-1.5 text-[12px] tracking-[0.2em] px-3.5 py-2 flex-shrink-0"
+          className="btn-secondary flex items-center gap-1.5 text-[12px] px-3.5 py-2 flex-shrink-0"
         >
           <Plus size={14} />
           記一筆
@@ -123,7 +123,7 @@ export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: P
 
         {Object.keys(cityCounts).length === 0 && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <p className="text-[13px] text-[#76705f] tracking-wider text-center px-8 bg-[#0b0a08]/80 py-3 rounded-[10px]">
+            <p className="t-caption text-center px-5 bg-surface/90 backdrop-blur-sm py-3 rounded-[16px] shadow-[var(--shadow-card)]">
               還沒有標上地圖的足跡<br />記錄時填了縣市就會出現在這裡
             </p>
           </div>
@@ -131,12 +131,12 @@ export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: P
 
         {selectedCity && (
           <div
-            className="absolute left-3 right-3 bottom-3 card-surface rounded-[8px] p-3.5 bg-[#141210]/95 border border-[#2c261d] max-h-[55%] flex flex-col"
+            className="absolute left-3 right-3 bottom-3 card-surface rounded-[18px] p-3.5 max-h-[55%] flex flex-col animate-rise"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-baseline gap-2 mb-2 flex-shrink-0">
-              <h3 className="text-[14px] text-[#f5f1e8] font-medium tracking-wide">{selectedCity}</h3>
-              <span className="text-[11px] text-[#c9a961]/80 tracking-wider">
+              <h3 className="t-heading">{selectedCity}</h3>
+              <span className="text-[12px] font-medium text-teal">
                 {(storesByCity.get(selectedCity) ?? []).length} 家店
               </span>
               <button
@@ -150,24 +150,24 @@ export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: P
             {(storesByCity.get(selectedCity)?.length ?? 0) > 0 ? (
               <ul className="space-y-1 max-h-[200px] overflow-y-auto pr-1">
                 {(storesByCity.get(selectedCity) ?? []).map(name => (
-                  <li key={name} className="text-[12px] text-[#a89a7d] tracking-wide truncate">
+                  <li key={name} className="text-[12px] text-muted truncate">
                     {name}
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-[12px] text-[#837b6e] tracking-wide">還沒有這個縣市的足跡</p>
+              <p className="text-[12px] text-muted">還沒有這個縣市的足跡</p>
             )}
           </div>
         )}
       </div>
 
       <div className="px-5 pt-5 pb-28">
-        <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#1c1812]">
+        <div className="flex items-center justify-between pb-3 mb-4 border-b border-separator">
           <div className="flex items-baseline gap-2">
-            <h2 className="text-[15px] text-[#f5f1e8] tracking-[0.2em] font-medium">足跡時間軸</h2>
+            <h2 className="t-heading">足跡時間軸</h2>
             {storeCount > 0 && (
-              <span className="text-[11px] text-[#c9a961]/70 tracking-wider">{storeCount} 家店</span>
+              <span className="text-[12px] font-medium text-teal">{storeCount} 家店</span>
             )}
           </div>
           <button
@@ -175,7 +175,7 @@ export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: P
             className="icon-btn !p-1.5" aria-label="在 Google Maps 找附近的店"
             title="在 Google Maps 找附近的店"
           >
-            <Compass size={17} className="text-[#c9a961]" />
+            <Compass size={17} className="text-teal" />
           </button>
         </div>
 
@@ -185,25 +185,25 @@ export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: P
                 手機上少一層「捲動區裡的捲動區」 */}
             <div className="pr-1">
               <div className="relative pl-1">
-                <div className="absolute left-[6px] top-1 bottom-1 w-[1px] bg-gradient-to-b from-[#c9a961]/50 via-[#c9a961]/20 to-transparent" />
+                <div className="absolute left-[6px] top-1 bottom-1 w-[2px] rounded-full bg-gradient-to-b from-teal via-teal/40 to-transparent" />
                 <div className="space-y-7">
                   {grouped.map((group, index) => {
                     const collapsed = isMonthCollapsed(group.key, index);
                     return (
                       <div key={group.key} className="relative pl-6">
-                        <div className="absolute left-0 top-1 w-[11px] h-[11px] rounded-full bg-[#0f0d0a] border-2 border-[#c9a961]" />
+                        <div className="absolute left-0 top-1 w-[11px] h-[11px] rounded-full bg-surface border-2 border-teal" />
                         <button
                           onClick={() => toggleMonth(group.key, index)}
                           className="flex items-center gap-3 mb-3 w-full text-left"
                         >
-                          <span className="text-[12px] tracking-[0.3em] text-[#c9a961]/80">{group.label}</span>
-                          <div className="h-[1px] flex-1 bg-[#1c1812]" />
-                          <span className="text-[10px] text-[#c9a961] bg-[#c9a961]/10 px-1.5 py-0.5 rounded-full tracking-widest">
+                          <span className="eyebrow">{group.label}</span>
+                          <div className="h-[1px] flex-1 bg-separator" />
+                          <span className="text-[11px] font-semibold text-teal bg-teal-soft px-2 py-0.5 rounded-full">
                             {group.prints.length}
                           </span>
                           <ChevronDown
                             size={14}
-                            className={`text-[#c9a961]/60 transition-transform duration-300 flex-shrink-0 ${
+                            className={`text-muted transition-transform duration-300 ease-[var(--ease-ios)] flex-shrink-0 ${
                               collapsed ? '-rotate-90' : ''
                             }`}
                           />
@@ -213,7 +213,7 @@ export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: P
                           style={{ gridTemplateRows: collapsed ? '0fr' : '1fr' }}
                         >
                           <div className="overflow-hidden">
-                            <div className="space-y-2.5">
+                            <div className="space-y-2.5 stagger">
                               {group.prints.map(p => (
                                 <FoodprintCard
                                   key={p.id}
@@ -235,7 +235,7 @@ export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: P
             {visibleCount < items.length && (
               <button
                 onClick={() => setVisibleCount(c => c + PAGE_SIZE)}
-                className="w-full mt-4 py-2.5 text-[12px] tracking-[0.2em] text-[#c9a961]/80 border border-[#211c15] rounded-[6px] hover:border-[#c9a961]/40 hover:text-[#c9a961] transition-colors"
+                className="btn-neutral w-full mt-4 py-3 t-caption !text-text"
               >
                 載入更多（剩 {items.length - visibleCount} 筆）
               </button>
@@ -244,8 +244,8 @@ export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: P
         ) : (
           <div className="flex flex-col items-center justify-center py-10 text-center">
             <EmptyMark className="mb-3" />
-            <p className="text-[#7d7566] text-[14px] tracking-wider mb-2">還沒有任何足跡</p>
-            <p className="text-[#837b6e] text-[12px] tracking-widest">
+            <p className="text-muted text-[14px] mb-2">還沒有任何足跡</p>
+            <p className="text-muted text-[12px]">
               在食物詳情頁按「今天吃了」就會出現
             </p>
           </div>
@@ -261,33 +261,33 @@ function FoodprintCard({ item, photoSrc, onDelete, onClick }: {
   const region = [item.restaurantCity, item.restaurantArea].filter(Boolean).join(' ');
   return (
     <div
-      className="card-surface rounded-[8px] p-4 cursor-pointer active:scale-[0.99] transition-transform"
+      className="card-surface rounded-[16px] p-4 cursor-pointer transition-transform duration-200 ease-[var(--ease-out-quint)] active:scale-[0.98]"
       onClick={onClick}
     >
       <div className="flex items-start gap-3">
-        <div className="text-[11px] tracking-[0.25em] text-[#c9a961]/80 w-12 flex-shrink-0 mt-0.5">
+        <div className="text-[12px] font-semibold text-teal w-12 flex-shrink-0 mt-0.5 tabular-nums">
           {dateLabel(item.ateAt)}
         </div>
         <div className="flex-1 min-w-0">
-          <h4 className="text-[16px] text-[#f5f1e8] font-medium tracking-wide leading-tight">
+          <h4 className="t-heading">
             {item.foodName}
           </h4>
           {(item.restaurantName || region) && (
-            <div className="flex items-center gap-1.5 mt-1 text-[#8a8478]">
+            <div className="flex items-center gap-1.5 mt-1 text-muted">
               <MapPin size={11} />
-              <span className="text-[12px] tracking-wide">
+              <span className="text-[12px]">
                 {[item.restaurantName, region].filter(Boolean).join(' · ')}
               </span>
             </div>
           )}
           {item.note && (
-            <p className="text-[12px] text-[#c9a961]/70 italic tracking-wide mt-2 leading-relaxed">
+            <p className="t-caption italic mt-2">
               「{item.note}」
             </p>
           )}
         </div>
         {photoSrc && (
-          <div className="w-14 h-14 rounded-[4px] border border-[#2c261d] overflow-hidden flex-shrink-0">
+          <div className="w-14 h-14 rounded-[12px] bg-fill overflow-hidden flex-shrink-0">
             <Thumb src={photoSrc} className="w-full h-full object-cover" />
           </div>
         )}
@@ -296,7 +296,7 @@ function FoodprintCard({ item, photoSrc, onDelete, onClick }: {
             e.stopPropagation();
             if (confirm('刪除這則足跡？')) onDelete();
           }}
-          className="icon-btn !p-1 hover:!text-[#a85959] hover:!bg-[#a85959]/10 flex-shrink-0" aria-label="刪除足跡"
+          className="icon-btn !p-1 hover:!text-danger hover:!bg-danger-soft flex-shrink-0" aria-label="刪除足跡"
         >
           <Trash2 size={13} />
         </button>

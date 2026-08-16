@@ -1,10 +1,10 @@
-// 空狀態的小飾紋：細金線 ＋ 菱星，全 app 共用（取代原本的「— —」）
+// 空狀態的小飾紋：淡色圓底 + 中央小點，取代原本的金線菱星
 export function EmptyMark({ className = 'mb-4' }: { className?: string }) {
   return (
-    <div className={`flex items-center justify-center gap-3 text-[#c9a961]/45 ${className}`}>
-      <span className="h-px w-9 bg-gradient-to-r from-transparent to-[#c9a961]/35" />
-      <span className="text-[13px] leading-none">✦</span>
-      <span className="h-px w-9 bg-gradient-to-l from-transparent to-[#c9a961]/35" />
+    <div className={`flex items-center justify-center ${className}`}>
+      <span className="w-12 h-12 rounded-full bg-fill flex items-center justify-center">
+        <span className="w-2.5 h-2.5 rounded-full bg-fill-strong" />
+      </span>
     </div>
   );
 }

@@ -20,23 +20,23 @@ export function UpdatePrompt() {
 
   return (
     <div
-      className="fixed left-1/2 -translate-x-1/2 z-[60] w-[calc(100%-32px)] max-w-[400px] bg-gradient-to-br from-[#1a1612] to-[#0f0d0a] border border-[#c9a961]/50 rounded-[8px] shadow-[0_8px_30px_rgba(0,0,0,0.55)] px-5 py-4 flex items-center gap-3"
+      className="fixed left-1/2 -translate-x-1/2 z-[60] w-[calc(100%-32px)] max-w-[400px] bg-surface border border-separator rounded-[14px] shadow-[var(--shadow-raised)] px-5 py-4 flex items-center gap-3"
       style={{ bottom: 'calc(env(safe-area-inset-bottom) + 100px)' }}
     >
-      <RefreshCw size={20} className="text-[#c9a961] flex-shrink-0" />
+      <RefreshCw size={20} className="text-tint flex-shrink-0" />
       <div className="flex-1 min-w-0">
-        <div className="text-[14px] text-[#f5f1e8] tracking-wider">有新版本</div>
-        <div className="text-[11px] text-[#8a8478] tracking-wider mt-0.5">點更新載入最新功能</div>
+        <div className="text-[14px] text-text">有新版本</div>
+        <div className="text-[11px] text-muted mt-0.5">點更新載入最新功能</div>
       </div>
       <button
         onClick={() => void updateServiceWorker(true)}
-        className="btn-primary px-4 py-2 text-[13px] tracking-[0.2em] flex-shrink-0"
+        className="btn-primary px-4 py-2 text-[13px] flex-shrink-0"
       >
         更新
       </button>
       <button
         onClick={() => setNeedRefresh(false)}
-        className="text-[#837b6e] text-[12px] tracking-wider flex-shrink-0 px-1"
+        className="text-muted text-[12px] flex-shrink-0 px-1"
       >
         稍後
       </button>

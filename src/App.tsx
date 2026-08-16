@@ -37,14 +37,14 @@ const QuickLogSheet = lazy(() =>
 
 function FullScreenLoader() {
   return (
-    <div className="flex items-center justify-center h-svh bg-[#0b0a08]">
+    <div className="flex items-center justify-center h-svh bg-bg">
       <div className="text-center">
         <img
           src="/logo.png"
           alt="PSJ dice list"
-          className="w-32 h-32 object-contain mx-auto mb-4 animate-pulse drop-shadow-[0_4px_20px_rgba(201,169,97,0.2)]"
+          className="w-32 h-32 object-contain mx-auto mb-4 animate-pulse"
         />
-        <p className="text-[#837b6e] text-[12px] tracking-[0.4em]">LOADING</p>
+        <p className="eyebrow">LOADING</p>
       </div>
     </div>
   );
@@ -228,7 +228,7 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
   if (loading) return <FullScreenLoader />;
 
   return (
-    <div className="relative flex flex-col h-svh overflow-hidden bg-[#0b0a08]">
+    <div className="relative flex flex-col h-svh overflow-hidden bg-bg">
       <Marquee data={marquee.data} onUpdate={marquee.update} />
       <div className="flex-1 overflow-hidden relative">
         <HomePage
@@ -256,17 +256,21 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
         />
       </div>
 
-      {/* 三頁併成一頁後底部只留新增：不再需要分頁切換 */}
+      {/* 三頁併成一頁後底部只留新增：不再需要分頁切換。
+          毛玻璃底列 + 珊瑚色主按鈕，是整頁唯一的高彩度色塊 */}
       <nav
-        className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-[#0b0a08]/90 backdrop-blur-md flex items-center justify-center px-4 pt-3 z-40"
+        className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] blur-bar flex items-center justify-center px-4 pt-3 z-40"
         style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}
       >
-        {/* 頂緣金色細線，取代生硬的灰邊 */}
-        <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#c9a961]/30 to-transparent" />
+        <div className="absolute top-0 left-0 right-0 h-[1px] bg-separator" />
 
-        <button onClick={handleAddNew} className="flex flex-col items-center px-4" aria-label="新增想吃的">
-          <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-[0_4px_24px_rgba(201,169,97,0.45)] active:scale-95 transition-transform -mt-9 ring-1 ring-[#f0deae]/40" style={{ background: 'linear-gradient(150deg,#f0deae 0%,#d6b974 55%,#b1934f 100%)' }}>
-            <Plus size={30} className="text-[#100d07]" strokeWidth={2.5} />
+        <button onClick={handleAddNew} className="flex flex-col items-center px-4 group" aria-label="新增想吃的">
+          {/* 漸層最亮的一端也讓白色加號有 4.5:1，不是只有中間夠 */}
+          <div
+            className="w-16 h-16 rounded-full flex items-center justify-center -mt-9 shadow-[var(--shadow-raised)] transition-transform duration-200 ease-[var(--ease-out-quint)] group-active:scale-90"
+            style={{ background: 'linear-gradient(145deg, #cf4320 0%, #c23a18 60%, #a83113 100%)' }}
+          >
+            <Plus size={30} className="text-white" strokeWidth={2.5} />
           </div>
         </button>
       </nav>

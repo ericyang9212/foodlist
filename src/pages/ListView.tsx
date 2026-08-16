@@ -79,64 +79,64 @@ export function ListView({
     <div>
       {/* ── Sticky 篩選列：往下滑時固定在段落切換列下方，隨時可搜尋/切換 ── */}
       <div
-        className="sticky z-20 bg-[#0b0a08]/95 backdrop-blur-md border-b border-[#211c15]"
+        className="sticky z-20 blur-bar border-b border-separator"
         style={{ top: stickyTop }}
       >
-        {/* Search */}
+        {/* Search：iOS 的圓角灰底搜尋框 */}
         <div className="px-6 pt-3 pb-2.5">
           <div className="relative">
-            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#837b6e]" />
+            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted" />
             <input
               type="text"
               placeholder="搜尋"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-10 pr-10 py-3 bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-full text-base text-[#f5f1e8] placeholder-[#837b6e] tracking-wider focus:outline-none transition-colors"
+              className="w-full pl-10 pr-10 py-2.5 bg-fill border border-transparent focus:border-tint focus:bg-surface rounded-[12px] text-base text-text placeholder-muted focus:outline-none transition-colors"
             />
             {search && (
-              <button onClick={() => setSearch('')} className="absolute right-3.5 top-1/2 -translate-y-1/2">
-                <X size={14} className="text-[#837b6e]" />
+              <button
+                onClick={() => setSearch('')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 icon-btn !p-1.5"
+                aria-label="清除搜尋"
+              >
+                <X size={14} />
               </button>
             )}
           </div>
         </div>
 
-        {/* 優雅下劃線 tabs + 食物/店家 視角切換 */}
-        <div className="px-6">
-          <div className="flex items-center justify-between border-b border-[#211c15]">
-            <div className="flex items-center gap-8">
-              {TABS.map(t => (
-                <button
-                  key={t.value}
-                  onClick={() => onTabChange(t.value)}
-                  className={`relative pb-3 pt-1 text-[15px] tracking-[0.3em] transition-colors ${
-                    activeTab === t.value ? 'text-[#ead8aa]' : 'text-[#837b6e] hover:text-[#8a8478]'
-                  }`}
-                >
-                  {t.label}
-                  <span className="ml-1.5 text-[11px] tracking-normal opacity-60">
-                    {counts[t.value]}
-                  </span>
-                  {activeTab === t.value && (
-                    <div className="absolute bottom-[-1px] left-0 right-0 h-[2px] rounded-full bg-gradient-to-r from-[#c9a961] via-[#ead8aa] to-[#c9a961] shadow-[0_0_8px_rgba(201,169,97,0.5)]" />
-                  )}
-                </button>
-              ))}
-            </div>
-            <div className="flex items-center rounded-full border border-[#2c261d] p-[3px] mb-1.5 text-[12px] tracking-[0.12em]">
+        {/* 想吃／嘗過／全部 + 食物／店家：兩組都走 iOS 分段控制項 */}
+        <div className="px-6 pb-3 flex items-center gap-2">
+          <div className="flex items-center bg-fill rounded-[10px] p-[2px] flex-1">
+            {TABS.map(t => (
               <button
-                onClick={() => setViewMode('food')}
-                className={`px-3.5 py-1.5 rounded-full transition-colors ${viewMode === 'food' ? 'bg-[#d6b974] text-[#100d07] font-medium' : 'text-[#8d877a]'}`}
+                key={t.value}
+                onClick={() => onTabChange(t.value)}
+                aria-pressed={activeTab === t.value}
+                className={`flex-1 px-2 py-1.5 rounded-[8px] t-caption font-medium transition-[background,color,transform] duration-200 ease-[var(--ease-ios)] active:scale-95 ${
+                  activeTab === t.value
+                    ? 'bg-surface text-text shadow-[var(--shadow-card)]'
+                    : 'text-muted'
+                }`}
               >
-                食物
+                {t.label}
+                <span className="ml-1 text-[11px] tabular-nums opacity-70">{counts[t.value]}</span>
               </button>
+            ))}
+          </div>
+          <div className="flex items-center bg-fill rounded-[10px] p-[2px] flex-shrink-0">
+            {([['food', '食物'], ['place', '店家']] as const).map(([mode, label]) => (
               <button
-                onClick={() => setViewMode('place')}
-                className={`px-3.5 py-1.5 rounded-full transition-colors ${viewMode === 'place' ? 'bg-[#d6b974] text-[#100d07] font-medium' : 'text-[#8d877a]'}`}
+                key={mode}
+                onClick={() => setViewMode(mode)}
+                aria-pressed={viewMode === mode}
+                className={`px-3 py-1.5 rounded-[8px] t-caption font-medium transition-[background,color,transform] duration-200 ease-[var(--ease-ios)] active:scale-95 ${
+                  viewMode === mode ? 'bg-surface text-text shadow-[var(--shadow-card)]' : 'text-muted'
+                }`}
               >
-                店家
+                {label}
               </button>
-            </div>
+            ))}
           </div>
         </div>
 
@@ -146,7 +146,7 @@ export function ListView({
             <div className="flex gap-2 w-max">
               <button
                 onClick={() => onCityChange(null)}
-                className={`flex-shrink-0 text-[12px] tracking-[0.2em] px-3.5 py-1.5 ${activeCity === null ? 'chip chip-active' : 'chip'}`}
+                className={`flex-shrink-0 text-[12px] px-3.5 py-1.5 ${activeCity === null ? 'chip chip-active' : 'chip'}`}
               >
                 全部
               </button>
@@ -154,7 +154,7 @@ export function ListView({
                 <button
                   key={city}
                   onClick={() => onCityChange(activeCity === city ? null : city)}
-                  className={`flex-shrink-0 text-[12px] tracking-[0.2em] px-3.5 py-1.5 ${activeCity === city ? 'chip chip-active' : 'chip'}`}
+                  className={`flex-shrink-0 text-[12px] px-3.5 py-1.5 ${activeCity === city ? 'chip chip-active' : 'chip'}`}
                 >
                   {city} · {count}
                 </button>
@@ -170,7 +170,7 @@ export function ListView({
         {activeTab === 'tried' && !search && (
           <button
             onClick={onQuickAdd}
-            className="w-full mb-3 border border-dashed border-[#c9a961]/30 text-[#c9a961]/80 hover:border-[#c9a961]/60 hover:text-[#ead8aa] rounded-[14px] py-3.5 flex items-center justify-center gap-2 text-[13px] tracking-[0.2em] transition-colors"
+            className="w-full mb-3 border border-dashed border-line text-tint hover:bg-tint-soft rounded-[18px] py-3.5 flex items-center justify-center gap-2 t-caption !text-tint font-medium transition-colors"
           >
             <Plus size={15} />
             快速加吃過的店
@@ -179,14 +179,14 @@ export function ListView({
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <EmptyMark className="mb-4" />
-            <p className="text-[#7d7566] text-[15px] tracking-wider">
+            <p className="t-body text-muted">
               {items.length === 0 ? '點下方 + 新增想吃的食物' : '無符合的食物'}
             </p>
           </div>
         ) : viewMode === 'place' ? (
           <PlacesView foods={filtered} imageByFoodId={imageByFoodId} onOpen={onOpen} />
         ) : (
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 stagger">
             {filtered.map(item => (
               <FoodCard
                 key={item.id}

@@ -36,12 +36,17 @@
 
 ## 設計系統（改 UI 前必讀）
 
-- 語言：暖黑底 + 香檳金點題 + 襯線字的「精品編輯」風。所有 token 在 `src/index.css`。
-- **用既有的類別，不要發明新的一次性樣式**：眉標用 `.eyebrow`（英文）/ `.eyebrow-tc`（中文）、分隔線用 `.rule`、字級用 `.t-display`~`.t-caption`、按鈕用 `.btn-primary` / `.btn-secondary` / `.btn-neutral` / `.btn-danger` / `.chip`、卡片用 `.card-surface`。
+2026-08-16 從「暖黑底 + 香檳金 + 襯線字」整組換成**明亮的蘋果版面**；舊的金色 / 深色寫法全部作廢，看到殘留就是漏改的。
+
+- 語言：淺灰畫布（`bg`）+ 純白卡片（`surface`）+ 髮絲分隔線 + 系統字（SF Pro / 蘋方，退到 Noto Sans TC）。字距是**收緊**的（`letter-spacing: -0.01em`），不要再用 `tracking-[0.3em]` 那種拉開的排版。
+- **顏色只走 token，元件不要再寫死 hex**：token 都在 `src/index.css` 的 `@theme`，用 Tailwind 語意類別（`bg-bg` / `bg-surface` / `bg-fill` / `border-separator` / `text-text` / `text-muted` / `text-tint` …）。深色模式靠同一份 token 在 `prefers-color-scheme: dark` 翻面，所以寫死 hex 會直接在深色模式壞掉。
+- 色彩分工：互動一律藍色 `tint`；三個段落各有點題色——足跡 `teal`、清單 `coral`、靈感匣 `violet`；評分 `amber`、刪除 `danger`。每個色都有 `-soft` 淺底版本可鋪區塊。
+- **用既有的類別，不要發明新的一次性樣式**：眉標 `.eyebrow` / `.eyebrow-tc`、分隔線 `.rule`、字級 `.t-display`~`.t-caption`、按鈕 `.btn-primary` / `.btn-secondary` / `.btn-neutral` / `.btn-danger` / `.chip`、卡片 `.card-surface`、毛玻璃列 `.blur-bar`。
+- 動態：曲線用 `--ease-ios` / `--ease-out-quint`，進場用 `.animate-rise`（單塊）、`.stagger`（列表逐項）、`.animate-pop`（抽籤結果）、`.animate-slideup`（sheet）、`.animate-fadein`（全頁覆蓋層）。**不要做回彈過衝**（impeccable 會擋 bounce-easing）。
 - **無障礙底線（已全站校正過，不要倒退）**：
-  - 最暗的可讀灰是 `#837b6e`（4.8:1）。不要用更暗的灰做正文或 placeholder。
+  - 淺色底下最淺可用的灰是 `muted`（`#6e6e73`，在白底 5.07:1、在 `fill` 4.53:1）。不要用更淺的灰做正文或 placeholder。
+  - 所有點題色的深淺兩版都實測過 ≥ 4.5:1（含反白文字放在色塊上）。改色時請一併重算，不要憑感覺挑。
   - 禁止漸層字（`background-clip: text`）——強制對比模式下會整段消失。
   - 圖示鈕一律 `.icon-btn`（自帶 44×44 熱區）+ `aria-label`。
   - 新動畫不用另外處理 reduced-motion，`index.css` 有全域規則；但不要用 `transition: all`。
-- 元件走「印在紙上」而非「浮起的方塊」：不加厚陰影、內光高光、hover 懸浮位移。
 - 可跑 `npx impeccable detect src` 做設計反模式掃描（目前是 0 issues，保持）。

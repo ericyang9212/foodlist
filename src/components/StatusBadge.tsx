@@ -1,20 +1,20 @@
-import { STATUS_STYLES, STATUS_LABELS } from '../types';
+import { STATUS_LABELS } from '../types';
 import type { Status } from '../types';
 
 interface Props {
   status: Status;
 }
 
-const DOT: Record<Status, string> = {
-  want: 'bg-[#d6b974]',
-  tried: 'bg-[#6b6553]',
-  skip: 'bg-[#4a4438]',
+// 淡色底 + 同色系文字的 iOS 標籤；三個狀態各自一個色相
+const STYLES: Record<Status, string> = {
+  want: 'bg-coral-soft text-coral',
+  tried: 'bg-teal-soft text-teal',
+  skip: 'bg-fill text-muted',
 };
 
 export function StatusBadge({ status }: Props) {
   return (
-    <span className={`inline-flex items-center gap-1.5 text-[11px] tracking-[0.18em] px-2.5 py-1 rounded-full border ${STATUS_STYLES[status]}`}>
-      <span className={`w-[5px] h-[5px] rounded-full ${DOT[status]}`} />
+    <span className={`inline-flex items-center text-[12px] font-semibold px-2.5 py-1 rounded-full ${STYLES[status]}`}>
       {STATUS_LABELS[status]}
     </span>
   );

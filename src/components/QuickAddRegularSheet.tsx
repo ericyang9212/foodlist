@@ -55,43 +55,43 @@ export function QuickAddRegularSheet({ onSave, onClose }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end justify-center"
+      className="fixed inset-0 z-50 bg-black/35 backdrop-blur-[2px] flex items-end justify-center"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-[430px] bg-gradient-to-b from-[#151310] to-[#0d0c0a] border-t border-[#c9a961]/25 rounded-t-[18px] px-6 pt-5 animate-slideup"
+        className="w-full max-w-[430px] bg-surface border-t border-separator rounded-t-[22px] px-6 pt-5 animate-slideup"
         style={{ paddingBottom: 'max(24px, env(safe-area-inset-bottom))' }}
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-1">
-          <h2 className="text-[17px] text-[#f2ecdd] tracking-wide font-medium">加吃過的店</h2>
+          <h2 className="text-[17px] text-text font-medium">加吃過的店</h2>
           <button onClick={onClose} className="icon-btn" aria-label="關閉">
             <X size={20} />
           </button>
         </div>
-        <p className="text-[12px] text-[#8d877a] tracking-wide mb-5">
+        <p className="text-[12px] text-muted mb-5">
           只要名字就能加，之後抽籤選「回訪」就會出現
         </p>
 
         <div className="space-y-4">
           <div>
-            <label className="block text-[11px] tracking-[0.3em] text-[#c9a961]/60 mb-2">名稱</label>
+            <label className="eyebrow-tc block mb-2">名稱</label>
             <input
               autoFocus
               value={name}
               onChange={e => setName(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter' && !e.nativeEvent.isComposing && canSave) handleSave(); }}
               placeholder="店名或想吃的（例：巷口牛肉麵）"
-              className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[10px] px-4 py-3 text-base text-[#f5f1e8] placeholder-[#837b6e] focus:outline-none"
+              className="w-full bg-surface border border-separator focus:border-tint rounded-[16px] px-4 py-3 text-base text-text placeholder-muted focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-[11px] tracking-[0.3em] text-[#c9a961]/60 mb-2">縣市（可略）</label>
+            <label className="eyebrow-tc block mb-2">縣市（可略）</label>
             <select
               value={city}
               onChange={e => setCity(e.target.value)}
-              className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[10px] px-4 py-3 text-base text-[#f5f1e8] focus:outline-none"
+              className="w-full bg-surface border border-separator focus:border-tint rounded-[16px] px-4 py-3 text-base text-text focus:outline-none"
             >
               <option value="">不指定</option>
               {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -99,13 +99,13 @@ export function QuickAddRegularSheet({ onSave, onClose }: Props) {
           </div>
 
           <div>
-            <label className="block text-[11px] tracking-[0.3em] text-[#c9a961]/60 mb-2">Google 地圖連結（可略）</label>
+            <label className="eyebrow-tc block mb-2">Google 地圖連結（可略）</label>
             <input
               value={mapsUrl}
               onChange={e => setMapsUrl(e.target.value)}
               inputMode="url"
               placeholder="貼上地圖連結，抽到就能「帶我去」"
-              className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[10px] px-4 py-3 text-base text-[#f5f1e8] placeholder-[#837b6e] focus:outline-none"
+              className="w-full bg-surface border border-separator focus:border-tint rounded-[16px] px-4 py-3 text-base text-text placeholder-muted focus:outline-none"
             />
           </div>
         </div>
@@ -113,7 +113,7 @@ export function QuickAddRegularSheet({ onSave, onClose }: Props) {
         <button
           onClick={handleSave}
           disabled={!canSave}
-          className="btn-primary w-full flex items-center justify-center gap-2 py-3.5 mt-6 text-[15px] tracking-[0.2em] disabled:opacity-40"
+          className="btn-primary w-full flex items-center justify-center gap-2 py-3.5 mt-6 text-[15px] disabled:opacity-40"
         >
           {saving && <Loader2 size={14} className="animate-spin" />}
           加進「嘗過」

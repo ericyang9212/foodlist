@@ -37,7 +37,7 @@ export function RestaurantsEditor({ restaurants, onChange, title = '候選店家
         {!adding && !editingId && (
           <button
             onClick={() => setAdding(true)}
-            className="btn-secondary flex items-center gap-1.5 text-[13px] tracking-[0.2em] px-3 py-1.5"
+            className="btn-secondary flex items-center gap-1.5 text-[13px] px-3 py-1.5"
           >
             <Plus size={13} />
             新增
@@ -46,7 +46,7 @@ export function RestaurantsEditor({ restaurants, onChange, title = '候選店家
       </div>
 
       {restaurants.length === 0 && !adding && (
-        <p className="text-[#837b6e] text-[14px] tracking-wider italic">尚未指定店家</p>
+        <p className="text-muted text-[14px] italic">尚未指定店家</p>
       )}
 
       <div className="space-y-2.5">
@@ -90,28 +90,28 @@ function RestaurantRow({ restaurant: r, onEdit, onRemove }: {
 }) {
   const region = [r.city, r.area].filter(Boolean).join(' · ');
   return (
-    <div className="card-surface rounded-[8px] p-5">
+    <div className="card-surface rounded-[14px] p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <p className="text-[17px] text-[#f5f1e8] font-medium tracking-wide">{r.name}</p>
+          <p className="text-[17px] text-text font-medium">{r.name}</p>
           {(region || r.address) && (
-            <div className="flex items-center gap-1.5 mt-2 text-[#8a8478]">
+            <div className="flex items-center gap-1.5 mt-2 text-muted">
               <MapPin size={13} />
-              <span className="text-[14px] tracking-wide">
+              <span className="text-[14px]">
                 {[region, r.address].filter(Boolean).join(' · ')}
               </span>
             </div>
           )}
           {r.note && (
-            <p className="text-[14px] text-[#c9a961]/70 italic tracking-wide mt-2.5">「{r.note}」</p>
+            <p className="t-caption italic mt-2.5">「{r.note}」</p>
           )}
           {r.lat != null && r.lng != null ? (
-            <p className="text-[11px] text-[#c9a961]/60 tracking-wider mt-2 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#c9a961]/70" />
+            <p className="t-caption mt-2 flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-tint" />
               已定位
             </p>
           ) : (
-            <p className="text-[11px] text-[#837b6e] tracking-wider mt-2">
+            <p className="text-[11px] text-muted mt-2">
               未定位 · 貼 Google Maps 連結可自動取得位置
             </p>
           )}
@@ -122,7 +122,7 @@ function RestaurantRow({ restaurant: r, onEdit, onRemove }: {
               href={safeHttpUrl(r.googleMapsUrl)}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-secondary flex items-center gap-1.5 text-[13px] tracking-wider px-3 py-2"
+              className="btn-secondary flex items-center gap-1.5 text-[13px] px-3 py-2"
             >
               <ExternalLink size={13} />
               地圖
@@ -134,7 +134,7 @@ function RestaurantRow({ restaurant: r, onEdit, onRemove }: {
             </button>
             <button
               onClick={onRemove}
-              className="icon-btn !p-1.5 hover:!text-[#a85959] hover:!bg-[#a85959]/10" aria-label="移除店家"
+              className="icon-btn !p-1.5 hover:!text-danger hover:!bg-danger-soft" aria-label="移除店家"
             >
               <X size={15} />
             </button>
@@ -202,54 +202,54 @@ function RestaurantForm({ initial, submitLabel, onSubmit, onCancel }: {
   };
 
   return (
-    <div className="bg-gradient-to-b from-[#151210] to-[#0e0d0b] border border-[#c9a961]/30 rounded-[10px] p-5 space-y-3.5">
+    <div className="bg-surface border border-separator rounded-[16px] p-5 space-y-3.5">
       <input
         type="text"
         autoFocus
         placeholder="店名"
         value={name}
         onChange={e => setName(e.target.value)}
-        className="w-full bg-transparent border-b border-[#2c261d] focus:border-[#c9a961]/50 pb-2.5 text-base text-[#f5f1e8] placeholder-[#837b6e] focus:outline-none"
+        className="w-full bg-transparent border-b border-separator focus:border-tint pb-2.5 text-base text-text placeholder-muted focus:outline-none"
       />
       <select
         value={city}
         onChange={e => setCity(e.target.value)}
-        className="w-full bg-transparent border-b border-[#2c261d] focus:border-[#c9a961]/50 pb-2.5 text-base text-[#f5f1e8] focus:outline-none appearance-none"
+        className="w-full bg-transparent border-b border-separator focus:border-tint pb-2.5 text-base text-text focus:outline-none appearance-none"
       >
-        <option value="" className="bg-[#100e0b]">縣市</option>
-        {CITIES.map(c => <option key={c} value={c} className="bg-[#100e0b]">{c}</option>)}
+        <option value="" className="bg-surface">縣市</option>
+        {CITIES.map(c => <option key={c} value={c} className="bg-surface">{c}</option>)}
       </select>
       <input
         type="text"
         placeholder="區域（例如：大安區）"
         value={area}
         onChange={e => setArea(e.target.value)}
-        className="w-full bg-transparent border-b border-[#2c261d] focus:border-[#c9a961]/50 pb-2.5 text-base text-[#f5f1e8] placeholder-[#837b6e] focus:outline-none"
+        className="w-full bg-transparent border-b border-separator focus:border-tint pb-2.5 text-base text-text placeholder-muted focus:outline-none"
       />
       <input
         type="url"
         placeholder="Google Maps 連結"
         value={url}
         onChange={e => setUrl(e.target.value)}
-        className="w-full bg-transparent border-b border-[#2c261d] focus:border-[#c9a961]/50 pb-2.5 text-base text-[#f5f1e8] placeholder-[#837b6e] focus:outline-none"
+        className="w-full bg-transparent border-b border-separator focus:border-tint pb-2.5 text-base text-text placeholder-muted focus:outline-none"
       />
       <input
         type="text"
         placeholder="一句話評價（例如：最便宜、最近）"
         value={note}
         onChange={e => setNote(e.target.value)}
-        className="w-full bg-transparent border-b border-[#2c261d] focus:border-[#c9a961]/50 pb-2.5 text-base text-[#f5f1e8] placeholder-[#837b6e] focus:outline-none"
+        className="w-full bg-transparent border-b border-separator focus:border-tint pb-2.5 text-base text-text placeholder-muted focus:outline-none"
       />
       <div className="flex gap-2 pt-2">
         <button
           onClick={handleSave}
           disabled={!name.trim() || saving}
-          className="btn-primary flex-1 py-3 text-[14px] tracking-[0.3em] flex items-center justify-center gap-2"
+          className="btn-primary flex-1 py-3 text-[14px] flex items-center justify-center gap-2"
         >
           {saving && <Loader2 size={14} className="animate-spin" />}
           {saving ? '定位中' : submitLabel}
         </button>
-        <button onClick={onCancel} className="btn-neutral px-5 py-3 text-[14px] tracking-[0.3em]">
+        <button onClick={onCancel} className="btn-neutral px-5 py-3 text-[14px]">
           取消
         </button>
       </div>

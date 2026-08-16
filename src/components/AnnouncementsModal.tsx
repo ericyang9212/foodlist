@@ -74,15 +74,15 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onSignOut, o
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-[#0b0a08] animate-fadein" style={{ maxWidth: 430, margin: '0 auto' }}>
+    <div className="fixed inset-0 z-50 flex flex-col bg-bg animate-fadein" style={{ maxWidth: 430, margin: '0 auto' }}>
       <div
-        className="flex items-center justify-between px-6 pb-4 border-b border-[#211c15]"
+        className="flex items-center justify-between px-6 pb-4 border-b border-separator"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}
       >
         <button onClick={onClose} className="icon-btn" aria-label="關閉">
           <X size={22} />
         </button>
-        <div className="flex items-center gap-2 text-[12px] tracking-[0.4em] text-[#c9a961]/80">
+        <div className="flex items-center gap-2 text-[12px] text-tint">
           <Bell size={13} />
           公告
         </div>
@@ -91,27 +91,27 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onSignOut, o
 
       <div className="flex-1 overflow-y-auto px-6 py-6">
         {/* ── 使用說明（固定置頂、可折疊） ── */}
-        <div className="border border-[#c9a961]/30 bg-gradient-to-br from-[#141210] to-[#0d0c0a] rounded-[10px] overflow-hidden mb-8">
+        <div className="border border-separator bg-surface rounded-[16px] overflow-hidden mb-8">
           <button
             onClick={() => setGuideOpen(o => !o)}
             className="w-full flex items-center gap-3 px-5 py-4 text-left"
           >
-            <BookOpen size={18} className="text-[#c9a961] flex-shrink-0" />
+            <BookOpen size={18} className="text-tint flex-shrink-0" />
             <div className="flex-1 min-w-0">
-              <div className="text-[15px] text-[#f5f1e8] tracking-[0.15em] font-medium">使用說明</div>
-              <div className="text-[11px] text-[#7d7566] tracking-wider mt-0.5">第一次用？點開看怎麼操作</div>
+              <div className="t-heading">使用說明</div>
+              <div className="text-[11px] text-muted mt-0.5">第一次用？點開看怎麼操作</div>
             </div>
             <ChevronDown
               size={18}
-              className={`text-[#c9a961]/70 flex-shrink-0 transition-transform ${guideOpen ? 'rotate-180' : ''}`}
+              className={`text-tint flex-shrink-0 transition-transform ${guideOpen ? 'rotate-180' : ''}`}
             />
           </button>
           {guideOpen && (
             <div className="px-5 pb-5 pt-1 space-y-4">
               {GUIDE.map(g => (
                 <div key={g.label} className="flex flex-col gap-1">
-                  <span className="text-[13px] text-[#c9a961] tracking-[0.15em]">{g.label}</span>
-                  <p className="text-[13px] text-[#b8b2a4] tracking-wide leading-relaxed">{g.desc}</p>
+                  <span className="t-caption">{g.label}</span>
+                  <p className="text-[13px] text-muted leading-relaxed">{g.desc}</p>
                 </div>
               ))}
             </div>
@@ -122,7 +122,7 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onSignOut, o
         {items.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <EmptyMark className="mb-3" />
-            <p className="text-[#7d7566] text-[14px] tracking-wider">目前沒有公告</p>
+            <p className="text-muted text-[14px]">目前沒有公告</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -136,10 +136,10 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onSignOut, o
               return (
                 <article
                   key={a.id}
-                  className={`border rounded-[10px] overflow-hidden transition-colors ${
+                  className={`border rounded-[16px] overflow-hidden transition-colors ${
                     isUnread
-                      ? 'bg-gradient-to-br from-[#1a1612] to-[#0f0d0a] border-[#c9a961]/35'
-                      : 'bg-[#14110d] border-[#1c1812]'
+                      ? 'bg-surface border-separator'
+                      : 'bg-surface border-separator'
                   }`}
                 >
                   {/* 標題列：點一下展開 */}
@@ -148,17 +148,17 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onSignOut, o
                     className="w-full flex items-start gap-3 px-6 py-5 text-left"
                   >
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 text-[10px] tracking-[0.45em] text-[#837b6e] mb-1.5">
+                      <div className="flex items-center gap-2 text-[10px] text-muted mb-1.5">
                         <span>{dateStr}</span>
                         {isUnread && (
-                          <span className="inline-flex items-center gap-1 text-[#c9a961]/90">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#c9a961]" />
+                          <span className="inline-flex items-center gap-1 text-tint">
+                            <span className="w-1.5 h-1.5 rounded-full bg-tint" />
                             NEW
                           </span>
                         )}
                       </div>
                       <h3
-                        className="text-gold-gradient text-[21px] leading-[1.35] tracking-[0.04em]"
+                        className="t-title leading-[1.35]"
                         style={{ fontFamily: "'Noto Serif TC', serif", fontWeight: 500 }}
                       >
                         {a.title}
@@ -166,7 +166,7 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onSignOut, o
                     </div>
                     <ChevronDown
                       size={18}
-                      className={`text-[#c9a961]/60 flex-shrink-0 mt-1 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                      className={`text-tint flex-shrink-0 mt-1 transition-transform ${isOpen ? 'rotate-180' : ''}`}
                     />
                   </button>
 
@@ -174,11 +174,11 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onSignOut, o
                   {isOpen && paragraphs.length > 0 && (
                     <div className="px-6 pb-6">
                       <div className="flex items-center gap-3 mb-4">
-                        <span className="text-[#c9a961]/50 text-[12px] tracking-[0.4em]">✦</span>
-                        <div className="h-[1px] flex-1 bg-gradient-to-r from-[#c9a961]/40 to-transparent" />
+                        <span className="text-tint text-[12px]">✦</span>
+                        <div className="h-[1px] flex-1 bg-gradient-to-r from-tint to-transparent" />
                       </div>
                       <div
-                        className="space-y-4 text-[#d6d0c0] text-[15.5px] leading-[1.85] tracking-wide whitespace-pre-line"
+                        className="space-y-4 text-text-2 text-[15.5px] leading-[1.85] whitespace-pre-line"
                         style={{ fontFamily: "'Noto Serif TC', serif", fontWeight: 400 }}
                       >
                         {paragraphs.map((p, i) => (
@@ -194,28 +194,28 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onSignOut, o
         )}
 
         {/* 資料備份區 */}
-        <div className="mt-10 pt-6 border-t border-[#211c15]">
+        <div className="mt-10 pt-6 border-t border-separator">
           <div className="eyebrow mb-4">MY DATA</div>
 
           {/* 自動備份說明 */}
-          <div className="bg-[#100e0b] border border-[#2c261d] rounded-[10px] p-4 mb-3">
+          <div className="bg-surface border border-separator rounded-[16px] p-4 mb-3">
             <div className="flex items-start gap-3">
-              <Cloud size={20} className="text-[#c9a961] flex-shrink-0 mt-0.5" />
+              <Cloud size={20} className="text-tint flex-shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0">
-                <div className="text-[14px] text-[#f5f1e8] tracking-wider mb-1">每日自動異地備份</div>
-                <p className="text-[12px] text-[#7d7566] tracking-wider leading-relaxed">
+                <div className="text-[14px] text-text mb-1">每日自動異地備份</div>
+                <p className="text-[12px] text-muted leading-relaxed">
                   資料每天台灣早上 8 點自動備份到 GitHub 私人 repo（含圖片）。Supabase 全掛了也救得回來。
                 </p>
                 <a
                   href="https://github.com/ericyang9212/foodlist-backup"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-[12px] text-[#c9a961] tracking-wider mt-2"
+                  className="inline-flex items-center gap-1 text-[12px] text-tint mt-2"
                 >
                   看備份 repo（私人 · 需登入 GitHub）
                   <ExternalLink size={11} />
                 </a>
-                <p className="text-[11px] text-[#837b6e] tracking-wider leading-relaxed mt-1">
+                <p className="text-[11px] text-muted leading-relaxed mt-1">
                   是私人 repo，沒登入 GitHub 點進去會顯示 404，屬正常。
                 </p>
               </div>
@@ -226,24 +226,24 @@ export function AnnouncementsModal({ items, readIds, onMarkAllRead, onSignOut, o
           <button
             onClick={handleDownload}
             disabled={downloading}
-            className="w-full flex items-center gap-3 bg-[#100e0b] border border-[#2c261d] hover:border-[#c9a961]/40 hover:bg-[#c9a961]/5 rounded-[10px] px-4 py-4 transition-all disabled:opacity-50"
+            className="w-full flex items-center gap-3 bg-surface border border-separator hover:border-line hover:bg-fill rounded-[16px] px-4 py-4 transition-all disabled:opacity-50"
           >
-            <Download size={18} className="text-[#c9a961] flex-shrink-0" />
+            <Download size={18} className="text-tint flex-shrink-0" />
             <div className="flex-1 text-left">
-              <div className="text-[14px] text-[#f5f1e8] tracking-wider">
+              <div className="text-[14px] text-text">
                 {downloading ? '下載中...' : '立刻下載 JSON 備份'}
               </div>
-              <div className="text-[11px] text-[#7d7566] tracking-wider mt-0.5">想自己留一份在本機隨時可下載</div>
+              <div className="text-[11px] text-muted mt-0.5">想自己留一份在本機隨時可下載</div>
             </div>
           </button>
 
           {/* 登出 */}
           <button
             onClick={onSignOut}
-            className="w-full flex items-center gap-3 mt-3 border border-[#2c261d] hover:border-[#a85959]/50 rounded-[10px] px-4 py-3.5 transition-all"
+            className="w-full flex items-center gap-3 mt-3 border border-separator hover:border-danger rounded-[16px] px-4 py-3.5 transition-all"
           >
-            <LogOut size={17} className="text-[#8a8478] flex-shrink-0" />
-            <span className="text-[14px] text-[#8a8478] tracking-wider">登出</span>
+            <LogOut size={17} className="text-muted flex-shrink-0" />
+            <span className="text-[14px] text-muted">登出</span>
           </button>
         </div>
 

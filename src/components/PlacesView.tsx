@@ -58,8 +58,8 @@ export function PlacesView({ foods, imageByFoodId = {}, onOpen }: Props) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
         <EmptyMark className="mb-4" />
-        <p className="text-[#9a9384] text-[15px] tracking-wider">這裡的食物還沒指定店家</p>
-        <p className="text-[#837b6e] text-[12px] tracking-widest mt-1.5">幫食物加上店家，就會以店家彙整</p>
+        <p className="text-muted text-[15px]">這裡的食物還沒指定店家</p>
+        <p className="text-muted text-[12px] mt-1.5">幫食物加上店家，就會以店家彙整</p>
       </div>
     );
   }
@@ -71,51 +71,51 @@ export function PlacesView({ foods, imageByFoodId = {}, onOpen }: Props) {
         const isTop = idx === 0 && g.foods.length >= 2;
         const initial = g.name.trim().charAt(0) || '·';
         return (
-          <div key={g.key} className={`card-surface rounded-[14px] overflow-hidden ${isTop ? '!border-[#c9a961]/35' : ''}`}>
+          <div key={g.key} className="card-surface rounded-[18px] overflow-hidden">
             <button
               onClick={() => toggle(g.key)}
-              className="w-full flex items-center gap-3.5 px-4 py-4 text-left active:bg-[#c9a961]/5 transition-colors"
+              className="w-full flex items-center gap-3.5 px-4 py-4 text-left active:bg-fill transition-colors"
             >
               {/* 店名首字圖章：代表「店」、每家不同，不會像食物照片那樣在多家店間重複 */}
-              <div
-                className="w-11 h-11 rounded-[12px] border border-[#c9a961]/25 flex items-center justify-center flex-shrink-0"
-                style={{ background: 'linear-gradient(155deg,#221b10 0%,#14110b 100%)' }}
-              >
-                <span className="text-[19px] text-[#d6b974]" style={{ fontFamily: "'Noto Serif TC', serif" }}>{initial}</span>
+              <div className="w-11 h-11 rounded-[16px] bg-tint-soft flex items-center justify-center flex-shrink-0">
+                <span className="text-[19px] font-semibold text-tint">{initial}</span>
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-[17px] text-[#f2ecdd] font-medium tracking-wide truncate">{g.name}</h3>
+                  <h3 className="t-heading truncate">{g.name}</h3>
                   {isTop && (
-                    <span className="flex-shrink-0 text-[10px] tracking-[0.15em] text-[#ead8aa] border border-[#c9a961]/40 rounded-full px-2 py-[1px]">最想去</span>
+                    <span className="flex-shrink-0 text-[11px] font-semibold text-coral bg-coral-soft rounded-full px-2 py-[2px]">最想去</span>
                   )}
                 </div>
-                <div className="flex items-center gap-1.5 mt-1 text-[#8d877a]">
+                <div className="flex items-center gap-1.5 mt-1 text-muted">
                   <MapPin size={11} className="flex-shrink-0" />
-                  <span className="text-[12px] tracking-wide truncate">{g.region || '未填地區'}</span>
+                  <span className="text-[12px] truncate">{g.region || '未填地區'}</span>
                 </div>
               </div>
               <div className="flex items-center gap-2.5 flex-shrink-0">
-                <span className="text-[11px] text-[#d6b974] tracking-wider border border-[#c9a961]/25 rounded-full px-2.5 py-1">{g.foods.length} 樣</span>
-                <ChevronDown size={18} className={`text-[#8d877a] transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                <span className="text-[12px] font-medium text-muted bg-fill rounded-full px-2.5 py-1">{g.foods.length} 樣</span>
+                <ChevronDown
+                  size={18}
+                  className={`text-muted transition-transform duration-300 ease-[var(--ease-ios)] ${isOpen ? 'rotate-180' : ''}`}
+                />
               </div>
             </button>
 
             {isOpen && (
               <div className="px-4 pb-4">
-                <div className="border-t border-[#211c15] pt-3 flex flex-col gap-1">
+                <div className="border-t border-separator pt-3 flex flex-col gap-1">
                   {g.foods.map(f => (
                     <button
                       key={f.id}
                       onClick={() => onOpen(f)}
-                      className="flex items-center gap-3 px-2 py-2 rounded-[10px] hover:bg-[#c9a961]/5 active:bg-[#c9a961]/10 transition-colors text-left"
+                      className="flex items-center gap-3 px-2 py-2 rounded-[16px] active:bg-fill transition-colors text-left"
                     >
-                      <div className="w-9 h-9 rounded-[8px] overflow-hidden bg-[#1c1813] border border-[#2c261d] flex-shrink-0 flex items-center justify-center">
+                      <div className="w-9 h-9 rounded-[14px] overflow-hidden bg-fill flex-shrink-0 flex items-center justify-center">
                         {imageByFoodId[f.id]
                           ? <Thumb src={imageByFoodId[f.id]} className="w-full h-full object-cover" />
-                          : <span className="text-[#3f3a30] text-[12px]">—</span>}
+                          : <span className="text-muted text-[12px]">—</span>}
                       </div>
-                      <span className="flex-1 min-w-0 text-[15px] text-[#e7e0d0] truncate">{f.name}</span>
+                      <span className="flex-1 min-w-0 text-[15px] text-text truncate">{f.name}</span>
                       <StatusBadge status={f.status} />
                     </button>
                   ))}
@@ -124,7 +124,7 @@ export function PlacesView({ foods, imageByFoodId = {}, onOpen }: Props) {
                   href={g.mapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-3 w-full btn-secondary flex items-center justify-center gap-1.5 text-[12px] tracking-[0.2em] py-2.5"
+                  className="mt-3 w-full btn-secondary flex items-center justify-center gap-1.5 text-[12px] py-2.5"
                 >
                   <MapPin size={13} />
                   在地圖開啟

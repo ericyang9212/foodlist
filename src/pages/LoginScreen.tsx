@@ -23,14 +23,14 @@ export function LoginScreen({ onSignIn }: Props) {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-svh bg-[#0b0a08] px-8">
+    <div className="flex flex-col items-center justify-center h-svh bg-bg px-8">
       <div className="w-full max-w-xs">
         {/* Logo */}
         <div className="flex justify-center mb-10">
           <img
             src="/logo.png"
             alt="PSJ dice list"
-            className="w-44 h-44 object-contain drop-shadow-[0_4px_24px_rgba(201,169,97,0.25)]"
+            className="w-44 h-44 object-contain"
           />
         </div>
 
@@ -43,7 +43,7 @@ export function LoginScreen({ onSignIn }: Props) {
             placeholder="Email"
             value={email}
             onChange={e => setEmail(e.target.value)}
-            className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-4 py-3 text-base text-[#f5f1e8] placeholder-[#837b6e] tracking-wide focus:outline-none transition-colors"
+            className="w-full bg-surface border border-separator focus:border-tint rounded-[14px] px-4 py-3 text-base text-text placeholder-muted focus:outline-none transition-colors"
           />
           <input
             type="password"
@@ -51,17 +51,17 @@ export function LoginScreen({ onSignIn }: Props) {
             value={password}
             onChange={e => setPassword(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && submit()}
-            className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-4 py-3 text-base text-[#f5f1e8] placeholder-[#837b6e] tracking-wide focus:outline-none transition-colors"
+            className="w-full bg-surface border border-separator focus:border-tint rounded-[14px] px-4 py-3 text-base text-text placeholder-muted focus:outline-none transition-colors"
           />
 
           {error && (
-            <p className="text-[#a85959] text-[12px] tracking-wider text-center pt-1">{error}</p>
+            <p className="text-danger text-[12px] text-center pt-1">{error}</p>
           )}
 
           <button
             onClick={submit}
             disabled={busy || !email.trim() || !password}
-            className="btn-primary w-full py-3.5 text-[14px] tracking-[0.3em] flex items-center justify-center gap-2 mt-2"
+            className="btn-primary w-full py-3.5 text-[14px] flex items-center justify-center gap-2 mt-2"
           >
             {busy && <Loader2 size={15} className="animate-spin" />}
             登入

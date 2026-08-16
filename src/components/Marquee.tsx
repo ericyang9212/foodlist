@@ -8,15 +8,16 @@ interface Props {
   onUpdate: (next: MarqueeData) => Promise<void>;
 }
 
-// 情境色：key 存進資料庫，hex 用於顯示
+// 情境色：key 存進資料庫（沿用舊 key，不用改資料），
+// hex 換成淺色底看得清楚的深色版本——原本的淺金／淺粉在白底上等於看不見。
 const MARQUEE_COLORS: { key: string; label: string; hex: string }[] = [
-  { key: 'gold', label: '金', hex: '#ead8aa' },
-  { key: 'rose', label: '玫瑰', hex: '#e6a9c4' },
-  { key: 'red', label: '暖紅', hex: '#e6a07a' },
-  { key: 'teal', label: '霧藍', hex: '#8fc7c2' },
+  { key: 'gold', label: '琥珀', hex: '#96600a' },
+  { key: 'rose', label: '玫瑰', hex: '#b83280' },
+  { key: 'red', label: '暖紅', hex: '#c23a18' },
+  { key: 'teal', label: '松綠', hex: '#00786a' },
 ];
 function colorHexOf(key: string): string {
-  return MARQUEE_COLORS.find(c => c.key === key)?.hex ?? '#ead8aa';
+  return MARQUEE_COLORS.find(c => c.key === key)?.hex ?? '#96600a';
 }
 
 function usePrefersReducedMotion(): boolean {
@@ -31,19 +32,15 @@ function usePrefersReducedMotion(): boolean {
   return reduce;
 }
 
-const SPAN = 'text-[15px] tracking-[0.32em] font-medium italic';
+const SPAN = 'text-[15px] font-semibold';
 
-// 優雅的跑馬燈字體：襯線 + 斜體，呼應全站的香檳金質感，搭配柔和金色光暈
+// 跑馬燈文字：跟全站一樣走系統字，只用顏色點題，不再加光暈
 function textStyle(hex: string): CSSProperties {
-  return {
-    color: hex,
-    fontFamily: "'Noto Serif TC', 'Songti TC', 'Source Han Serif TC', serif",
-    textShadow: `0 0 14px ${hex}4d`,
-  };
+  return { color: hex };
 }
 
 // 共用的跑馬燈內容：單句連續橫向捲動、多則淡入淡出輪播；尊重「減少動態」
-function MarqueeText({ lines, speed, hex, maskColor = '#0b0a08' }: {
+function MarqueeText({ lines, speed, hex, maskColor = 'var(--color-bg)' }: {
   lines: string[]; speed: number; hex: string; maskColor?: string;
 }) {
   const isMulti = lines.length >= 2;
@@ -95,7 +92,7 @@ export function Marquee({ data, onUpdate }: Props) {
     return (
       <button
         onClick={() => setEditing(true)}
-        className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-30 bg-[#0b0a08] border-b border-[#1c1812] flex items-center justify-center gap-1.5 text-[12px] tracking-[0.4em] text-[#3c352a] hover:text-[#c9a961]/60 transition-colors"
+        className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-30 blur-bar border-b border-separator flex items-center justify-center gap-1.5 text-[12px] text-muted hover:text-tint transition-colors"
         style={{
           paddingTop: 'calc(env(safe-area-inset-top) + 12px)',
           paddingBottom: '12px',
@@ -113,7 +110,7 @@ export function Marquee({ data, onUpdate }: Props) {
   return (
     <>
       <div
-        className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-30 bg-[#0b0a08] border-b border-[#c9a961]/15 overflow-hidden"
+        className="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-30 blur-bar border-b border-separator overflow-hidden"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 8px)', paddingBottom: '4px' }}
       >
         <button onClick={() => setEditing(true)} className="w-full">
@@ -154,19 +151,19 @@ function MarqueeEditor({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-[#0b0a08] animate-fadein" style={{ maxWidth: 430, margin: '0 auto' }}>
+    <div className="fixed inset-0 z-50 flex flex-col bg-bg animate-fadein" style={{ maxWidth: 430, margin: '0 auto' }}>
       <div
-        className="flex items-center justify-between px-6 pb-4 border-b border-[#211c15]"
+        className="flex items-center justify-between px-6 pb-4 border-b border-separator"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}
       >
         <button onClick={onClose} className="icon-btn" aria-label="關閉">
           <X size={22} />
         </button>
-        <div className="text-[12px] tracking-[0.4em] text-[#c9a961]/80">MARQUEE</div>
+        <div className="eyebrow">MARQUEE</div>
         <button
           onClick={handleSave}
           disabled={saving}
-          className="btn-primary px-5 py-2 text-[13px] tracking-[0.3em] flex items-center gap-1.5"
+          className="btn-primary px-5 py-2 text-[13px] flex items-center gap-1.5"
         >
           {saving && <Loader2 size={12} className="animate-spin" />}
           儲存
@@ -178,7 +175,7 @@ function MarqueeEditor({
         {lines.length > 0 && (
           <div>
             <div className="eyebrow mb-2">PREVIEW</div>
-            <div className="relative bg-[#0b0a08] border border-[#c9a961]/15 rounded-[8px] overflow-hidden h-11 flex items-center">
+            <div className="relative bg-bg border border-separator rounded-[14px] overflow-hidden h-11 flex items-center">
               <MarqueeText key={lines.join('\n')} lines={lines} speed={speed} hex={colorHexOf(color)} />
             </div>
           </div>
@@ -193,9 +190,9 @@ function MarqueeEditor({
             value={text}
             onChange={e => setText(e.target.value)}
             rows={6}
-            className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-4 py-3 text-base text-[#f5f1e8] placeholder-[#837b6e] focus:outline-none resize-none leading-relaxed"
+            className="w-full bg-surface border border-separator focus:border-tint rounded-[14px] px-4 py-3 text-base text-text placeholder-muted focus:outline-none resize-none leading-relaxed"
           />
-          <p className="text-[11px] text-[#837b6e] tracking-wider mt-2 leading-relaxed">
+          <p className="text-[11px] text-muted mt-2 leading-relaxed">
             清空可關閉跑馬燈。多行＝多則，會一則一則淡入淡出輪播；單行太長才會橫向捲動。
           </p>
         </div>
@@ -210,9 +207,9 @@ function MarqueeEditor({
                 onClick={() => setColor(c.key)}
                 aria-label={c.label}
                 className="w-10 h-10 rounded-full flex items-center justify-center transition-transform active:scale-95"
-                style={{ background: c.hex, boxShadow: color === c.key ? `0 0 0 2px #0b0a08, 0 0 0 4px ${c.hex}` : 'none' }}
+                style={{ background: c.hex, boxShadow: color === c.key ? `0 0 0 3px var(--color-bg), 0 0 0 5px ${c.hex}` : 'none' }}
               >
-                {color === c.key && <Check size={16} className="text-[#100d07]" strokeWidth={3} />}
+                {color === c.key && <Check size={16} className="text-on-accent" strokeWidth={3} />}
               </button>
             ))}
           </div>
@@ -222,7 +219,7 @@ function MarqueeEditor({
         <div>
           <div className="flex items-baseline justify-between mb-3">
             <span className="eyebrow-tc">速度</span>
-            <span className="text-[12px] text-[#8a8478] tracking-wider">{lines.length >= 2 ? '多則切換快慢' : '捲動快慢'}</span>
+            <span className="text-[12px] text-muted">{lines.length >= 2 ? '多則切換快慢' : '捲動快慢'}</span>
           </div>
           <input
             type="range"
@@ -231,9 +228,9 @@ function MarqueeEditor({
             step={2}
             value={speed}
             onChange={e => setSpeed(Number(e.target.value))}
-            className="w-full accent-[#c9a961]"
+            className="w-full accent-tint"
           />
-          <div className="flex justify-between text-[10px] text-[#837b6e] tracking-widest mt-1">
+          <div className="flex justify-between text-[10px] text-muted mt-1">
             <span>快</span>
             <span>慢</span>
           </div>

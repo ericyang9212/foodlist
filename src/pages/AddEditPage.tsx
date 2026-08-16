@@ -162,22 +162,22 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
   const busy = uploading || saving;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-[#0b0a08] animate-fadein" style={{ maxWidth: 430, margin: '0 auto' }}>
+    <div className="fixed inset-0 z-50 flex flex-col bg-bg animate-fadein" style={{ maxWidth: 430, margin: '0 auto' }}>
       {/* Header */}
       <div
-        className="flex items-center justify-between px-6 pb-4 border-b border-[#211c15]"
+        className="flex items-center justify-between px-6 pb-4 border-b border-separator"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}
       >
         <button onClick={onClose} className="icon-btn" aria-label="關閉">
           <X size={22} />
         </button>
-        <div className="text-[12px] tracking-[0.4em] text-[#c9a961]/80">
+        <div className="eyebrow">
           {isEdit ? 'EDIT' : 'WANT TO EAT'}
         </div>
         <button
           onClick={handleSave}
           disabled={!name.trim() || busy}
-          className="btn-primary px-5 py-2 text-[13px] tracking-[0.3em] flex items-center gap-1.5"
+          className="btn-primary px-5 py-2 text-[13px] flex items-center gap-1.5"
         >
           {busy && <Loader2 size={13} className="animate-spin" />}
           {saving ? '定位中' : '儲存'}
@@ -194,13 +194,13 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
               <div className="flex items-center gap-2 mb-4">
                 <button
                   onClick={() => setKind('store')}
-                  className={`text-[12px] tracking-[0.2em] px-3.5 py-1.5 ${kind === 'store' ? 'chip chip-active' : 'chip'}`}
+                  className={`text-[12px] px-3.5 py-1.5 ${kind === 'store' ? 'chip chip-active' : 'chip'}`}
                 >
                   店家
                 </button>
                 <button
                   onClick={() => setKind('craving')}
-                  className={`text-[12px] tracking-[0.2em] px-3.5 py-1.5 ${kind === 'craving' ? 'chip chip-active' : 'chip'}`}
+                  className={`text-[12px] px-3.5 py-1.5 ${kind === 'craving' ? 'chip chip-active' : 'chip'}`}
                 >
                   想吃的東西
                 </button>
@@ -215,31 +215,31 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
                   // 注音/拼音選字的 Enter 不算送出
                   if (e.key === 'Enter' && !e.nativeEvent.isComposing) handleSave();
                 }}
-                className="w-full bg-transparent border-b border-[#2c261d] focus:border-[#c9a961]/60 pb-3 text-[26px] text-[#f5f1e8] placeholder-[#3c352a] tracking-wide focus:outline-none transition-colors"
+                className="w-full bg-transparent border-b border-separator focus:border-tint pb-3 text-[26px] text-text placeholder-muted focus:outline-none transition-colors"
               />
             </div>
 
             {/* 縮圖區塊 */}
             {previewSrc ? (
               <div className="relative flex-shrink-0">
-                <div className="w-20 h-20 rounded-[6px] bg-[#0b0a08] border border-[#c9a961]/40 overflow-hidden shadow-[0_4px_12px_rgba(201,169,97,0.15)]">
+                <div className="w-20 h-20 rounded-[12px] bg-bg border border-separator overflow-hidden">
                   <img src={previewSrc} alt="" className="w-full h-full object-cover" />
                 </div>
                 <button
                   aria-label="移除圖片"
                   onClick={removeImage}
-                  className="absolute -top-1.5 -right-1.5 bg-[#0b0a08] border border-[#c9a961]/60 w-6 h-6 rounded-full flex items-center justify-center hover:bg-[#c9a961]/20 transition-colors"
+                  className="absolute -top-1.5 -right-1.5 bg-bg border border-separator w-6 h-6 rounded-full flex items-center justify-center hover:bg-fill transition-colors"
                 >
-                  <X size={12} className="text-[#c9a961]" />
+                  <X size={12} className="text-muted" />
                 </button>
               </div>
             ) : (
               <button
                 onClick={() => fileRef.current?.click()}
-                className="flex-shrink-0 w-20 h-20 rounded-[6px] border border-dashed border-[#c9a961]/40 hover:border-[#c9a961] hover:bg-[#c9a961]/5 flex flex-col items-center justify-center gap-1 transition-all"
+                className="flex-shrink-0 w-20 h-20 rounded-[12px] border border-dashed border-line hover:border-tint hover:bg-tint-soft flex flex-col items-center justify-center gap-1 transition-all"
               >
-                <ImagePlus size={18} className="text-[#c9a961]" />
-                <span className="text-[10px] tracking-wider text-[#c9a961]/70">截圖</span>
+                <ImagePlus size={18} className="text-tint" />
+                <span className="t-caption">截圖</span>
               </button>
             )}
             <input
@@ -264,8 +264,8 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
                   key={c}
                   onClick={() => setCuisineType(cuisineType === c ? '' : c)}
                   className={cuisineType === c
-                    ? 'chip chip-active text-[14px] tracking-wider px-3.5 py-1.5'
-                    : 'chip text-[14px] tracking-wider px-3.5 py-1.5'}
+                    ? 'chip chip-active text-[14px] px-3.5 py-1.5'
+                    : 'chip text-[14px] px-3.5 py-1.5'}
                 >
                   {c}
                 </button>
@@ -281,7 +281,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
               <select
                 value={city}
                 onChange={e => setCity(e.target.value)}
-                className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-3 text-base text-[#f5f1e8] focus:outline-none transition-colors"
+                className="w-full bg-surface border border-separator focus:border-tint rounded-[14px] px-3 py-3 text-base text-text focus:outline-none transition-colors"
               >
                 <option value="">縣市</option>
                 {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -291,7 +291,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
                 placeholder="區域（例如：大安區）"
                 value={area}
                 onChange={e => setArea(e.target.value)}
-                className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-3 text-base text-[#f5f1e8] placeholder-[#837b6e] focus:outline-none transition-colors"
+                className="w-full bg-surface border border-separator focus:border-tint rounded-[14px] px-3 py-3 text-base text-text placeholder-muted focus:outline-none transition-colors"
               />
               <input
                 type="url"
@@ -299,10 +299,10 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
                 placeholder="Google 地圖連結"
                 value={url}
                 onChange={e => setUrl(e.target.value)}
-                className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-3 text-base text-[#f5f1e8] placeholder-[#837b6e] focus:outline-none transition-colors"
+                className="w-full bg-surface border border-separator focus:border-tint rounded-[14px] px-3 py-3 text-base text-text placeholder-muted focus:outline-none transition-colors"
               />
             </div>
-            <p className="text-[11px] text-[#837b6e] tracking-wider mt-2 leading-relaxed">
+            <p className="text-[11px] text-muted mt-2 leading-relaxed">
               選縣市或貼地圖連結 → 抽到能「帶我去」，也會出現在足跡地圖。
             </p>
           </div>
@@ -312,7 +312,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
           <div className="pt-1">
             <button
               onClick={() => setShowStores(!showStores)}
-              className="flex items-center gap-2 text-[13px] tracking-[0.3em] text-[#7d7566]"
+              className="flex items-center gap-2 text-[13px] text-muted"
             >
               <ChevronDown size={15} className={`transition-transform ${showStores ? 'rotate-180' : ''}`} />
               {kind === 'store'
@@ -333,14 +333,14 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
           {/* 更多細節 */}
           <button
             onClick={() => setShowMore(!showMore)}
-            className="flex items-center gap-2 text-[13px] tracking-[0.3em] text-[#7d7566]"
+            className="flex items-center gap-2 text-[13px] text-muted"
           >
             <ChevronDown size={15} className={`transition-transform ${showMore ? 'rotate-180' : ''}`} />
             {showMore ? '收起' : '加更多細節（選填）'}
           </button>
 
           {showMore && (
-            <div className="space-y-7 pt-2 border-t border-[#211c15]">
+            <div className="space-y-7 pt-2 border-t border-separator">
               {/* 狀態 */}
               <div className="pt-5">
                 <label className="block eyebrow-tc mb-4">心情</label>
@@ -349,7 +349,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
                     <button
                       key={s}
                       onClick={() => setStatus(s)}
-                      className={status === s ? 'btn-primary py-3 text-[15px] tracking-wider' : 'btn-neutral py-3 text-[15px] tracking-wider'}
+                      className={status === s ? 'btn-primary py-3 text-[15px]' : 'btn-neutral py-3 text-[15px]'}
                     >
                       {STATUS_LABELS[s]}
                     </button>
@@ -365,7 +365,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
                     <button
                       key={o}
                       onClick={() => toggleOccasion(o)}
-                      className={occasions.includes(o) ? 'chip chip-active text-[14px] tracking-wider px-4 py-2' : 'chip text-[14px] tracking-wider px-4 py-2'}
+                      className={occasions.includes(o) ? 'chip chip-active text-[14px] px-4 py-2' : 'chip text-[14px] px-4 py-2'}
                     >
                       {OCCASION_LABELS[o]}
                     </button>
@@ -383,7 +383,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
                         key={n}
                         onClick={() => setRating(rating === n ? undefined : n)}
                         className={`text-3xl transition-colors ${
-                          n <= (rating ?? 0) ? 'text-[#c9a961]' : 'text-[#2c261d]'
+                          n <= (rating ?? 0) ? 'text-amber' : 'text-fill-strong'
                         }`}
                       >
                         ★
@@ -401,7 +401,7 @@ export function AddEditPage({ item, inspiration, initialImageUrl, onUploadImage,
                   value={notes}
                   onChange={e => setNotes(e.target.value)}
                   rows={3}
-                  className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-3 text-base text-[#f5f1e8] placeholder-[#837b6e] focus:outline-none resize-none leading-relaxed transition-colors"
+                  className="w-full bg-surface border border-separator focus:border-tint rounded-[14px] px-3 py-3 text-base text-text placeholder-muted focus:outline-none resize-none leading-relaxed transition-colors"
                 />
               </div>
 

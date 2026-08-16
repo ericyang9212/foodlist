@@ -37,9 +37,9 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-[#0b0a08] animate-fadein" style={{ maxWidth: 430, margin: '0 auto' }}>
+    <div className="fixed inset-0 z-50 flex flex-col bg-bg animate-fadein" style={{ maxWidth: 430, margin: '0 auto' }}>
       <div
-        className="flex items-center justify-between px-6 pb-4 border-b border-[#211c15]"
+        className="flex items-center justify-between px-6 pb-4 border-b border-separator"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}
       >
         <button onClick={onClose} className="icon-btn" aria-label="關閉">
@@ -49,7 +49,7 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
           <button onClick={() => onEdit(item)} className="icon-btn" aria-label="編輯">
             <Edit3 size={17} />
           </button>
-          <button onClick={handleDelete} className="icon-btn hover:!text-[#a85959] hover:!bg-[#a85959]/10" aria-label="刪除">
+          <button onClick={handleDelete} className="icon-btn hover:!text-danger hover:!bg-danger-soft" aria-label="刪除">
             <Trash2 size={17} />
           </button>
         </div>
@@ -60,11 +60,11 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
         <div className="mb-7">
           <div className="eyebrow-tc mb-4">想吃的食物</div>
           <div className="flex items-start gap-4 mb-4">
-            <h1 className="flex-1 text-[36px] text-gold-gradient tracking-[0.05em] font-medium leading-tight">
+            <h1 className="flex-1 t-display">
               {item.name}
             </h1>
             {thumbnailUrl && (
-              <div className="flex-shrink-0 w-24 h-24 rounded-[6px] border border-[#c9a961]/40 overflow-hidden shadow-[0_4px_16px_rgba(201,169,97,0.15)]">
+              <div className="flex-shrink-0 w-24 h-24 rounded-[12px] border border-separator overflow-hidden">
                 <Thumb src={thumbnailUrl} className="w-full h-full object-cover" />
               </div>
             )}
@@ -72,7 +72,7 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
           <div className="flex items-center gap-3">
             <StatusBadge status={item.status} />
             {item.cuisineType && (
-              <span className="text-[13px] text-[#7d7566] tracking-widest">{item.cuisineType}</span>
+              <span className="text-[13px] text-muted">{item.cuisineType}</span>
             )}
           </div>
 
@@ -80,7 +80,7 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
           {(region || storeMap) && (
             <div className="flex items-center gap-3 mt-4">
               {region && (
-                <span className="flex items-center gap-1.5 text-[14px] text-[#8a8478] tracking-wide">
+                <span className="flex items-center gap-1.5 text-[14px] text-muted">
                   <MapPin size={14} />{region}
                 </span>
               )}
@@ -89,7 +89,7 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
                   href={storeMap}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn-secondary flex items-center gap-1.5 text-[12px] tracking-wider px-3 py-1.5"
+                  className="btn-secondary flex items-center gap-1.5 text-[12px] px-3 py-1.5"
                 >
                   <ExternalLink size={12} />
                   地圖
@@ -100,8 +100,8 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
         </div>
 
         {item.rating && (
-          <div className="text-[#c9a961] tracking-[0.4em] text-xl mb-7">
-            {'★'.repeat(item.rating)}<span className="text-[#2c261d]">{'★'.repeat(5 - item.rating)}</span>
+          <div className="text-tint text-xl mb-7">
+            {'★'.repeat(item.rating)}<span className="text-fill-strong">{'★'.repeat(5 - item.rating)}</span>
           </div>
         )}
 
@@ -109,7 +109,7 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
         {item.status === 'want' && (
           <button
             onClick={() => onLogFoodprint(item)}
-            className="btn-primary w-full py-4 mb-7 flex items-center justify-center gap-2 text-[15px] tracking-[0.3em]"
+            className="btn-primary w-full py-4 mb-7 flex items-center justify-center gap-2 text-[15px]"
           >
             <Check size={18} strokeWidth={2.5} />
             今天吃了
@@ -118,7 +118,7 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
         {item.status === 'tried' && (
           <button
             onClick={() => onLogFoodprint(item)}
-            className="btn-secondary w-full py-3.5 mb-7 flex items-center justify-center gap-2 text-[13px] tracking-[0.3em]"
+            className="btn-secondary w-full py-3.5 mb-7 flex items-center justify-center gap-2 text-[13px]"
           >
             <Check size={14} />
             又吃了一次
@@ -128,7 +128,7 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
         {item.occasions.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-7">
             {item.occasions.map(o => (
-              <span key={o} className="text-[14px] tracking-wider px-3 py-1.5 rounded-full border border-[#c9a961]/30 text-[#c9a961]/90">
+              <span key={o} className="text-[14px] px-3 py-1.5 rounded-full border border-separator text-tint">
                 {OCCASION_LABELS[o]}
               </span>
             ))}
@@ -138,7 +138,7 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
         {item.notes && (
           <div className="mb-8">
             <div className="eyebrow-tc mb-3">筆記</div>
-            <p className="text-[#d6d0c0] text-[16px] leading-relaxed border-l border-[#c9a961]/30 pl-4">
+            <p className="text-text-2 text-[16px] leading-relaxed border-l border-separator pl-4">
               {item.notes}
             </p>
           </div>
@@ -146,7 +146,7 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
 
         {/* 店家型：主店家已在上方，只列其他分店；想吃型／舊制：整份候選清單（可隨時補店） */}
         {(isOwnStore ? branches.length > 0 : true) && (
-          <div className="mt-10 pt-7 border-t border-[#211c15]">
+          <div className="mt-10 pt-7 border-t border-separator">
             <RestaurantsEditor
               title={isOwnStore ? '其他分店' : '候選店家'}
               restaurants={isOwnStore ? branches : item.restaurants}
@@ -155,7 +155,7 @@ export function DetailPage({ item, thumbnailUrl, onClose, onEdit, onDelete, onUp
           </div>
         )}
 
-        <div className="text-[12px] tracking-widest text-[#837b6e] border-t border-[#211c15] pt-5 mt-10">
+        <div className="text-[12px] text-muted border-t border-separator pt-5 mt-10">
           {new Date(item.createdAt).toLocaleDateString('zh-TW')}
         </div>
       </div>

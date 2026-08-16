@@ -70,12 +70,6 @@ export const STATUS_LABELS: Record<Status, string> = {
   skip: '不好吃',
 };
 
-export const STATUS_STYLES: Record<Status, string> = {
-  want: 'text-[#ead8aa] border-[#c9a961]/40',
-  tried: 'text-[#9a9384] border-[#3a352b]',
-  skip: 'text-[#837b6e] border-[#2c261d]',
-};
-
 export const OCCASION_LABELS: Record<Occasion, string> = {
   date: '約會',
   'late-night': '宵夜',

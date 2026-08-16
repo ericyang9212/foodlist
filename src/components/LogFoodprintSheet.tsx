@@ -69,28 +69,28 @@ export function LogFoodprintSheet({ food, uploadPhoto, onSave, onClose }: Props)
 
   return (
     <div
-      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center animate-slideup"
+      className="fixed inset-0 z-50 bg-black/35 backdrop-blur-[2px] flex items-end sm:items-center justify-center animate-slideup"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-[430px] bg-gradient-to-b from-[#151210] to-[#0d0c0a] border-t sm:border border-[#c9a961]/30 rounded-t-[16px] sm:rounded-[14px]"
+        className="w-full max-w-[430px] bg-surface border-t sm:border border-separator rounded-t-[20px] sm:rounded-[18px]"
         onClick={e => e.stopPropagation()}
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
       >
         {/* 抽屜把手 */}
         <div className="flex justify-center pt-2.5 sm:hidden">
-          <div className="w-9 h-1 rounded-full bg-[#3c352a]" />
+          <div className="w-9 h-1 rounded-full bg-fill-strong" />
         </div>
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#211c15]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-separator">
           <button onClick={onClose} className="icon-btn" aria-label="關閉">
             <X size={20} />
           </button>
-          <div className="text-[12px] tracking-[0.4em] text-[#c9a961]/80">RECORD</div>
+          <div className="eyebrow">RECORD</div>
           <button
             onClick={handleSave}
             disabled={saving}
-            className="btn-primary px-5 py-2 text-[13px] tracking-[0.3em] flex items-center gap-1.5"
+            className="btn-primary px-5 py-2 text-[13px] flex items-center gap-1.5"
           >
             {saving && <Loader2 size={12} className="animate-spin" />}
             完成
@@ -101,7 +101,7 @@ export function LogFoodprintSheet({ food, uploadPhoto, onSave, onClose }: Props)
           {/* 吃了什麼（read-only） */}
           <div>
             <div className="eyebrow-tc mb-2">吃了什麼</div>
-            <h3 className="text-[22px] text-gold-gradient font-medium tracking-wide leading-tight">
+            <h3 className="t-title">
               {food.name}
             </h3>
           </div>
@@ -111,10 +111,10 @@ export function LogFoodprintSheet({ food, uploadPhoto, onSave, onClose }: Props)
             <div>
               <div className="eyebrow-tc mb-2">在哪家店</div>
               {food.restaurants.length === 1 ? (
-                <p className="text-[15px] text-[#f5f1e8] flex items-center gap-1.5">
-                  <MapPin size={13} className="text-[#8a8478]" />
+                <p className="text-[15px] text-text flex items-center gap-1.5">
+                  <MapPin size={13} className="text-muted" />
                   {restaurant?.name}
-                  {restaurant?.city && <span className="text-[#8a8478] text-[13px]">· {[restaurant.city, restaurant.area].filter(Boolean).join(' ')}</span>}
+                  {restaurant?.city && <span className="text-muted text-[13px]">· {[restaurant.city, restaurant.area].filter(Boolean).join(' ')}</span>}
                 </p>
               ) : (
                 <div className="space-y-1.5">
@@ -122,15 +122,15 @@ export function LogFoodprintSheet({ food, uploadPhoto, onSave, onClose }: Props)
                     <button
                       key={r.id}
                       onClick={() => setRestaurant(r)}
-                      className={`w-full text-left px-3 py-2.5 rounded-[4px] border transition-colors ${
+                      className={`w-full text-left px-3 py-2.5 rounded-[12px] border transition-colors ${
                         restaurant?.id === r.id
-                          ? 'bg-[#c9a961]/10 border-[#c9a961]/60'
-                          : 'bg-[#171410] border-[#2c261d] hover:border-[#c9a961]/30'
+                          ? 'bg-tint-soft border-tint'
+                          : 'bg-surface border-separator hover:border-line'
                       }`}
                     >
-                      <div className="text-[14px] text-[#f5f1e8]">{r.name}</div>
+                      <div className="text-[14px] text-text">{r.name}</div>
                       {(r.city || r.area) && (
-                        <div className="text-[12px] text-[#8a8478] mt-0.5">{[r.city, r.area].filter(Boolean).join(' ')}</div>
+                        <div className="text-[12px] text-muted mt-0.5">{[r.city, r.area].filter(Boolean).join(' ')}</div>
                       )}
                     </button>
                   ))}
@@ -138,7 +138,7 @@ export function LogFoodprintSheet({ food, uploadPhoto, onSave, onClose }: Props)
               )}
             </div>
           ) : (
-            <div className="text-[12px] text-[#837b6e] tracking-wider italic">
+            <div className="text-[12px] text-muted italic">
               這道食物還沒指定店家，足跡會少了店名資訊。
             </div>
           )}
@@ -150,7 +150,7 @@ export function LogFoodprintSheet({ food, uploadPhoto, onSave, onClose }: Props)
               type="date"
               value={dateStr}
               onChange={e => setDateStr(e.target.value)}
-              className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-2.5 text-base text-[#f5f1e8] focus:outline-none"
+              className="w-full bg-surface border border-separator focus:border-tint rounded-[14px] px-3 py-2.5 text-base text-text focus:outline-none"
             />
           </div>
 
@@ -162,22 +162,22 @@ export function LogFoodprintSheet({ food, uploadPhoto, onSave, onClose }: Props)
                 <img
                   src={localPreview}
                   alt=""
-                  className="max-w-full max-h-48 rounded-[8px] border border-[#c9a961]/30"
+                  className="max-w-full max-h-48 rounded-[14px] border border-separator"
                 />
                 <button
                   onClick={() => { setPendingFile(null); setLocalPreview(null); }}
-                  className="absolute -top-2 -right-2 bg-[#0b0a08] border border-[#c9a961]/60 w-6 h-6 rounded-full flex items-center justify-center"
+                  className="absolute -top-2 -right-2 bg-bg border border-separator w-6 h-6 rounded-full flex items-center justify-center"
                 >
-                  <X size={12} className="text-[#c9a961]" />
+                  <X size={12} className="text-muted" />
                 </button>
               </div>
             ) : (
               <button
                 onClick={() => fileRef.current?.click()}
-                className="w-full border border-dashed border-[#c9a961]/40 hover:border-[#c9a961] hover:bg-[#c9a961]/5 bg-[#0f0d0a] rounded-[8px] py-5 flex flex-col items-center justify-center gap-1.5 transition-all"
+                className="w-full border border-dashed border-line hover:border-tint hover:bg-tint-soft bg-surface rounded-[14px] py-5 flex flex-col items-center justify-center gap-1.5 transition-all"
               >
-                <ImagePlus size={20} className="text-[#c9a961]" />
-                <span className="text-[12px] tracking-wider text-[#c9a961]/80">加一張照片</span>
+                <ImagePlus size={20} className="text-tint" />
+                <span className="eyebrow">加一張照片</span>
               </button>
             )}
             <input
@@ -201,12 +201,12 @@ export function LogFoodprintSheet({ food, uploadPhoto, onSave, onClose }: Props)
               value={note}
               onChange={e => setNote(e.target.value)}
               rows={2}
-              className="w-full bg-[#171410] border border-[#2c261d] focus:border-[#c9a961]/40 rounded-[8px] px-3 py-2.5 text-base text-[#f5f1e8] placeholder-[#837b6e] focus:outline-none resize-none leading-relaxed"
+              className="w-full bg-surface border border-separator focus:border-tint rounded-[14px] px-3 py-2.5 text-base text-text placeholder-muted focus:outline-none resize-none leading-relaxed"
             />
           </div>
         </div>
 
-        <div className="px-6 py-3 border-t border-[#211c15] text-center text-[11px] tracking-widest text-[#837b6e]">
+        <div className="px-6 py-3 border-t border-separator text-center text-[11px] text-muted">
           <Check size={12} className="inline mr-1" />
           按完成後加入你的食物足跡
         </div>
