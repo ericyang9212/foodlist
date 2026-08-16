@@ -1,5 +1,5 @@
 import { useState, useMemo, lazy, Suspense } from 'react';
-import { List, Footprints, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useStore } from './store/useStore';
 import { useInspirations } from './store/useInspirations';
 import { useAnnouncements } from './store/useAnnouncements';
@@ -9,27 +9,21 @@ import { useAuth } from './store/useAuth';
 import { useAppConfig } from './store/useAppConfig';
 import { MaintenanceScreen } from './pages/MaintenanceScreen';
 import { Marquee } from './components/Marquee';
-import { ListView } from './pages/ListView';
+import { HomePage } from './pages/HomePage';
 import { LoginScreen } from './pages/LoginScreen';
 import { makeId } from './lib/id';
 import { parseLatLngFromMapsUrl } from './lib/geocode';
 import { deleteImageByUrl } from './lib/storage';
 import type { QuickLogInput } from './components/QuickLogSheet';
-import type { FoodItem, Inspiration, Tab } from './types';
+import type { FoodItem, Inspiration } from './types';
 
-// 非首屏的頁面 / 彈窗改成動態載入：進到對應畫面才下載該 chunk，
-// 縮小首包體積（尤其 FoodprintsPage 內含台灣地圖 SVG，是最重的一塊）
-const FoodprintsPage = lazy(() =>
-  import('./pages/FoodprintsPage').then(m => ({ default: m.FoodprintsPage }))
-);
+// 非首屏的頁面 / 彈窗改成動態載入：進到對應畫面才下載該 chunk。
+// 主畫面（HomePage）含足跡段落所以是靜態載入；清單 / 靈感匣段落在 HomePage 裡才動態載入。
 const AddEditPage = lazy(() =>
   import('./pages/AddEditPage').then(m => ({ default: m.AddEditPage }))
 );
 const DetailPage = lazy(() =>
   import('./pages/DetailPage').then(m => ({ default: m.DetailPage }))
-);
-const InboxPage = lazy(() =>
-  import('./pages/InboxPage').then(m => ({ default: m.InboxPage }))
 );
 const LogFoodprintSheet = lazy(() =>
   import('./components/LogFoodprintSheet').then(m => ({ default: m.LogFoodprintSheet }))
@@ -76,11 +70,9 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
   const marquee = useMarquee();
   const foodprints = useFoodprints();
 
-  const [tab, setTab] = useState<Tab>('list');
   const [detailId, setDetailId] = useState<string | null>(null);
   const [editing, setEditing] = useState<FoodItem | undefined>(undefined);
   const [showAdd, setShowAdd] = useState(false);
-  const [showInbox, setShowInbox] = useState(false);
   const [showAnnouncements, setShowAnnouncements] = useState(false);
   const [loggingFood, setLoggingFood] = useState<FoodItem | null>(null);
   const [fromInspiration, setFromInspiration] = useState<Inspiration | null>(null);
@@ -178,7 +170,6 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
     setFromInspiration(insp);
     setEditing(undefined);
     setShowAdd(true);
-    setShowInbox(false);
   };
 
   const handleAddNew = () => {
@@ -240,46 +231,44 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
     <div className="relative flex flex-col h-svh overflow-hidden bg-[#0b0a08]">
       <Marquee data={marquee.data} onUpdate={marquee.update} />
       <div className="flex-1 overflow-hidden relative">
-        {tab === 'list' && (
-          <ListView
-            items={items}
-            inspirations={inspirations.items}
-            imageByFoodId={imageByFoodId}
-            lastEatenByFoodId={lastEatenByFoodId}
-            unreadAnnouncements={announcements.unreadCount}
-            onOpen={handleOpen}
-            onOpenInbox={() => setShowInbox(true)}
-            onOpenAnnouncements={() => setShowAnnouncements(true)}
-            onAddRegular={addItem}
-          />
-        )}
-        {tab === 'foodprints' && (
-          <Suspense fallback={<FullScreenLoader />}>
-            <FoodprintsPage
-              items={foodprints.items}
-              imageByFoodId={imageByFoodId}
-              onDelete={foodprints.deleteFoodprint}
-              onQuickLog={() => setShowQuickLog(true)}
-            />
-          </Suspense>
-        )}
+        <HomePage
+          items={items}
+          foodprints={foodprints.items}
+          inspirations={inspirations.items}
+          inspirationsLoading={inspirations.loading}
+          imageByFoodId={imageByFoodId}
+          lastEatenByFoodId={lastEatenByFoodId}
+          foodById={foodById}
+          unreadAnnouncements={announcements.unreadCount}
+          onOpen={handleOpen}
+          onOpenAnnouncements={() => setShowAnnouncements(true)}
+          onAddRegular={addItem}
+          onDeleteFoodprint={foodprints.deleteFoodprint}
+          onQuickLog={() => setShowQuickLog(true)}
+          onUploadInspiration={async (file, note) => {
+            const url = await inspirations.uploadImage(file);
+            await inspirations.addInspiration({ imageUrl: url, note: note || undefined });
+          }}
+          onDeleteInspiration={inspirations.deleteInspiration}
+          onUpdateInspiration={inspirations.updateInspiration}
+          onConvertInspiration={handleConvertInspiration}
+          onOpenFood={(id) => { if (foodById[id]) setDetailId(id); }}
+        />
       </div>
 
+      {/* 三頁併成一頁後底部只留新增：不再需要分頁切換 */}
       <nav
-        className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-[#0b0a08]/90 backdrop-blur-md flex items-center justify-around px-4 pt-3 z-40"
+        className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-[#0b0a08]/90 backdrop-blur-md flex items-center justify-center px-4 pt-3 z-40"
         style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}
       >
         {/* 頂緣金色細線，取代生硬的灰邊 */}
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#c9a961]/30 to-transparent" />
-        <NavBtn icon={<List size={22} />} label="清單" active={tab === 'list'} onClick={() => setTab('list')} />
 
         <button onClick={handleAddNew} className="flex flex-col items-center px-4" aria-label="新增想吃的">
           <div className="w-16 h-16 rounded-full flex items-center justify-center shadow-[0_4px_24px_rgba(201,169,97,0.45)] active:scale-95 transition-transform -mt-9 ring-1 ring-[#f0deae]/40" style={{ background: 'linear-gradient(150deg,#f0deae 0%,#d6b974 55%,#b1934f 100%)' }}>
             <Plus size={30} className="text-[#100d07]" strokeWidth={2.5} />
           </div>
         </button>
-
-        <NavBtn icon={<Footprints size={22} />} label="足跡" active={tab === 'foodprints'} onClick={() => setTab('foodprints')} />
       </nav>
 
       {/* 公告 */}
@@ -291,28 +280,6 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
             onMarkAllRead={announcements.markAllRead}
             onSignOut={onSignOut}
             onClose={() => setShowAnnouncements(false)}
-          />
-        </Suspense>
-      )}
-
-      {/* 靈感匣 */}
-      {showInbox && (
-        <Suspense fallback={null}>
-          <InboxPage
-            items={inspirations.items}
-            loading={inspirations.loading}
-            onUpload={async (file, note) => {
-              const url = await inspirations.uploadImage(file);
-              await inspirations.addInspiration({ imageUrl: url, note: note || undefined });
-            }}
-            onDelete={inspirations.deleteInspiration}
-            onUpdate={inspirations.updateInspiration}
-            onConvertToFood={handleConvertInspiration}
-            foodById={foodById}
-            onOpenFood={(id) => {
-              if (foodById[id]) { setShowInbox(false); setDetailId(id); }
-            }}
-            onClose={() => setShowInbox(false)}
           />
         </Suspense>
       )}
@@ -379,21 +346,5 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
         </Suspense>
       )}
     </div>
-  );
-}
-
-function NavBtn({ icon, label, active, onClick }: {
-  icon: React.ReactNode; label: string; active: boolean; onClick: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`flex flex-col items-center gap-1.5 px-6 py-1 transition-colors ${
-        active ? 'text-[#ead8aa]' : 'text-[#837b6e]'
-      }`}
-    >
-      {icon}
-      <span className="text-[12px] tracking-[0.3em]">{label}</span>
-    </button>
   );
 }

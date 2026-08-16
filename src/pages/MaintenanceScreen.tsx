@@ -9,9 +9,13 @@ export function MaintenanceScreen({ message }: { message?: string }) {
       />
       <div className="eyebrow mb-3">MAINTENANCE</div>
       <h1 className="text-[22px] text-gold-gradient tracking-[0.18em] font-medium mb-4">暫停服務中</h1>
-      <p className="text-[#8a8478] text-[14px] tracking-wider leading-relaxed max-w-xs">
-        {message || '正在進行維護，請稍後再回來。'}
-      </p>
+      {/* 沒訊息就整段不出現（不再退回寫死的預設文案）。
+          用 trim 判斷：只有空白的訊息等同沒訊息，才不會留下一段空白 <p> 撐開版面。 */}
+      {message?.trim() && (
+        <p className="text-[#8a8478] text-[14px] tracking-wider leading-relaxed max-w-xs">
+          {message}
+        </p>
+      )}
       <div className="mt-8 h-[1px] w-12 bg-[#c9a961]/30" />
     </div>
   );

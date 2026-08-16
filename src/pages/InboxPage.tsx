@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { ImagePlus, Check, Trash2, ArrowRight, X, Loader2, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ImagePlus, Check, Trash2, ArrowRight, X, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Inspiration, FoodItem } from '../types';
 import { PLATFORM_LABELS } from '../types';
 import { safeHttpUrl } from '../lib/url';
@@ -16,10 +16,9 @@ interface Props {
   onConvertToFood: (insp: Inspiration) => void;
   foodById: Record<string, FoodItem>;
   onOpenFood: (foodId: string) => void;
-  onClose: () => void;
 }
 
-export function InboxPage({ items, loading, onUpload, onDelete, onUpdate, onConvertToFood, foodById, onOpenFood, onClose }: Props) {
+export function InboxPage({ items, loading, onUpload, onDelete, onUpdate, onConvertToFood, foodById, onOpenFood }: Props) {
   const [selected, setSelected] = useState<Inspiration | null>(null);
   const [uploading, setUploading] = useState(false);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
@@ -54,29 +53,20 @@ export function InboxPage({ items, loading, onUpload, onDelete, onUpdate, onConv
   };
 
   return (
-    <div className="fixed inset-0 z-40 flex flex-col bg-[#0b0a08] animate-fadein" style={{ maxWidth: 430, margin: '0 auto' }}>
-      {/* Top bar */}
-      <div
-        className="flex items-center justify-between px-6 pb-3 border-b border-[#211c15]"
-        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}
-      >
-        <button onClick={onClose} className="icon-btn" aria-label="關閉">
-          <ArrowLeft size={22} className="text-[#8a8478]" />
-        </button>
-        <div className="text-[12px] tracking-[0.4em] text-[#c9a961]/80">靈感匣</div>
-        <div className="w-7" />
-      </div>
-
-      {/* 介紹 */}
+    // 合併主畫面裡的「靈感匣」段落：不再是全螢幕彈窗，跟著 HomePage 一起捲
+    <div>
       <div className="px-6 pt-5 pb-4">
         <div className="eyebrow mb-2">INSPIRATIONS</div>
+        <h2 className="text-[22px] font-medium text-gold-gradient tracking-[0.15em] leading-tight mb-2">
+          靈 感 匣
+        </h2>
         <p className="text-[13px] text-[#8a8478] tracking-wider leading-relaxed">
           看到想吃的，先丟進來，之後再整理成想吃清單
         </p>
         <div className="rule mt-4" />
       </div>
 
-      <div className="flex-1 overflow-y-auto px-6 pb-28">
+      <div className="px-6 pb-28">
         {/* 上傳區塊 */}
         <div className="mb-9 mt-2">
           {pendingPreview ? (

@@ -98,15 +98,16 @@ export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: P
   }
 
   return (
-    // 整頁單一捲動容器：地圖固定高度、正常排版在上方，時間軸接在下面一起捲動
-    <div className="h-full overflow-y-auto bg-[#0b0a08]">
-      <div
-        className="px-6 pb-4 flex items-end justify-between gap-3"
-        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 64px)' }}
-      >
-        <h1 className="text-[22px] font-medium text-gold-gradient tracking-[0.15em] leading-tight">
-          食 物 足 跡
-        </h1>
+    // 合併主畫面裡的「足跡」段落（主軸）：地圖固定高度在上，時間軸接在下面，
+    // 一起跟著 HomePage 的捲動容器捲——這裡不再自己捲。
+    <div>
+      <div className="px-6 pt-5 pb-4 flex items-end justify-between gap-3">
+        <div>
+          <div className="eyebrow mb-2">FOODPRINTS</div>
+          <h2 className="text-[22px] font-medium text-gold-gradient tracking-[0.15em] leading-tight">
+            食 物 足 跡
+          </h2>
+        </div>
         {/* 剛吃了清單沒有的店 → 直接在這裡記，會一併加進「嘗過」 */}
         <button
           onClick={onQuickLog}
@@ -180,7 +181,9 @@ export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: P
 
         {items.length > 0 ? (
           <>
-            <div className="max-h-[50vh] overflow-y-auto pr-1">
+            {/* 併成單一頁面後不再套內層捲動：時間軸直接跟著整頁捲，
+                手機上少一層「捲動區裡的捲動區」 */}
+            <div className="pr-1">
               <div className="relative pl-1">
                 <div className="absolute left-[6px] top-1 bottom-1 w-[1px] bg-gradient-to-b from-[#c9a961]/50 via-[#c9a961]/20 to-transparent" />
                 <div className="space-y-7">
