@@ -108,10 +108,9 @@ export function HomePage({
             >
               <img src="/logo.png" alt="" className="w-10 h-10 object-contain" />
             </div>
-            <div className="min-w-0">
-              <div className="eyebrow mb-1">PSJ DICE LIST</div>
-              <h1 className="t-display">待吃清單</h1>
-            </div>
+            {/* 標題只留字標本身：升成 h1（頁面仍要有一個標題），走襯線大字，
+                不再是原本那行 12px 的灰色眉標 */}
+            <h1 className="t-display min-w-0 truncate">PSJ DICE LIST</h1>
           </div>
           <button
             onClick={onOpenAnnouncements}
