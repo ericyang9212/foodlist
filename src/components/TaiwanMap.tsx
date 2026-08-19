@@ -39,24 +39,25 @@ const COUNTIES: CountyDatum[] = [
 const MAIN_ISLAND_ONLY = new Set(['澎湖縣', '金門縣', '連江縣']);
 const VIEW_BOX = '464 313 545 991';
 
-// 去過的縣市走玫瑰金色階（暗 → 亮），沒去過的是比畫布略亮的暖灰；顏色亮度＝足跡多寡
+// 縣市底色只分「去過 / 沒去過」兩階，不再做色階。
+//
+// 原本是色階（愈亮＝去過愈多次），但鄉鎮亮點的大小也代表次數——同一件事用兩套視覺
+// 講兩遍，畫面就吵。次數改成只由亮點的大小表達，底色回到單純的「有沒有去過」。
+//
+// 而且那兩者在數學上本來就打架：金點要壓得住底色，底色就得夠暗；「去過」要跟
+// 「沒去過」分得出來，底色又得夠亮。用原本的 #e2c08d 兩個條件差一點就是互斥的，
+// 所以才需要那圈難看的黑色外環硬撐。改用玫瑰金階的暗端當底、金階的亮端當點就解開了：
+//   去過 #96685c vs 沒去過 #2b2422 = 3.22:1 ✅（跟色階時代修好後的數值一樣）
+//   亮點 #f4dfb8 vs 去過的底色      = 3.63:1 ✅
+// 兩個都過 3:1，外環就不需要了。
 const NOT_VISITED_COLOR = '#2b2422';
-const LOW_RGB: [number, number, number] = [0x96, 0x68, 0x5c];
-const HIGH_RGB: [number, number, number] = [0xf0, 0xbe, 0xac];
+const VISITED_COLOR = '#96685c';   // 玫瑰金色階的暗端
 
-function visitedColor(t: number): string {
-  const clamped = Math.max(0, Math.min(1, t));
-  const rgb = LOW_RGB.map((low, i) => Math.round(low + (HIGH_RGB[i] - low) * clamped));
-  return `#${rgb.map(v => v.toString(16).padStart(2, '0')).join('')}`;
-}
-
-// 鄉鎮亮點：金核心 + 近黑外環。外環不是裝飾——縣市色塊愈亮代表足跡愈多，
-// 而金色壓在最亮的色塊上只有 1.04:1（等於隱形），偏偏那正是最需要看見亮點的地方。
-// 加了外環之後：環 vs 最暗縣市色 3.99:1、vs 最亮 11.42:1、金核心 vs 環 10.96:1，全部過 3:1。
-const DOT_FILL = '#e2c08d';   // = --color-gold（足跡段落的點題色）
-const DOT_RING = '#131010';   // = --color-bg
-const DOT_MIN_R = 12;         // viewBox 單位；地圖約縮到 0.283 倍，這裡是螢幕上約 3.4px 半徑
-const DOT_MAX_R = 22;
+// 鄉鎮亮點：亮金實心點 + 柔光暈，不用外環
+const DOT_FILL = '#f4dfb8';   // = --metal-gold 的亮端
+const DOT_MIN_R = 8;          // viewBox 單位；地圖約縮到 0.283 倍，這裡是螢幕上約 2.3px 半徑
+const DOT_MAX_R = 13;
+const DOT_GLOW_SCALE = 1.9;   // 光暈半徑相對於實心點的倍數；再大就會讓相鄰鄉鎮糊成一團
 
 export interface TownPoint {
   county: string;
@@ -91,23 +92,19 @@ export function TaiwanMap({ counts, townPoints = [], onSelect }: Props) {
 
   const visibleCounties = useMemo(() => COUNTIES.filter(c => !MAIN_ISLAND_ONLY.has(c.name)), []);
 
-  // 色階只看畫得出來的縣市：離島如果也算進來，一趟澎湖就會把本島的色階整個壓縮
-  const { maxCount, minVisited } = useMemo(() => {
-    const visited = visibleCounties.map(c => counts[c.name] || 0).filter(n => n > 0);
-    return {
-      maxCount: visited.length ? Math.max(...visited) : 0,
-      minVisited: visited.length ? Math.min(...visited) : 0,
-    };
-  }, [counts, visibleCounties]);
-
   return (
     <svg viewBox={VIEW_BOX} className="w-full h-full" role="img" aria-label="台灣本島縣市足跡地圖">
+      <defs>
+        <radialGradient id="tw-dot-glow">
+          <stop offset="0%" stopColor={DOT_FILL} stopOpacity={0.95} />
+          <stop offset="42%" stopColor={DOT_FILL} stopOpacity={0.55} />
+          <stop offset="100%" stopColor={DOT_FILL} stopOpacity={0} />
+        </radialGradient>
+      </defs>
+
       {visibleCounties.map(county => {
         const count = counts[county.name] || 0;
-        const isTop = count > 0 && count === maxCount;
-        const fill = count === 0
-          ? NOT_VISITED_COLOR
-          : visitedColor(maxCount === minVisited ? 1 : (count - minVisited) / (maxCount - minVisited));
+        const fill = count === 0 ? NOT_VISITED_COLOR : VISITED_COLOR;
 
         return (
           <path
@@ -121,7 +118,6 @@ export function TaiwanMap({ counts, townPoints = [], onSelect }: Props) {
               cursor: 'pointer',
               transition: 'fill 0.3s cubic-bezier(0.32, 0.72, 0, 1), opacity 0.2s',
               opacity: hoveredId && hoveredId !== county.id ? 0.7 : 1,
-              filter: isTop ? 'drop-shadow(0 0 8px rgba(240, 190, 172, 0.55))' : undefined,
             }}
             onMouseEnter={() => setHoveredId(county.id)}
             onMouseLeave={() => setHoveredId(null)}
@@ -135,7 +131,18 @@ export function TaiwanMap({ counts, townPoints = [], onSelect }: Props) {
         );
       })}
 
-      {/* 鄉鎮亮點畫在縣市色塊之上：同一個鄉鎮的店會共用一個點，次數多的點比較大 */}
+      {/* 鄉鎮亮點畫在縣市色塊之上：同一個鄉鎮的店會共用一個點，次數多的點比較大。
+          光暈不接事件（pointer-events: none），不然透明的外圈會擋掉旁邊的點 */}
+      {dots.map(d => (
+        <circle
+          key={`${d.county}/${d.town}-glow`}
+          cx={d.x}
+          cy={d.y}
+          r={d.r * DOT_GLOW_SCALE}
+          fill="url(#tw-dot-glow)"
+          style={{ pointerEvents: 'none' }}
+        />
+      ))}
       {dots.map(d => (
         <circle
           key={`${d.county}/${d.town}`}
@@ -143,9 +150,6 @@ export function TaiwanMap({ counts, townPoints = [], onSelect }: Props) {
           cy={d.y}
           r={d.r}
           fill={DOT_FILL}
-          stroke={DOT_RING}
-          strokeWidth={1}
-          vectorEffect="non-scaling-stroke"
           style={{ cursor: 'pointer' }}
           onClick={(e) => {
             e.stopPropagation();
