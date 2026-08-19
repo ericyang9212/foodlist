@@ -13,6 +13,8 @@ import { MaintenanceScreen } from './pages/MaintenanceScreen';
 import { Marquee } from './components/Marquee';
 import { HomePage } from './pages/HomePage';
 import { LoginScreen } from './pages/LoginScreen';
+import { ComingSoonCard } from './components/ComingSoonCard';
+import { WISH_POOL_ENABLED } from './lib/flags';
 import { makeId } from './lib/id';
 import { parseLatLngFromMapsUrl } from './lib/geocode';
 import { deleteImageByUrl } from './lib/storage';
@@ -294,7 +296,8 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
           onDeleteFoodprint={foodprints.deleteFoodprint}
           onQuickLog={() => setShowQuickLog(true)}
           onOpenWishPool={() => setShowWishPool(true)}
-          openWishCount={wishes.items.filter(w => !w.fulfilledAt).length}
+          // 沒開放就不顯示數量：那顆數字會讓人以為裡面已經有東西可看
+          openWishCount={WISH_POOL_ENABLED ? wishes.items.filter(w => !w.fulfilledAt).length : 0}
           onUploadInspiration={async (file, note) => {
             const url = await inspirations.uploadImage(file);
             await inspirations.addInspiration({ imageUrl: url, note: note || undefined });
@@ -381,7 +384,7 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
         </Suspense>
       )}
 
-      {showWishPool && (
+      {showWishPool && (WISH_POOL_ENABLED ? (
         <Suspense fallback={null}>
           <WishPoolModal
             items={wishes.items}
@@ -393,7 +396,9 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
             onClose={() => setShowWishPool(false)}
           />
         </Suspense>
-      )}
+      ) : (
+        <ComingSoonCard onClose={() => setShowWishPool(false)} />
+      ))}
 
       {/* 疊在許願池上面：實現完只關這張 sheet，許願池留著讓人看到願望移到「已實現」 */}
       {fulfilling && (
