@@ -32,6 +32,13 @@ const COUNTIES: CountyDatum[] = [
   { id: 'yunlin-county', name: '雲林縣', d: 'M642 760.2l1.9 7.2-2 4.7-1 7.2 1 7.7-1.9 5.2-0.9 5.7 4 4.7 5.8 2.5 6.8-2 8.2-0.9 2.6 3.5-0.5 0-0.3 5 0 3.4-4 1.3-11.7 2.4-6.3 0.6-2.4-3.9-4.7-3.4-8.3 2.4-3.7 0.5-12.6-4.6-5-5.9-5.3-4.6-6.9 0.4-12.6 2.3-7.2 2-16.3 9.4-3.8 3.8-4.4 2.4-7 5.7-5.3 0.8-2.1 3-1.7 4.9-3.9 3.2-6.1-0.1-8.3-4.7-11.6 1.4 4.6-5.2-0.2-16.4 0.7-12.3 2.8-9.8 4.3-7.7 1.3-10 2.3-8.8 1.3-3 6.1-8.1 1.1-2.8 0.7-1.5 5.6-4.3 0.8-1.6 7.6 4.4 22-2.6 7.6 0.4 6.6 1.8 11.6 4.4 19.7 2.3 12.2 6 5.8-0.1 12 2.4 1-0.7z' },
 ];
 
+// 只畫台灣本島。原本的 viewBox 0 0 1000 1295 是為了容納金門（最左）與馬祖（最上），
+// 結果本島被壓到只剩 114x210px、左右兩側大片全黑。裁到本島的範圍後本島放大 31%
+// （148x274px）而且置中。代價：澎湖 / 金門 / 馬祖不再出現在地圖上——那三個縣市的
+// 足跡仍會記錄、仍出現在下方的時間軸，只是地圖上點不到也看不到。
+const MAIN_ISLAND_ONLY = new Set(['澎湖縣', '金門縣', '連江縣']);
+const VIEW_BOX = '464 313 545 991';
+
 // 去過的縣市走玫瑰金色階（暗 → 亮），沒去過的是比畫布略亮的暖灰；顏色亮度＝足跡多寡
 const NOT_VISITED_COLOR = '#2b2422';
 const LOW_RGB: [number, number, number] = [0x96, 0x68, 0x5c];
@@ -48,7 +55,7 @@ function visitedColor(t: number): string {
 // 加了外環之後：環 vs 最暗縣市色 3.99:1、vs 最亮 11.42:1、金核心 vs 環 10.96:1，全部過 3:1。
 const DOT_FILL = '#e2c08d';   // = --color-gold（足跡段落的點題色）
 const DOT_RING = '#131010';   // = --color-bg
-const DOT_MIN_R = 12;         // viewBox 單位；地圖約縮到 0.216 倍，這裡是螢幕上約 2.6px 半徑
+const DOT_MIN_R = 12;         // viewBox 單位；地圖約縮到 0.283 倍，這裡是螢幕上約 3.4px 半徑
 const DOT_MAX_R = 22;
 
 export interface TownPoint {
@@ -69,10 +76,11 @@ interface Props {
 export function TaiwanMap({ counts, townPoints = [], onSelect }: Props) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
-  // 大的先畫、小的後畫，才不會被蓋住
+  // 大的先畫、小的後畫，才不會被蓋住。離島的點不畫（畫了也在可視範圍外）
   const dots = useMemo(() => {
-    const max = townPoints.reduce((m, p) => Math.max(m, p.count), 0);
-    return [...townPoints]
+    const visible = townPoints.filter(p => !MAIN_ISLAND_ONLY.has(p.county));
+    const max = visible.reduce((m, p) => Math.max(m, p.count), 0);
+    return [...visible]
       .sort((a, b) => b.count - a.count)
       .map(p => ({
         ...p,
@@ -81,17 +89,20 @@ export function TaiwanMap({ counts, townPoints = [], onSelect }: Props) {
       }));
   }, [townPoints]);
 
+  const visibleCounties = useMemo(() => COUNTIES.filter(c => !MAIN_ISLAND_ONLY.has(c.name)), []);
+
+  // 色階只看畫得出來的縣市：離島如果也算進來，一趟澎湖就會把本島的色階整個壓縮
   const { maxCount, minVisited } = useMemo(() => {
-    const visited = COUNTIES.map(c => counts[c.name] || 0).filter(n => n > 0);
+    const visited = visibleCounties.map(c => counts[c.name] || 0).filter(n => n > 0);
     return {
       maxCount: visited.length ? Math.max(...visited) : 0,
       minVisited: visited.length ? Math.min(...visited) : 0,
     };
-  }, [counts]);
+  }, [counts, visibleCounties]);
 
   return (
-    <svg viewBox="0 0 1000 1295" className="w-full h-full" role="img" aria-label="台灣縣市足跡地圖">
-      {COUNTIES.map(county => {
+    <svg viewBox={VIEW_BOX} className="w-full h-full" role="img" aria-label="台灣本島縣市足跡地圖">
+      {visibleCounties.map(county => {
         const count = counts[county.name] || 0;
         const isTop = count > 0 && count === maxCount;
         const fill = count === 0
