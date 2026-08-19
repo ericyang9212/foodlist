@@ -112,7 +112,7 @@ export function QuickAddRegularSheet({ onSave, onClose }: Props) {
                 disabled={towns.length === 0}
                 className="w-full bg-surface border border-separator focus:border-tint rounded-[16px] px-4 py-3 text-base text-text focus:outline-none disabled:opacity-40"
               >
-                <option value="">{towns.length ? '不指定' : '先選縣市'}</option>
+                <option value="">{towns.length ? '不指定' : (city ? '無鄉鎮資料' : '先選縣市')}</option>
                 {towns.map(t => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>

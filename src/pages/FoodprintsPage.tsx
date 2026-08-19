@@ -43,6 +43,10 @@ function dateLabel(iso: string) {
 const PAGE_SIZE = 30;
 const MAP_HEIGHT = 280;
 
+// 有對應食物的才算「去了一家店」；實現願望產生的足跡沒有 foodId，
+// 它可能是「去海邊走走」這種根本不是店的東西
+const isPlaceVisit = (p: Foodprint) => !!p.foodId;
+
 export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: Props) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
@@ -57,7 +61,10 @@ export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: P
     items.forEach(p => {
       const city = resolveCityName(p);
       if (!city) return;
+      // 地圖著色算全部足跡（實現的願望也是真的去過那裡）；
+      // 但底下的店名清單只列真的去了店的，不然願望文字會混在店名裡
       counts[city] = (counts[city] || 0) + 1;
+      if (!isPlaceVisit(p)) return;
       const label = p.restaurantName || p.foodName;
       const list = stores.get(city) ?? [];
       if (!list.includes(label)) list.push(label);
@@ -101,8 +108,10 @@ export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: P
     setCollapsedMonths(prev => ({ ...prev, [key]: !isMonthCollapsed(key, index) }));
   }
 
+  // 「N 家店」只算真的去了店的足跡：實現願望的那種（沒有 foodId）算進去會讓數字虛胖，
+  // 「想睡到自然醒」也不是一家店
   const storeCount = useMemo(
-    () => new Set(items.map(p => p.restaurantName || p.foodName)).size,
+    () => new Set(items.filter(isPlaceVisit).map(p => p.restaurantName || p.foodName)).size,
     [items]
   );
 
@@ -237,7 +246,7 @@ export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: P
                                 <FoodprintCard
                                   key={p.id}
                                   item={p}
-                                  photoSrc={p.photoUrl ?? imageByFoodId[p.foodId]}
+                                  photoSrc={p.photoUrl ?? (p.foodId ? imageByFoodId[p.foodId] : undefined)}
                                   onDelete={() => onDelete(p.id)}
                                   onClick={() => handleCardClick(p)}
                                 />

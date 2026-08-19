@@ -21,11 +21,12 @@ const GUIDE: { label: string; desc: string }[] = [
   { label: '靈感匣', desc: '看到想吃的截圖先丟進來，有空再一鍵轉成正式的想吃；整理過的截圖會收進相簿。未整理的張數會顯示在上方的「靈感匣」上。' },
   { label: '＋ 新增', desc: '右下角的浮動按鈕：填店家名稱、點「吃什麼」類別，選縣市或貼 Google 地圖連結會自動定位；其他分店和更多細節收在選填。' },
   { label: '今晚吃什麼', desc: '抬頭下方按一下開抽籤，三個段落都按得到：來源可切「想吃 / 回訪 / 全部」，想去哪個縣市先選再抽；抽到能直接「帶我去」或再抽一個。' },
+  { label: '許願池', desc: '跟清單相反，這裡不用寫明確吃什麼或哪間店——「想去海邊走走」「想吃點辣的」都可以，寫下來讓對方看到、去安排。對方按「實現了」就會記成一筆足跡（填了地點還會上地圖），願望移到「已實現」但永遠留著。不記是誰許的。' },
   { label: '備份', desc: '這頁最下方可看每日自動異地備份、手動下載 JSON、以及登出。' },
 ];
 
 async function downloadBackup() {
-  const tables = ['food_items', 'inspirations', 'announcements', 'foodprints', 'marquee'] as const;
+  const tables = ['food_items', 'inspirations', 'announcements', 'foodprints', 'marquee', 'wishes'] as const;
   const dump: Record<string, unknown> = { _backed_up_at: new Date().toISOString() };
   for (const t of tables) {
     // 任何一張表讀失敗就整份中止：寧可沒下載，也不要下載到缺資料的「假備份」

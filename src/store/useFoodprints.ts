@@ -14,7 +14,9 @@ const byAteAtDesc = descByString<Foodprint>(p => p.ateAt);
 function fromRow(row: Record<string, unknown>): Foodprint {
   return {
     id: row.id as string,
-    foodId: row.food_id as string,
+    // 實現願望產生的足跡沒有食物，food_id 會是 null
+    foodId: (row.food_id as string) ?? undefined,
+    wishId: (row.wish_id as string) ?? undefined,
     foodName: row.food_name as string,
     cuisineType: (row.cuisine_type as string) ?? undefined,
     restaurantName: (row.restaurant_name as string) ?? undefined,
@@ -34,7 +36,8 @@ function fromRow(row: Record<string, unknown>): Foodprint {
 function toRow(p: Foodprint) {
   return {
     id: p.id,
-    food_id: p.foodId,
+    food_id: p.foodId ?? null,
+    wish_id: p.wishId ?? null,
     food_name: p.foodName,
     cuisine_type: p.cuisineType ?? null,
     restaurant_name: p.restaurantName ?? null,

@@ -233,7 +233,7 @@ function RestaurantForm({ initial, submitLabel, onSubmit, onCancel }: {
         disabled={areaOptions.length === 0}
         className="w-full bg-transparent border-b border-separator focus:border-tint pb-2.5 text-base text-text focus:outline-none appearance-none disabled:opacity-40"
       >
-        <option value="" className="bg-surface">{areaOptions.length ? '鄉鎮區' : '先選縣市'}</option>
+        <option value="" className="bg-surface">{areaOptions.length ? '鄉鎮區' : (city ? '無鄉鎮資料' : '先選縣市')}</option>
         {areaOptions.map(a => (
           <option key={a} value={a} className="bg-surface">
             {towns.includes(a) ? a : `${a}（舊資料）`}

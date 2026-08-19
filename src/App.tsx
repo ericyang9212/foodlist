@@ -5,6 +5,7 @@ import { useInspirations } from './store/useInspirations';
 import { useAnnouncements } from './store/useAnnouncements';
 import { useMarquee } from './store/useMarquee';
 import { useMarqueeMessages } from './store/useMarqueeMessages';
+import { useWishes } from './store/useWishes';
 import { useFoodprints } from './store/useFoodprints';
 import { useAuth } from './store/useAuth';
 import { useAppConfig } from './store/useAppConfig';
@@ -16,7 +17,8 @@ import { makeId } from './lib/id';
 import { parseLatLngFromMapsUrl } from './lib/geocode';
 import { deleteImageByUrl } from './lib/storage';
 import type { QuickLogInput } from './components/QuickLogSheet';
-import type { FoodItem, Inspiration } from './types';
+import type { FulfillInput } from './components/FulfillWishSheet';
+import type { FoodItem, Inspiration, Wish } from './types';
 
 // 非首屏的頁面 / 彈窗改成動態載入：進到對應畫面才下載該 chunk。
 // 主畫面（HomePage）含足跡段落所以是靜態載入；清單 / 靈感匣段落在 HomePage 裡才動態載入。
@@ -34,6 +36,12 @@ const AnnouncementsModal = lazy(() =>
 );
 const QuickLogSheet = lazy(() =>
   import('./components/QuickLogSheet').then(m => ({ default: m.QuickLogSheet }))
+);
+const WishPoolModal = lazy(() =>
+  import('./components/WishPoolModal').then(m => ({ default: m.WishPoolModal }))
+);
+const FulfillWishSheet = lazy(() =>
+  import('./components/FulfillWishSheet').then(m => ({ default: m.FulfillWishSheet }))
 );
 
 function FullScreenLoader() {
@@ -70,6 +78,7 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
   const announcements = useAnnouncements();
   const marquee = useMarquee();
   const marqueeMessages = useMarqueeMessages();
+  const wishes = useWishes();
   const foodprints = useFoodprints();
 
   const [detailId, setDetailId] = useState<string | null>(null);
@@ -79,6 +88,8 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
   const [loggingFood, setLoggingFood] = useState<FoodItem | null>(null);
   const [fromInspiration, setFromInspiration] = useState<Inspiration | null>(null);
   const [showQuickLog, setShowQuickLog] = useState(false);
+  const [showWishPool, setShowWishPool] = useState(false);
+  const [fulfilling, setFulfilling] = useState<Wish | null>(null);
 
   // food id → 圖片 URL 的對照表（從靈感裡查）
   const imageByFoodId = useMemo(() => {
@@ -102,7 +113,10 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
   const lastEatenByFoodId = useMemo(() => {
     const map: Record<string, string> = {};
     foodprints.items.forEach(p => {
-      if (!map[p.foodId] || p.ateAt > map[p.foodId]) map[p.foodId] = p.ateAt;
+      // 實現願望產生的足跡沒有對應的食物，跳過（不然會多出一個對不到任何食物的 key）
+      if (!p.foodId) return;
+      const id = p.foodId;
+      if (!map[id] || p.ateAt > map[id]) map[id] = p.ateAt;
     });
     return map;
   }, [foodprints.items]);
@@ -229,6 +243,30 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
     }
   };
 
+  // 願望實現：寫一筆足跡（沒有 foodId，標題就是願望文字）再把願望標記成已實現。
+  // 兩步都是寫入，所以要有回滾鏈——標記失敗就把剛建的足跡收回，不留下「有足跡但願望還在許願中」
+  // 這種對不起來的半套資料。
+  const handleFulfillWish = async (input: FulfillInput) => {
+    const inserted = await foodprints.addFoodprint({
+      foodId: undefined,
+      wishId: input.wish.id,
+      foodName: input.wish.text,
+      restaurantCity: input.city,
+      restaurantArea: input.area,
+      ateAt: input.ateAt,
+      photoUrl: input.photoUrl,
+      note: input.note,
+    });
+    // addFoodprint 失敗時已自行清掉剛上傳的照片
+    if (!inserted) throw new Error('foodprint insert failed');
+
+    const ok = await wishes.fulfillWish(input.wish.id, input.ateAt, input.note);
+    if (!ok) {
+      void foodprints.deleteFoodprint(inserted.id);
+      throw new Error('wish update failed');
+    }
+  };
+
   if (loading) return <FullScreenLoader />;
 
   return (
@@ -255,6 +293,8 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
           onAddRegular={addItem}
           onDeleteFoodprint={foodprints.deleteFoodprint}
           onQuickLog={() => setShowQuickLog(true)}
+          onOpenWishPool={() => setShowWishPool(true)}
+          openWishCount={wishes.items.filter(w => !w.fulfilledAt).length}
           onUploadInspiration={async (file, note) => {
             const url = await inspirations.uploadImage(file);
             await inspirations.addInspiration({ imageUrl: url, note: note || undefined });
@@ -337,6 +377,32 @@ function AppInner({ onSignOut }: { onSignOut: () => void }) {
             uploadPhoto={foodprints.uploadPhoto}
             onSave={handleQuickLog}
             onClose={() => setShowQuickLog(false)}
+          />
+        </Suspense>
+      )}
+
+      {showWishPool && (
+        <Suspense fallback={null}>
+          <WishPoolModal
+            items={wishes.items}
+            loading={wishes.loading}
+            onAdd={wishes.addWish}
+            onDelete={wishes.deleteWish}
+            onStartFulfill={setFulfilling}
+            onUnfulfill={wishes.unfulfillWish}
+            onClose={() => setShowWishPool(false)}
+          />
+        </Suspense>
+      )}
+
+      {/* 疊在許願池上面：實現完只關這張 sheet，許願池留著讓人看到願望移到「已實現」 */}
+      {fulfilling && (
+        <Suspense fallback={null}>
+          <FulfillWishSheet
+            wish={fulfilling}
+            uploadPhoto={foodprints.uploadPhoto}
+            onSave={handleFulfillWish}
+            onClose={() => setFulfilling(null)}
           />
         </Suspense>
       )}

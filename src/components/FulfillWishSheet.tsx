@@ -2,20 +2,21 @@ import { useState, useRef } from 'react';
 import { X, ImagePlus, Loader2 } from 'lucide-react';
 import { CITIES } from '../types';
 import { TOWNS_BY_COUNTY } from '../lib/twAreas';
+import type { Wish } from '../types';
 
-export interface QuickLogInput {
-  name: string;
+export interface FulfillInput {
+  wish: Wish;
   city?: string;
   area?: string;
-  mapsUrl?: string;
   ateAt: string; // ISO
   photoUrl?: string;
   note?: string;
 }
 
 interface Props {
+  wish: Wish;
   uploadPhoto: (file: File) => Promise<string>;
-  onSave: (input: QuickLogInput) => Promise<void>;
+  onSave: (input: FulfillInput) => Promise<void>;
   onClose: () => void;
 }
 
@@ -24,13 +25,11 @@ function todayIso() {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-// 足跡頁的「記一筆」：清單沒有的店也能直接記——會一併建立「嘗過」項目＋足跡，
-// 之後回訪抽籤、店家視角、足跡地圖全都吃得到。
-export function QuickLogSheet({ uploadPhoto, onSave, onClose }: Props) {
-  const [name, setName] = useState('');
+// 願望實現：填的東西跟「記一筆足跡」幾乎一樣，因為實現本來就會產生一筆足跡。
+// 差別是名稱不用填——直接用願望的文字當標題。
+export function FulfillWishSheet({ wish, uploadPhoto, onSave, onClose }: Props) {
   const [city, setCity] = useState('');
   const [area, setArea] = useState('');
-  const [mapsUrl, setMapsUrl] = useState('');
   const [dateStr, setDateStr] = useState<string>(todayIso());
   const [note, setNote] = useState('');
   const [pendingFile, setPendingFile] = useState<File | null>(null);
@@ -38,7 +37,6 @@ export function QuickLogSheet({ uploadPhoto, onSave, onClose }: Props) {
   const [saving, setSaving] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const canSave = name.trim().length > 0 && !saving;
   // 海外 / 其他沒有鄉鎮清單，選單就停用
   const towns = TOWNS_BY_COUNTY[city] ?? [];
 
@@ -50,28 +48,27 @@ export function QuickLogSheet({ uploadPhoto, onSave, onClose }: Props) {
   };
 
   const handleSave = async () => {
-    if (!canSave) return;
+    if (saving) return;
     setSaving(true);
     try {
       let photoUrl: string | undefined;
       if (pendingFile) photoUrl = await uploadPhoto(pendingFile);
 
-      // 日期欄被清空或格式不對時退回今天，避免 Invalid Date 讓儲存直接失敗
+      // 日期被清空或格式不對時退回今天，避免 Invalid Date 讓儲存直接失敗
       const candidate = new Date(`${dateStr}T${new Date().toTimeString().slice(0, 5)}:00`);
       const ateAt = (dateStr && !Number.isNaN(candidate.getTime()) ? candidate : new Date()).toISOString();
 
       await onSave({
-        name: name.trim(),
+        wish,
         city: city || undefined,
         area: area || undefined,
-        mapsUrl: mapsUrl.trim() || undefined,
         ateAt,
         photoUrl,
         note: note.trim() || undefined,
       });
       onClose();
     } catch (e) {
-      // 各失敗路徑都已在 store / App 層跳過 toast，留在 sheet 讓使用者重試
+      // 失敗路徑都已在 App 層跳過 toast 並回滾，留在 sheet 讓使用者重試
       console.error(e);
     } finally {
       setSaving(false);
@@ -84,37 +81,22 @@ export function QuickLogSheet({ uploadPhoto, onSave, onClose }: Props) {
       onClick={onClose}
     >
       <div
-        className="w-full max-w-[430px] bg-surface border-t border-separator rounded-t-[22px]"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+        className="w-full bg-bg rounded-t-[28px] border-t border-separator"
+        style={{ maxWidth: 430, paddingBottom: 'env(safe-area-inset-bottom)' }}
         onClick={e => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 pt-5 pb-3">
-          <div>
-            <h2 className="text-[17px] text-text font-medium">記一筆足跡</h2>
-            <p className="text-[12px] text-muted mt-1">
-              清單沒有的店也能記，會一併加進「嘗過」
-            </p>
+        <div className="flex items-start justify-between px-6 pt-6 pb-4">
+          <div className="min-w-0 flex-1">
+            <div className="eyebrow mb-1">WISH COME TRUE</div>
+            <h2 className="t-title truncate">{wish.text}</h2>
+            <p className="t-caption mt-1">會記成一筆足跡，地點填了就會上地圖</p>
           </div>
-          <button onClick={onClose} className="icon-btn" aria-label="關閉">
+          <button onClick={onClose} className="icon-btn flex-shrink-0" aria-label="關閉">
             <X size={20} />
           </button>
         </div>
 
         <div className="px-6 pb-4 space-y-4 max-h-[62vh] overflow-y-auto">
-          <div>
-            <label className="eyebrow-tc block mb-2">吃了什麼 / 哪間店</label>
-            <input
-              autoFocus
-              value={name}
-              onChange={e => setName(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter' && !e.nativeEvent.isComposing && canSave) handleSave(); }}
-              placeholder="例：後院早午餐、精誠夜市"
-              className="w-full bg-surface border border-separator focus:border-tint rounded-[16px] px-4 py-3 text-[15px] text-text placeholder-muted focus:outline-none"
-            />
-          </div>
-
-          {/* 縣市 → 鄉鎮兩層：鄉鎮決定足跡地圖上亮點的位置，只填縣市就只有縣市底色 */}
           <div className="flex gap-3">
             <div className="flex-1">
               <label className="eyebrow-tc block mb-2">縣市（可略）</label>
@@ -142,8 +124,9 @@ export function QuickLogSheet({ uploadPhoto, onSave, onClose }: Props) {
           </div>
 
           <div>
-            <label className="eyebrow-tc block mb-2">吃的日期</label>
+            <label className="eyebrow-tc block mb-2" htmlFor="fulfill-date">實現的日期</label>
             <input
+              id="fulfill-date"
               type="date"
               value={dateStr}
               onChange={e => setDateStr(e.target.value)}
@@ -152,59 +135,35 @@ export function QuickLogSheet({ uploadPhoto, onSave, onClose }: Props) {
           </div>
 
           <div>
-            <label className="eyebrow-tc block mb-2">Google 地圖連結（可略）</label>
-            <input
-              value={mapsUrl}
-              onChange={e => setMapsUrl(e.target.value)}
-              inputMode="url"
-              placeholder="貼上連結，之後回訪能「帶我去」"
-              className="w-full bg-surface border border-separator focus:border-tint rounded-[16px] px-4 py-3 text-[14px] text-text placeholder-muted focus:outline-none"
-            />
-          </div>
-
-          <div>
-            <label className="eyebrow-tc block mb-2">照片（選填）</label>
-            {localPreview ? (
-              <div className="relative inline-block">
-                <img src={localPreview} alt="" className="max-w-full max-h-40 rounded-[14px] border border-separator" />
-                <button
-                  aria-label="移除照片"
-                  onClick={() => { setPendingFile(null); setLocalPreview(null); }}
-                  className="absolute -top-2 -right-2 bg-bg border border-separator w-6 h-6 rounded-full flex items-center justify-center"
-                >
-                  <X size={12} className="text-muted" />
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => fileRef.current?.click()}
-                className="w-full border border-dashed border-line hover:border-tint hover:bg-tint-soft bg-surface rounded-[14px] py-4 flex items-center justify-center gap-2 transition-all"
-              >
-                <ImagePlus size={17} className="text-tint" />
-                <span className="eyebrow">加一張照片</span>
-              </button>
-            )}
+            <label className="eyebrow-tc block mb-2">照片（可略）</label>
             <input
               ref={fileRef}
               type="file"
               accept="image/*"
               className="hidden"
-              onChange={e => {
-                const f = e.target.files?.[0];
-                if (f) handlePickPhoto(f);
-                e.target.value = '';
-              }}
+              onChange={e => { const f = e.target.files?.[0]; if (f) handlePickPhoto(f); }}
             />
+            <button
+              onClick={() => fileRef.current?.click()}
+              className="btn-neutral w-full flex items-center justify-center gap-2 py-3 text-[14px]"
+            >
+              {localPreview ? (
+                <img src={localPreview} alt="" className="w-9 h-9 rounded-[10px] object-cover" />
+              ) : (
+                <ImagePlus size={16} />
+              )}
+              {localPreview ? '換一張' : '加一張照片'}
+            </button>
           </div>
 
           <div>
-            <label className="eyebrow-tc block mb-2">一句話感想（選填）</label>
+            <label className="eyebrow-tc block mb-2" htmlFor="fulfill-note">想說的話（可略）</label>
             <textarea
-              placeholder="例如：比想像中好吃、下次帶爸媽來"
+              id="fulfill-note"
               value={note}
               onChange={e => setNote(e.target.value)}
               rows={2}
-              className="w-full bg-surface border border-separator focus:border-tint rounded-[14px] px-3 py-2.5 text-[14px] text-text placeholder-muted focus:outline-none resize-none leading-relaxed"
+              className="w-full bg-surface border border-separator focus:border-tint rounded-[16px] px-4 py-3 text-[15px] text-text focus:outline-none resize-none"
             />
           </div>
         </div>
@@ -212,7 +171,7 @@ export function QuickLogSheet({ uploadPhoto, onSave, onClose }: Props) {
         <div className="px-6 pt-2" style={{ paddingBottom: 'max(20px, env(safe-area-inset-bottom))' }}>
           <button
             onClick={handleSave}
-            disabled={!canSave}
+            disabled={saving}
             className="btn-primary w-full flex items-center justify-center gap-2 py-3.5 text-[15px] disabled:opacity-40"
           >
             {saving && <Loader2 size={14} className="animate-spin" />}

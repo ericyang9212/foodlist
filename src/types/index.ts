@@ -34,10 +34,12 @@ export interface FoodItem {
   updatedAt: string;
 }
 
-// 食物足跡：一次「吃過」的紀錄
+// 足跡：一次「真的發生過」的紀錄。多數來自清單裡的食物，也可能來自實現的願望
+// （願望不是食物，所以 foodId 會是空的；foodName 這時放願望的文字，卡片本來就拿它當標題）
 export interface Foodprint {
   id: string;
-  foodId: string;
+  foodId?: string;
+  wishId?: string;
   foodName: string;
   cuisineType?: string;
   restaurantName?: string;
@@ -50,6 +52,17 @@ export interface Foodprint {
   ateAt: string;
   photoUrl?: string;
   note?: string;
+  createdAt: string;
+}
+
+// 許願池：不用講明確吃什麼、哪間店，寫下來就好。
+// 不記誰許的（兩人共用一個帳號，本來也分不出來）、不分類——低摩擦是這功能的全部價值。
+// `fulfilledAt` 有值就是已實現，不另外做狀態欄位。
+export interface Wish {
+  id: string;
+  text: string;
+  fulfilledAt?: string;
+  fulfilledNote?: string;
   createdAt: string;
 }
 

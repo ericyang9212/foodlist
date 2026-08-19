@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef, lazy, Suspense } from 'react';
-import { Footprints, List, Images, Bell, Sparkles } from 'lucide-react';
+import { Footprints, List, Images, Bell, Sparkles, Stars } from 'lucide-react';
 import { FoodprintsPage } from './FoodprintsPage';
 import { TonightModal } from '../components/TonightModal';
 import { QuickAddRegularSheet } from '../components/QuickAddRegularSheet';
@@ -23,6 +23,8 @@ interface Props {
   onAddRegular: (item: FoodItem) => Promise<boolean>;
   onDeleteFoodprint: (id: string) => void;
   onQuickLog: () => void;
+  onOpenWishPool: () => void;
+  openWishCount: number;
   onUploadInspiration: (file: File, note: string) => Promise<void>;
   onDeleteInspiration: (id: string) => void;
   onUpdateInspiration: (insp: Inspiration) => void;
@@ -56,7 +58,7 @@ export function HomePage({
   items, foodprints, inspirations, inspirationsLoading,
   imageByFoodId, lastEatenByFoodId, foodById, unreadAnnouncements,
   onOpen, onOpenAnnouncements, onAddRegular,
-  onDeleteFoodprint, onQuickLog,
+  onDeleteFoodprint, onQuickLog, onOpenWishPool, openWishCount,
   onUploadInspiration, onDeleteInspiration, onUpdateInspiration, onConvertInspiration, onOpenFood,
 }: Props) {
   const [section, setSection] = useState<Section>('foodprints');
@@ -124,17 +126,29 @@ export function HomePage({
           </button>
         </div>
 
-        {/* 抽籤入口：不再是原本那張大卡片，但也不必縮成小 chip——
-            這是全 app 最常按的動作，放大到一眼就找得到的尺寸 */}
-        {canDraw && (
+        {/* 兩個動作入口並排：抽籤與許願池都是「做一件事」，不是資料段落，
+            所以放這裡而不是加進下面的段落切換列（那排放第四顆會在小手機上撐爆） */}
+        <div className="mt-5 flex items-center gap-2.5 flex-wrap">
+          {canDraw && (
+            <button
+              onClick={() => setShowTonight(true)}
+              className="btn-secondary flex items-center gap-2.5 px-6 py-4 t-heading"
+            >
+              <Sparkles size={19} />
+              今晚吃什麼
+            </button>
+          )}
           <button
-            onClick={() => setShowTonight(true)}
-            className="btn-secondary mt-5 flex items-center gap-2.5 px-6 py-4 t-heading"
+            onClick={onOpenWishPool}
+            className="btn-secondary flex items-center gap-2.5 px-6 py-4 t-heading"
           >
-            <Sparkles size={19} />
-            今晚吃什麼
+            <Stars size={19} />
+            許願池
+            {openWishCount > 0 && (
+              <span className="text-[13px] tabular-nums opacity-80">{openWishCount}</span>
+            )}
           </button>
-        )}
+        </div>
       </div>
 
       {/* ── 段落切換：足跡 / 清單 / 靈感匣，往下滑時固定在跑馬燈下方 ── */}
