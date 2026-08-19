@@ -1,10 +1,12 @@
 import { useState, useRef } from 'react';
 import { X, ImagePlus, Loader2 } from 'lucide-react';
 import { CITIES } from '../types';
+import { TOWNS_BY_COUNTY } from '../lib/twAreas';
 
 export interface QuickLogInput {
   name: string;
   city?: string;
+  area?: string;
   mapsUrl?: string;
   ateAt: string; // ISO
   photoUrl?: string;
@@ -27,6 +29,7 @@ function todayIso() {
 export function QuickLogSheet({ uploadPhoto, onSave, onClose }: Props) {
   const [name, setName] = useState('');
   const [city, setCity] = useState('');
+  const [area, setArea] = useState('');
   const [mapsUrl, setMapsUrl] = useState('');
   const [dateStr, setDateStr] = useState<string>(todayIso());
   const [note, setNote] = useState('');
@@ -36,6 +39,8 @@ export function QuickLogSheet({ uploadPhoto, onSave, onClose }: Props) {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const canSave = name.trim().length > 0 && !saving;
+  // 海外 / 其他沒有鄉鎮清單，選單就停用
+  const towns = TOWNS_BY_COUNTY[city] ?? [];
 
   const handlePickPhoto = (file: File) => {
     setPendingFile(file);
@@ -58,6 +63,7 @@ export function QuickLogSheet({ uploadPhoto, onSave, onClose }: Props) {
       await onSave({
         name: name.trim(),
         city: city || undefined,
+        area: area || undefined,
         mapsUrl: mapsUrl.trim() || undefined,
         ateAt,
         photoUrl,
@@ -108,12 +114,13 @@ export function QuickLogSheet({ uploadPhoto, onSave, onClose }: Props) {
             />
           </div>
 
+          {/* 縣市 → 鄉鎮兩層：鄉鎮決定足跡地圖上亮點的位置，只填縣市就只有縣市底色 */}
           <div className="flex gap-3">
             <div className="flex-1">
               <label className="eyebrow-tc block mb-2">縣市（可略）</label>
               <select
                 value={city}
-                onChange={e => setCity(e.target.value)}
+                onChange={e => { setCity(e.target.value); setArea(''); }}
                 className="w-full bg-surface border border-separator focus:border-tint rounded-[16px] px-3 py-3 text-[15px] text-text focus:outline-none"
               >
                 <option value="">不指定</option>
@@ -121,14 +128,27 @@ export function QuickLogSheet({ uploadPhoto, onSave, onClose }: Props) {
               </select>
             </div>
             <div className="flex-1">
-              <label className="eyebrow-tc block mb-2">吃的日期</label>
-              <input
-                type="date"
-                value={dateStr}
-                onChange={e => setDateStr(e.target.value)}
-                className="w-full bg-surface border border-separator focus:border-tint rounded-[16px] px-3 py-3 text-[15px] text-text focus:outline-none"
-              />
+              <label className="eyebrow-tc block mb-2">鄉鎮區（可略）</label>
+              <select
+                value={area}
+                onChange={e => setArea(e.target.value)}
+                disabled={towns.length === 0}
+                className="w-full bg-surface border border-separator focus:border-tint rounded-[16px] px-3 py-3 text-[15px] text-text focus:outline-none disabled:opacity-40"
+              >
+                <option value="">{towns.length ? '不指定' : '先選縣市'}</option>
+                {towns.map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
             </div>
+          </div>
+
+          <div>
+            <label className="eyebrow-tc block mb-2">吃的日期</label>
+            <input
+              type="date"
+              value={dateStr}
+              onChange={e => setDateStr(e.target.value)}
+              className="w-full bg-surface border border-separator focus:border-tint rounded-[16px] px-3 py-3 text-[15px] text-text focus:outline-none"
+            />
           </div>
 
           <div>

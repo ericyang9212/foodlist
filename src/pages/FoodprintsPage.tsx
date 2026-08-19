@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react';
 import { MapPin, Trash2, Compass, X, ChevronDown, Plus } from 'lucide-react';
 import { Thumb } from '../components/Thumb';
 import { TaiwanMap } from '../components/TaiwanMap';
+import type { TownPoint } from '../components/TaiwanMap';
+import { TOWN_POINTS } from '../lib/twTownPoints';
 import { EmptyMark } from '../components/EmptyMark';
 import type { Foodprint } from '../types';
 import { resolveCityName } from '../lib/foodprintGeo';
@@ -64,6 +66,23 @@ export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: P
     return { cityCounts: counts, storesByCity: stores };
   }, [items]);
 
+  // 鄉鎮亮點：只有填了鄉鎮、而且鄉鎮名字查得到座標的足跡才會有點。
+  // 舊資料裡自由輸入的值（例如「北港」而非「北港鎮」）查不到，就自動略過不畫。
+  const townPoints = useMemo(() => {
+    const acc = new Map<string, TownPoint>();
+    items.forEach(p => {
+      const county = resolveCityName(p);
+      if (!county || !p.restaurantArea) return;
+      const xy = TOWN_POINTS[county]?.[p.restaurantArea];
+      if (!xy) return;
+      const key = `${county}/${p.restaurantArea}`;
+      const hit = acc.get(key);
+      if (hit) hit.count += 1;
+      else acc.set(key, { county, town: p.restaurantArea, x: xy[0], y: xy[1], count: 1 });
+    });
+    return [...acc.values()];
+  }, [items]);
+
   const grouped = useMemo(() => {
     const m = new Map<string, { label: string; prints: Foodprint[] }>();
     visibleItems.forEach(p => {
@@ -119,7 +138,7 @@ export function FoodprintsPage({ items, imageByFoodId, onDelete, onQuickLog }: P
       </div>
 
       <div className="relative w-full" style={{ height: MAP_HEIGHT }} onClick={() => setSelectedCity(null)}>
-        <TaiwanMap counts={cityCounts} onSelect={handleSelectCity} />
+        <TaiwanMap counts={cityCounts} townPoints={townPoints} onSelect={handleSelectCity} />
 
         {Object.keys(cityCounts).length === 0 && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">

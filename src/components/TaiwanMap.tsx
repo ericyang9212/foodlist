@@ -43,13 +43,43 @@ function visitedColor(t: number): string {
   return `#${rgb.map(v => v.toString(16).padStart(2, '0')).join('')}`;
 }
 
+// 鄉鎮亮點：金核心 + 近黑外環。外環不是裝飾——縣市色塊愈亮代表足跡愈多，
+// 而金色壓在最亮的色塊上只有 1.04:1（等於隱形），偏偏那正是最需要看見亮點的地方。
+// 加了外環之後：環 vs 最暗縣市色 3.99:1、vs 最亮 11.42:1、金核心 vs 環 10.96:1，全部過 3:1。
+const DOT_FILL = '#e2c08d';   // = --color-gold（足跡段落的點題色）
+const DOT_RING = '#131010';   // = --color-bg
+const DOT_MIN_R = 12;         // viewBox 單位；地圖約縮到 0.216 倍，這裡是螢幕上約 2.6px 半徑
+const DOT_MAX_R = 22;
+
+export interface TownPoint {
+  county: string;
+  town: string;
+  x: number;
+  y: number;
+  count: number;
+}
+
 interface Props {
   counts: Record<string, number>;
+  /** 鄉鎮層級的亮點，沒填鄉鎮的足跡不會出現在這裡 */
+  townPoints?: TownPoint[];
   onSelect: (city: string) => void;
 }
 
-export function TaiwanMap({ counts, onSelect }: Props) {
+export function TaiwanMap({ counts, townPoints = [], onSelect }: Props) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+
+  // 大的先畫、小的後畫，才不會被蓋住
+  const dots = useMemo(() => {
+    const max = townPoints.reduce((m, p) => Math.max(m, p.count), 0);
+    return [...townPoints]
+      .sort((a, b) => b.count - a.count)
+      .map(p => ({
+        ...p,
+        // 用平方根：讓「面積」跟次數成正比，而不是半徑跟次數成正比（否則大的會誇張地大）
+        r: max <= 1 ? DOT_MIN_R : DOT_MIN_R + (DOT_MAX_R - DOT_MIN_R) * Math.sqrt(p.count / max),
+      }));
+  }, [townPoints]);
 
   const { maxCount, minVisited } = useMemo(() => {
     const visited = COUNTIES.map(c => counts[c.name] || 0).filter(n => n > 0);
@@ -93,6 +123,27 @@ export function TaiwanMap({ counts, onSelect }: Props) {
           </path>
         );
       })}
+
+      {/* 鄉鎮亮點畫在縣市色塊之上：同一個鄉鎮的店會共用一個點，次數多的點比較大 */}
+      {dots.map(d => (
+        <circle
+          key={`${d.county}/${d.town}`}
+          cx={d.x}
+          cy={d.y}
+          r={d.r}
+          fill={DOT_FILL}
+          stroke={DOT_RING}
+          strokeWidth={1}
+          vectorEffect="non-scaling-stroke"
+          style={{ cursor: 'pointer' }}
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelect(d.county);
+          }}
+        >
+          <title>{`${d.county} ${d.town} · ${d.count} 筆足跡`}</title>
+        </circle>
+      ))}
     </svg>
   );
 }

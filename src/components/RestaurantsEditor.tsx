@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { MapPin, ExternalLink, Edit3, X, Plus, Loader2 } from 'lucide-react';
 import { CITIES } from '../types';
+import { TOWNS_BY_COUNTY } from '../lib/twAreas';
 import { resolveRestaurantLocation } from '../lib/geocode';
 import { makeId } from '../lib/id';
 import { safeHttpUrl } from '../lib/url';
@@ -159,6 +160,11 @@ function RestaurantForm({ initial, submitLabel, onSubmit, onCancel }: {
   const [note, setNote] = useState(initial.note ?? '');
   const [saving, setSaving] = useState(false);
 
+  // 海外 / 其他沒有鄉鎮清單。舊資料若是自由輸入、不在清單裡（例如「北港」而非「北港鎮」），
+  // 就把它補成第一個選項，改存其他欄位時才不會把它一併清掉。
+  const towns = TOWNS_BY_COUNTY[city] ?? [];
+  const areaOptions = area && !towns.includes(area) ? [area, ...towns] : towns;
+
   const handleSave = async () => {
     if (!name.trim()) return;
     setSaving(true);
@@ -213,19 +219,27 @@ function RestaurantForm({ initial, submitLabel, onSubmit, onCancel }: {
       />
       <select
         value={city}
-        onChange={e => setCity(e.target.value)}
+        onChange={e => { setCity(e.target.value); setArea(''); }}
         className="w-full bg-transparent border-b border-separator focus:border-tint pb-2.5 text-base text-text focus:outline-none appearance-none"
       >
         <option value="" className="bg-surface">縣市</option>
         {CITIES.map(c => <option key={c} value={c} className="bg-surface">{c}</option>)}
       </select>
-      <input
-        type="text"
-        placeholder="區域（例如：大安區）"
+      {/* 鄉鎮改成選單而非自由輸入：足跡地圖靠這個名稱查亮點座標，
+          打「北港」而不是「北港鎮」就會查不到。舊的自由輸入值保留成選項，不會被清掉。 */}
+      <select
         value={area}
         onChange={e => setArea(e.target.value)}
-        className="w-full bg-transparent border-b border-separator focus:border-tint pb-2.5 text-base text-text placeholder-muted focus:outline-none"
-      />
+        disabled={areaOptions.length === 0}
+        className="w-full bg-transparent border-b border-separator focus:border-tint pb-2.5 text-base text-text focus:outline-none appearance-none disabled:opacity-40"
+      >
+        <option value="" className="bg-surface">{areaOptions.length ? '鄉鎮區' : '先選縣市'}</option>
+        {areaOptions.map(a => (
+          <option key={a} value={a} className="bg-surface">
+            {towns.includes(a) ? a : `${a}（舊資料）`}
+          </option>
+        ))}
+      </select>
       <input
         type="url"
         placeholder="Google Maps 連結"
