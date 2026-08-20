@@ -27,12 +27,7 @@ export function ComingSoonCard({ onClose }: Props) {
         </div>
 
         <div className="eyebrow mb-3">COMING SOON</div>
-        <h2 id="coming-soon-title" className="t-title mb-4">許願池即將開放</h2>
-        <p className="text-muted text-[14px] leading-relaxed">
-          寫下想去哪、想吃什麼都不用講明確，<br />
-          讓對方看到再去安排。<br />
-          還在準備，很快就好。
-        </p>
+        <h2 id="coming-soon-title" className="t-title mb-4">即將開放</h2>
 
         <div className="mt-7 mb-7 h-[1px] w-12 bg-separator mx-auto" />
 
